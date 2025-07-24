@@ -33,20 +33,20 @@
         <div class="footer-column">
             <h4>Sewa Motor</h4>
             <ul class="footer-links">
-                <li><a href="#">▶ Beat Deluxe</a></li>
-                <li><a href="#">▶ Scoppy 2020</a></li>
-                <li><a href="#">▶ Genio</a></li>
-                <li><a href="#">▶ Vario</a></li>
+                <li><a href="#">Beat Deluxe</a></li>
+                <li><a href="#">Scoppy 2020</a></li>
+                <li><a href="#">Genio</a></li>
+                <li><a href="#">Vario</a></li>
             </ul>
         </div>
 
         <div class="footer-column">
             <h4>Quick Link</h4>
             <ul class="footer-links">
-                <li><a href="#">▶ Harga Sewa</a></li>
-                <li><a href="#">▶ Layanan</a></li>
-                <li><a href="#">▶ Tentang Kami</a></li>
-                <li><a href="#">▶ Testimonial</a></li>
+                <li><a href="{{ route('harga_sewa') }}">Harga Sewa</a></li>
+                <li><a href="{{ route('layanan') }}">Layanan</a></li>
+                <li><a href="{{ route('galeri') }}">Galeri</a></li>                <li><a href="{{ route('galeri') }}">Login</a></li>
+                <li><a href="{{ route('kontak') }}">Kontak Kami</a></li>
             </ul>
         </div>
 
