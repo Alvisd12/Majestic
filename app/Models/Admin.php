@@ -1,5 +1,5 @@
 <?php
-// app/Models/Pengunjung.php
+// app/Models/Admin.php
 
 namespace App\Models;
 
@@ -7,17 +7,18 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Pengunjung extends Authenticatable
+class Admin extends Authenticatable
 {
     use Notifiable;
 
-    protected $table = 'pengunjung';
+    protected $table = 'admin';
 
     protected $fillable = [
         'nama',
         'username',
         'password',
         'phone',
+        'email',
     ];
 
     protected $hidden = [
@@ -29,13 +30,13 @@ class Pengunjung extends Authenticatable
         'password' => 'hashed',
     ];
 
-    public function peminjaman(): HasMany
+    public function galeri(): HasMany
     {
-        return $this->hasMany(Peminjaman::class, 'user_id');
+        return $this->hasMany(Galeri::class, 'id_admin');
     }
 
-    public function testimoni(): HasMany
+    public function blog(): HasMany
     {
-        return $this->hasMany(Testimoni::class, 'id_pengunjung');
+        return $this->hasMany(Blog::class, 'id_admin');
     }
 }

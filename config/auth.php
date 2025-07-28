@@ -36,11 +36,21 @@ return [
     */
 
     'guards' => [
-        'web' => [
-            'driver' => 'session',
-            'provider' => 'users',
-        ],
+    'web' => [
+        'driver' => 'session',
+        'provider' => 'pengunjung',
     ],
+
+    'pengunjung' => [
+        'driver' => 'session',
+        'provider' => 'pengunjung',
+    ],
+
+    'admin' => [
+        'driver' => 'session',
+        'provider' => 'admin',
+    ],
+],
 
     /*
     |--------------------------------------------------------------------------
@@ -60,16 +70,16 @@ return [
     */
 
     'providers' => [
-        'users' => [
-            'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', App\Models\User::class),
-        ],
-
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+    'pengunjung' => [
+        'driver' => 'eloquent',
+        'model' => App\Models\Pengunjung::class,
     ],
+
+    'admin' => [
+        'driver' => 'eloquent',
+        'model' => App\Models\Admin::class,
+    ],
+],
 
     /*
     |--------------------------------------------------------------------------
