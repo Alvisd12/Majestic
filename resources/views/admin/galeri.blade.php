@@ -37,7 +37,9 @@
                     <tr>
                         <th>No</th>
                         <th>Gambar</th>
+                        <th>Judul</th>
                         <th>Deskripsi</th>
+                        <th>Kategori</th>
                         <th>Tanggal Sewa</th>
                         <th>Tanggal Upload</th>
                         <th>Aksi</th>
@@ -61,11 +63,35 @@
                             @endif
                         </td>
                         <td>
+                            <div class="text-truncate" style="max-width: 150px;" title="{{ $item->judul }}">
+                                {{ $item->judul ?: '-' }}
+                            </div>
+                        </td>
+                        <td>
                             <div class="text-truncate" style="max-width: 200px;" title="{{ $item->deskripsi }}">
                                 {{ $item->deskripsi ?: 'Lorem Ipsum is simply dummy text' }}
                             </div>
                         </td>
-                        <td>{{ \Carbon\Carbon::parse($item->tanggal_sewa)->format('M d, Y') }}</td>
+                        <td>
+                            @if($item->kategori)
+                                <span class="badge bg-{{ 
+                                    $item->kategori == 'motor' ? 'primary' : 
+                                    ($item->kategori == 'wisata' ? 'success' : 
+                                    ($item->kategori == 'event' ? 'warning' : 'secondary')) 
+                                }}">
+                                    {{ ucfirst($item->kategori) }}
+                                </span>
+                            @else
+                                <span class="text-muted">-</span>
+                            @endif
+                        </td>
+                        <td>
+                            @if($item->tanggal_sewa)
+                                {{ \Carbon\Carbon::parse($item->tanggal_sewa)->format('M d, Y') }}
+                            @else
+                                <span class="text-muted">-</span>
+                            @endif
+                        </td>
                         <td>{{ \Carbon\Carbon::parse($item->created_at)->format('M d, Y') }}</td>
                         <td>
                             <div class="btn-group" role="group">
@@ -84,7 +110,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="text-center py-4">
+                        <td colspan="8" class="text-center py-4">
                             <i class="fas fa-images fa-3x text-muted mb-3"></i>
                             <p class="text-muted">Tidak ada data galeri</p>
                         </td>
