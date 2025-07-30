@@ -63,38 +63,18 @@ class PeminjamanController extends Controller
         $user = AuthController::getCurrentUser();
         
         $validated = $request->validate([
-            'no_handphone' => 'required|string|max:20',
             'tanggal_rental' => 'required|date|after_or_equal:today',
             'jam_sewa' => 'nullable|date_format:H:i',
             'jenis_motor' => 'required|string|max:255',
             'durasi_sewa' => 'required|integer|min:1',
-            'bukti_jaminan' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
-            'foto_ktp' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
-            'keterangan' => 'nullable|string|max:500',
         ], [
-            'no_handphone.required' => 'Nomor handphone wajib diisi.',
             'tanggal_rental.required' => 'Tanggal rental wajib diisi.',
             'tanggal_rental.after_or_equal' => 'Tanggal rental tidak boleh kurang dari hari ini.',
             'jam_sewa.date_format' => 'Format jam sewa tidak valid (HH:MM).',
             'jenis_motor.required' => 'Jenis motor wajib diisi.',
             'durasi_sewa.required' => 'Durasi sewa wajib diisi.',
             'durasi_sewa.min' => 'Durasi sewa minimal 1 hari.',
-            'bukti_jaminan.mimes' => 'Bukti jaminan harus berformat jpg, jpeg, png, atau pdf.',
-            'bukti_jaminan.max' => 'Ukuran bukti jaminan maksimal 2MB.',
-            'foto_ktp.mimes' => 'Foto KTP harus berformat jpg, jpeg, atau png.',
-            'foto_ktp.max' => 'Ukuran foto KTP maksimal 2MB.',
         ]);
-
-        // Handle file uploads
-        $buktiJaminanPath = null;
-        if ($request->hasFile('bukti_jaminan')) {
-            $buktiJaminanPath = $request->file('bukti_jaminan')->store('bukti_jaminan', 'public');
-        }
-
-        $fotoKtpPath = null;
-        if ($request->hasFile('foto_ktp')) {
-            $fotoKtpPath = $request->file('foto_ktp')->store('foto_ktp', 'public');
-        }
 
         // Hitung total harga jika ada motor yang dipilih
         $totalHarga = null;
@@ -106,16 +86,11 @@ class PeminjamanController extends Controller
         // Create peminjaman dengan user_id
         Peminjaman::create([
             'user_id' => $user->id,
-            'nama' => $user->nama, // Ambil nama dari user yang login
-            'no_handphone' => $validated['no_handphone'],
             'tanggal_rental' => $validated['tanggal_rental'],
             'jam_sewa' => $validated['jam_sewa'],
             'jenis_motor' => $validated['jenis_motor'],
             'durasi_sewa' => $validated['durasi_sewa'],
             'total_harga' => $totalHarga,
-            'bukti_jaminan' => $buktiJaminanPath,
-            'foto_ktp' => $fotoKtpPath,
-            'keterangan' => $validated['keterangan'],
             'status' => 'Pending', // Default status
         ]);
 
@@ -175,35 +150,13 @@ class PeminjamanController extends Controller
         }
         
         $validated = $request->validate([
-            'no_handphone' => 'required|string|max:20',
             'tanggal_rental' => 'required|date',
             'jam_sewa' => 'nullable|date_format:H:i',
             'jenis_motor' => 'required|string|max:255',
             'durasi_sewa' => 'required|integer|min:1',
-            'bukti_jaminan' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
-            'foto_ktp' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
-            'keterangan' => 'nullable|string|max:500',
         ]);
 
-        // Handle file upload bukti jaminan jika ada
-        if ($request->hasFile('bukti_jaminan')) {
-            // Hapus file lama jika ada
-            if ($peminjaman->bukti_jaminan && file_exists(public_path('storage/' . $peminjaman->bukti_jaminan))) {
-                unlink(public_path('storage/' . $peminjaman->bukti_jaminan));
-            }
-            
-            $validated['bukti_jaminan'] = $request->file('bukti_jaminan')->store('bukti_jaminan', 'public');
-        }
 
-        // Handle file upload foto KTP jika ada
-        if ($request->hasFile('foto_ktp')) {
-            // Hapus file lama jika ada
-            if ($peminjaman->foto_ktp && file_exists(public_path('storage/' . $peminjaman->foto_ktp))) {
-                unlink(public_path('storage/' . $peminjaman->foto_ktp));
-            }
-            
-            $validated['foto_ktp'] = $request->file('foto_ktp')->store('foto_ktp', 'public');
-        }
 
         // Hitung ulang total harga jika motor berubah
         if ($validated['jenis_motor'] !== $peminjaman->jenis_motor || $validated['durasi_sewa'] !== $peminjaman->durasi_sewa) {
@@ -231,15 +184,7 @@ class PeminjamanController extends Controller
             abort(403, 'Anda tidak berhak menghapus data ini.');
         }
         
-        // Hapus file bukti jaminan jika ada
-        if ($peminjaman->bukti_jaminan && file_exists(public_path('storage/' . $peminjaman->bukti_jaminan))) {
-            unlink(public_path('storage/' . $peminjaman->bukti_jaminan));
-        }
 
-        // Hapus file foto KTP jika ada
-        if ($peminjaman->foto_ktp && file_exists(public_path('storage/' . $peminjaman->foto_ktp))) {
-            unlink(public_path('storage/' . $peminjaman->foto_ktp));
-        }
         
         $peminjaman->delete();
 

@@ -305,51 +305,27 @@
     <div class="container">
         <h2 class="section-title text-center">Testimoni</h2>
         <div class="row g-4">
+            @forelse($testimoni ?? [] as $item)
             <div class="col-lg-4 col-md-6">
                 <div class="testimoni-card">
-                    <div class="stars">⭐⭐⭐⭐⭐</div>
-                    <p class="mb-3">"Motor bersih dan nyaman, pelayanan sangat memuaskan. Recommended banget untuk yang mau jalan-jalan di Malang! Proses penyewaan cepat dan mudah."</p>
+                    <div class="stars">{{ $item->rating_stars }}</div>
+                    <p class="mb-3">"{{ $item->pesan }}"</p>
                     <div class="d-flex align-items-center">
                         <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
-                            <strong>A</strong>
+                            <strong>{{ substr($item->pengunjung->username ?? 'U', 0, 1) }}</strong>
                         </div>
                         <div>
-                            <strong>Ahmad Ridwan</strong>
-                            <small class="d-block text-muted">Jakarta</small>
+                            <strong>{{ $item->pengunjung->username ?? 'User' }}</strong>
+                            <small class="d-block text-muted">{{ $item->pengunjung->nama ?? 'Pengunjung' }}</small>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4 col-md-6">
-                <div class="testimoni-card">
-                    <div class="stars">⭐⭐⭐⭐⭐</div>
-                    <p class="mb-3">"Harga terjangkau dan pelayanan cepat. Motor dalam kondisi prima, cocok untuk touring keliling Batu dan Malang. Fasilitas lengkap dengan helm dan jas hujan."</p>
-                    <div class="d-flex align-items-center">
-                        <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
-                            <strong>S</strong>
-                        </div>
-                        <div>
-                            <strong>Sari Dewi</strong>
-                            <small class="d-block text-muted">Surabaya</small>
-                        </div>
-                    </div>
-                </div>
+            @empty
+            <div class="col-12 text-center">
+                <p class="text-muted">Belum ada testimoni</p>
             </div>
-            <div class="col-lg-4 col-md-6">
-                <div class="testimoni-card">
-                    <div class="stars">⭐⭐⭐⭐⭐</div>
-                    <p class="mb-3">"Proses mudah dan terpercaya. Fasilitas lengkap dengan helm dan jas hujan. Pasti akan sewa lagi! Staff nya ramah dan membantu memberikan rekomendasi tempat wisata."</p>
-                    <div class="d-flex align-items-center">
-                        <div class="rounded-circle bg-warning text-white d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
-                            <strong>B</strong>
-                        </div>
-                        <div>
-                            <strong>Budi Santoso</strong>
-                            <small class="d-block text-muted">Malang</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            @endforelse
         </div>
     </div>
 </section>

@@ -37,6 +37,24 @@ class Peminjaman extends Model
         'durasi_sewa' => 'integer'
     ];
 
+    // Auto-calculate tanggal_kembali based on tanggal_rental and durasi_sewa
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::creating(function ($peminjaman) {
+            if ($peminjaman->tanggal_rental && $peminjaman->durasi_sewa) {
+                $peminjaman->tanggal_kembali = $peminjaman->tanggal_rental->addDays($peminjaman->durasi_sewa);
+            }
+        });
+        
+        static::updating(function ($peminjaman) {
+            if ($peminjaman->isDirty(['tanggal_rental', 'durasi_sewa'])) {
+                $peminjaman->tanggal_kembali = $peminjaman->tanggal_rental->addDays($peminjaman->durasi_sewa);
+            }
+        });
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(Pengunjung::class, 'user_id');

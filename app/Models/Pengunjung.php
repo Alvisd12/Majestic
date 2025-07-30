@@ -18,6 +18,7 @@ class Pengunjung extends Authenticatable
         'username',
         'password',
         'phone',
+        'foto_ktp',
     ];
 
     protected $hidden = [

@@ -6,7 +6,7 @@
   </div>
   <nav>
     <ul style="display: flex; gap: 20px; list-style: none; margin: 0;">
-      <li><a href="{{ route('dashboard') }}">Home</a></li>
+      <li><a href="{{ route('home') }}">Home</a></li>
       <li><a href="{{ route('harga_sewa') }}">Harga Sewa</a></li>
       <li><a href="{{ route('layanan') }}">Layanan</a></li>
       <li><a href="{{ route('galeri') }}">Galeri</a></li>

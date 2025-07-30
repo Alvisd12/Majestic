@@ -15,7 +15,6 @@ class Testimoni extends Model
 
     protected $fillable = [
         'id_pengunjung',
-        'nama',
         'pesan',
         'rating',
         'approved'

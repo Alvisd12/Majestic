@@ -7,13 +7,18 @@ use App\Models\Peminjaman;
 use App\Models\Motor;
 use App\Models\Pengunjung;
 use App\Models\Testimoni;
+use App\Services\PeminjamanStatusService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
 {
     public function dashboard(Request $request)
     {
         AuthController::requireAdmin(); // Cek admin access
+        
+        // Update status otomatis berdasarkan tanggal
+        PeminjamanStatusService::updateStatuses();
         
         $currentUser = AuthController::getCurrentUser();
         
@@ -32,12 +37,11 @@ class AdminController extends Controller
         if ($request->has('search') && $request->search) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
-                $q->where('nama', 'like', "%{$search}%")
-                  ->orWhere('no_handphone', 'like', "%{$search}%")
-                  ->orWhere('jenis_motor', 'like', "%{$search}%")
+                $q->where('jenis_motor', 'like', "%{$search}%")
                   ->orWhereHas('user', function($userQuery) use ($search) {
                       $userQuery->where('nama', 'like', "%{$search}%")
-                               ->orWhere('username', 'like', "%{$search}%");
+                               ->orWhere('username', 'like', "%{$search}%")
+                               ->orWhere('phone', 'like', "%{$search}%");
                   });
             });
         }
@@ -64,6 +68,19 @@ class AdminController extends Controller
             ->groupBy('bulan')
             ->orderBy('bulan')
             ->get();
+        
+        // Set notification message if there were updates
+        $updateResult = PeminjamanStatusService::updateStatuses();
+        if ($updateResult['total_updated'] > 0) {
+            $message = '';
+            if ($updateResult['started_rentals'] > 0) {
+                $message .= "{$updateResult['started_rentals']} rental dimulai otomatis. ";
+            }
+            if ($updateResult['overdue_rentals'] > 0) {
+                $message .= "{$updateResult['overdue_rentals']} rental terlambat dikembalikan.";
+            }
+            session()->flash('status_updated', $message);
+        }
         
         return view('admin.dashboard', compact(
             'peminjaman', 
@@ -107,6 +124,358 @@ class AdminController extends Controller
         ]);
     }
 
+    public function konfirmasi(Request $request)
+    {
+        AuthController::requireAdmin(); // Cek admin access
+        
+        // Update status otomatis berdasarkan tanggal
+        $updateResult = PeminjamanStatusService::updateStatuses();
+        
+        $query = Peminjaman::with('user')->where('status', 'Pending');
+        
+        // Search functionality
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('jenis_motor', 'like', "%{$search}%")
+                  ->orWhereHas('user', function($userQuery) use ($search) {
+                      $userQuery->where('nama', 'like', "%{$search}%")
+                               ->orWhere('username', 'like', "%{$search}%")
+                               ->orWhere('phone', 'like', "%{$search}%");
+                  });
+            });
+        }
+        
+        $peminjaman = $query->orderBy('created_at', 'desc')->paginate(10);
+        
+        // Set notification message if there were updates
+        if ($updateResult['total_updated'] > 0) {
+            $message = '';
+            if ($updateResult['started_rentals'] > 0) {
+                $message .= "{$updateResult['started_rentals']} rental dimulai otomatis. ";
+            }
+            if ($updateResult['overdue_rentals'] > 0) {
+                $message .= "{$updateResult['overdue_rentals']} rental terlambat dikembalikan.";
+            }
+            session()->flash('status_updated', $message);
+        }
+        
+        return view('admin.konfirmasi', compact('peminjaman'));
+    }
+
+    public function approve($id)
+    {
+        AuthController::requireAdmin(); // Cek admin access
+        
+        $peminjaman = Peminjaman::findOrFail($id);
+        
+        // Update status to Confirmed - data akan otomatis muncul di halaman dipinjam
+        $peminjaman->update(['status' => 'Confirmed']);
+        
+        return response()->json([
+            'success' => true, 
+            'message' => 'Peminjaman berhasil disetujui! Data akan muncul di halaman Dipinjam.'
+        ]);
+    }
+
+    public function reject($id)
+    {
+        AuthController::requireAdmin(); // Cek admin access
+        
+        $peminjaman = Peminjaman::findOrFail($id);
+        
+        // Delete related files
+        $this->deleteRelatedFiles($peminjaman);
+        
+        // Delete the peminjaman record
+        $peminjaman->delete();
+        
+        return response()->json([
+            'success' => true, 
+            'message' => 'Peminjaman berhasil ditolak dan dihapus!'
+        ]);
+    }
+
+    public function dipinjam(Request $request)
+    {
+        AuthController::requireAdmin(); // Cek admin access
+        
+        // Update status otomatis berdasarkan tanggal
+        $updateResult = PeminjamanStatusService::updateStatuses();
+        
+        $query = Peminjaman::with('user')->whereIn('status', ['Confirmed', 'Disewa', 'Belum Kembali']);
+        
+        // Search functionality
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('jenis_motor', 'like', "%{$search}%")
+                  ->orWhereHas('user', function($userQuery) use ($search) {
+                      $userQuery->where('nama', 'like', "%{$search}%")
+                               ->orWhere('username', 'like', "%{$search}%")
+                               ->orWhere('phone', 'like', "%{$search}%");
+                  });
+            });
+        }
+        
+        $peminjaman = $query->orderBy('created_at', 'desc')->paginate(10);
+        
+        // Set notification message if there were updates
+        if ($updateResult['total_updated'] > 0) {
+            $message = '';
+            if ($updateResult['started_rentals'] > 0) {
+                $message .= "{$updateResult['started_rentals']} rental dimulai otomatis. ";
+            }
+            if ($updateResult['overdue_rentals'] > 0) {
+                $message .= "{$updateResult['overdue_rentals']} rental terlambat dikembalikan.";
+            }
+            session()->flash('status_updated', $message);
+        }
+        
+        return view('admin.dipinjam', compact('peminjaman'));
+    }
+
+    public function startRental($id)
+    {
+        AuthController::requireAdmin(); // Cek admin access
+        
+        $peminjaman = Peminjaman::findOrFail($id);
+        
+        // Update status motor menjadi disewa
+        $motor = Motor::where('merk', 'like', '%' . explode(' ', $peminjaman->jenis_motor)[0] . '%')->first();
+        if ($motor) {
+            $motor->update(['status' => 'Disewa']);
+        }
+        
+        $peminjaman->update(['status' => 'Disewa']);
+        
+        return response()->json([
+            'success' => true, 
+            'message' => 'Rental berhasil dimulai!'
+        ]);
+    }
+
+    public function finishRental($id)
+    {
+        AuthController::requireAdmin(); // Cek admin access
+        
+        $peminjaman = Peminjaman::findOrFail($id);
+        
+        // Update status motor menjadi tersedia
+        $motor = Motor::where('merk', 'like', '%' . explode(' ', $peminjaman->jenis_motor)[0] . '%')->first();
+        if ($motor) {
+            $motor->update(['status' => 'Tersedia']);
+        }
+        
+        $peminjaman->update([
+            'status' => 'Selesai',
+            'tanggal_kembali' => now()->toDateString()
+        ]);
+        
+        return response()->json([
+            'success' => true, 
+            'message' => 'Rental berhasil diselesaikan!'
+        ]);
+    }
+
+    public function dikembalikan(Request $request)
+    {
+        AuthController::requireAdmin(); // Cek admin access
+        
+        // Update status otomatis berdasarkan tanggal
+        PeminjamanStatusService::updateStatuses();
+        
+        $query = Peminjaman::with('user')->where('status', 'Selesai');
+        
+        // Search functionality
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('jenis_motor', 'like', "%{$search}%")
+                  ->orWhereHas('user', function($userQuery) use ($search) {
+                      $userQuery->where('nama', 'like', "%{$search}%")
+                               ->orWhere('username', 'like', "%{$search}%")
+                               ->orWhere('phone', 'like', "%{$search}%");
+                  });
+            });
+        }
+        
+        $peminjaman = $query->orderBy('created_at', 'desc')->paginate(10);
+        
+        // Set notification message if there were updates
+        $updateResult = PeminjamanStatusService::updateStatuses();
+        if ($updateResult['total_updated'] > 0) {
+            $message = '';
+            if ($updateResult['started_rentals'] > 0) {
+                $message .= "{$updateResult['started_rentals']} rental dimulai otomatis. ";
+            }
+            if ($updateResult['overdue_rentals'] > 0) {
+                $message .= "{$updateResult['overdue_rentals']} rental terlambat dikembalikan.";
+            }
+            session()->flash('status_updated', $message);
+        }
+        
+        return view('admin.dikembalikan', compact('peminjaman'));
+    }
+
+    public function show($id)
+    {
+        AuthController::requireAdmin(); // Cek admin access
+        
+        $peminjaman = Peminjaman::with('user')->findOrFail($id);
+        
+        return view('admin.peminjaman.show', compact('peminjaman'));
+    }
+
+    public function export()
+    {
+        AuthController::requireAdmin();
+        
+        // Simple export functionality - can be enhanced later
+        return response()->json(['message' => 'Export functionality coming soon']);
+    }
+
+    public function getStatistics()
+    {
+        AuthController::requireAdmin();
+        
+        // Return statistics for AJAX requests
+        $stats = [
+            'total_peminjaman' => Peminjaman::count(),
+            'motor_tersedia' => Motor::where('status', 'Tersedia')->count(),
+            'peminjaman_aktif' => Peminjaman::whereIn('status', ['Confirmed', 'Disewa', 'Belum Kembali'])->count(),
+            'total_pengunjung' => Pengunjung::count(),
+        ];
+        
+        return response()->json($stats);
+    }
+
+    // Galeri Management
+    public function galeriIndex(Request $request)
+    {
+        AuthController::requireAdmin();
+        
+        $query = \App\Models\Galeri::query();
+        
+        // Search functionality
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('deskripsi', 'like', "%{$search}%")
+                  ->orWhere('kategori', 'like', "%{$search}%");
+            });
+        }
+        
+        $galeri = $query->orderBy('created_at', 'desc')->paginate(10);
+        
+        return view('admin.galeri', compact('galeri'));
+    }
+
+    public function galeriCreate()
+    {
+        AuthController::requireAdmin();
+        
+        return view('admin.galeri.create');
+    }
+
+    public function galeriStore(Request $request)
+    {
+        AuthController::requireAdmin();
+        
+        $validated = $request->validate([
+            'gambar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'deskripsi' => 'nullable|string|max:500',
+            'tanggal_sewa' => 'required|date',
+            'kategori' => 'nullable|string|max:50'
+        ], [
+            'gambar.required' => 'Gambar wajib diupload.',
+            'gambar.image' => 'File harus berupa gambar.',
+            'gambar.mimes' => 'Format gambar harus JPG, PNG, atau GIF.',
+            'gambar.max' => 'Ukuran gambar maksimal 2MB.',
+            'tanggal_sewa.required' => 'Tanggal sewa wajib diisi.',
+            'tanggal_sewa.date' => 'Format tanggal tidak valid.'
+        ]);
+        
+        // Handle file upload
+        if ($request->hasFile('gambar')) {
+            $gambar = $request->file('gambar');
+            $gambarName = time() . '_' . $gambar->getClientOriginalName();
+            $gambarPath = $gambar->storeAs('galeri', $gambarName, 'public');
+            $validated['gambar'] = $gambarPath;
+        }
+        
+        // Add admin ID
+        $validated['id_admin'] = AuthController::getCurrentUser()->id;
+        
+        \App\Models\Galeri::create($validated);
+        
+        return redirect()->route('admin.galeri')
+            ->with('success', 'Item galeri berhasil ditambahkan!');
+    }
+
+    public function galeriEdit($id)
+    {
+        AuthController::requireAdmin();
+        
+        $galeri = \App\Models\Galeri::findOrFail($id);
+        
+        return view('admin.galeri.edit', compact('galeri'));
+    }
+
+    public function galeriUpdate(Request $request, $id)
+    {
+        AuthController::requireAdmin();
+        
+        $galeri = \App\Models\Galeri::findOrFail($id);
+        
+        $validated = $request->validate([
+            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'deskripsi' => 'nullable|string|max:500',
+            'tanggal_sewa' => 'required|date',
+            'kategori' => 'nullable|string|max:50'
+        ], [
+            'gambar.image' => 'File harus berupa gambar.',
+            'gambar.mimes' => 'Format gambar harus JPG, PNG, atau GIF.',
+            'gambar.max' => 'Ukuran gambar maksimal 2MB.',
+            'tanggal_sewa.required' => 'Tanggal sewa wajib diisi.',
+            'tanggal_sewa.date' => 'Format tanggal tidak valid.'
+        ]);
+        
+        // Handle file upload if new image is provided
+        if ($request->hasFile('gambar')) {
+            // Delete old image
+            if ($galeri->gambar && Storage::disk('public')->exists($galeri->gambar)) {
+                Storage::disk('public')->delete($galeri->gambar);
+            }
+            
+            $gambar = $request->file('gambar');
+            $gambarName = time() . '_' . $gambar->getClientOriginalName();
+            $gambarPath = $gambar->storeAs('galeri', $gambarName, 'public');
+            $validated['gambar'] = $gambarPath;
+        }
+        
+        $galeri->update($validated);
+        
+        return redirect()->route('admin.galeri')
+            ->with('success', 'Item galeri berhasil diupdate!');
+    }
+
+    public function galeriDestroy($id)
+    {
+        AuthController::requireAdmin();
+        
+        $galeri = \App\Models\Galeri::findOrFail($id);
+        
+        // Delete image file
+        if ($galeri->gambar && Storage::disk('public')->exists($galeri->gambar)) {
+            Storage::disk('public')->delete($galeri->gambar);
+        }
+        
+        $galeri->delete();
+        
+        return response()->json(['success' => true, 'message' => 'Item galeri berhasil dihapus!']);
+    }
+
     public function destroy($id)
     {
         AuthController::requireAdmin(); // Cek admin access
@@ -126,9 +495,8 @@ class AdminController extends Controller
     {
         AuthController::requireAdmin();
         
-        $motors = Motor::orderBy('created_at', 'desc')->paginate(10);
-        
-        return view('admin.motor.index', compact('motors'));
+        // Redirect to harga sewa page since that's where motor management is handled
+        return redirect()->route('admin.harga_sewa');
     }
 
     public function motorCreate()
@@ -147,6 +515,7 @@ class AdminController extends Controller
             'model' => 'required|string|max:100',
             'tahun' => 'required|integer|min:1990|max:' . (date('Y') + 1),
             'plat_nomor' => 'required|string|max:20|unique:motor,plat_nomor',
+            'warna' => 'nullable|string|max:50',
             'harga_per_hari' => 'required|numeric|min:0',
             'deskripsi' => 'nullable|string',
             'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
@@ -158,7 +527,7 @@ class AdminController extends Controller
 
         Motor::create($validated);
 
-        return redirect()->route('admin.motor.index')
+        return redirect()->route('admin.harga_sewa')
             ->with('success', 'Motor berhasil ditambahkan!');
     }
 
@@ -182,6 +551,7 @@ class AdminController extends Controller
             'model' => 'required|string|max:100',
             'tahun' => 'required|integer|min:1990|max:' . (date('Y') + 1),
             'plat_nomor' => 'required|string|max:20|unique:motor,plat_nomor,' . $id,
+            'warna' => 'nullable|string|max:50',
             'harga_per_hari' => 'required|numeric|min:0',
             'status' => 'required|in:Tersedia,Disewa,Maintenance',
             'deskripsi' => 'nullable|string',
@@ -199,7 +569,7 @@ class AdminController extends Controller
 
         $motor->update($validated);
 
-        return redirect()->route('admin.motor.index')
+        return redirect()->route('admin.harga_sewa')
             ->with('success', 'Motor berhasil diupdate!');
     }
 
@@ -225,6 +595,31 @@ class AdminController extends Controller
         $motor->delete();
         
         return response()->json(['success' => true, 'message' => 'Motor berhasil dihapus!']);
+    }
+
+    // Harga Sewa Management
+    public function hargaSewa(Request $request)
+    {
+        AuthController::requireAdmin();
+        
+        $currentUser = AuthController::getCurrentUser();
+        
+        $query = Motor::query();
+        
+        // Search functionality
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('merk', 'like', "%{$search}%")
+                  ->orWhere('model', 'like', "%{$search}%")
+                  ->orWhere('plat_nomor', 'like', "%{$search}%")
+                  ->orWhere('deskripsi', 'like', "%{$search}%");
+            });
+        }
+        
+        $motors = $query->orderBy('created_at', 'desc')->paginate(10);
+        
+        return view('admin.harga_sewa', compact('motors', 'currentUser'));
     }
 
     // Testimoni Management
@@ -370,14 +765,7 @@ class AdminController extends Controller
 
     private function deleteRelatedFiles($peminjaman)
     {
-        // Hapus file bukti jaminan jika ada
-        if ($peminjaman->bukti_jaminan && file_exists(public_path('storage/' . $peminjaman->bukti_jaminan))) {
-            unlink(public_path('storage/' . $peminjaman->bukti_jaminan));
-        }
-
-        // Hapus file foto KTP jika ada
-        if ($peminjaman->foto_ktp && file_exists(public_path('storage/' . $peminjaman->foto_ktp))) {
-            unlink(public_path('storage/' . $peminjaman->foto_ktp));
-        }
+        // File deletion is no longer needed as files are stored in pengunjung table
+        // This method is kept for future use if needed
     }
 }

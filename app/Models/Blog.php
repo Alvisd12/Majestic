@@ -17,7 +17,6 @@ class Blog extends Model
     protected $fillable = [
         'id_admin',
         'judul',
-        'slug',
         'isi',
         'gambar',
         'published'
@@ -30,17 +29,6 @@ class Blog extends Model
     public function admin(): BelongsTo
     {
         return $this->belongsTo(Admin::class, 'id_admin');
-    }
-
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($blog) {
-            if (empty($blog->slug)) {
-                $blog->slug = Str::slug($blog->judul);
-            }
-        });
     }
 
     public function scopePublished($query)

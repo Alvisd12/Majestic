@@ -17,7 +17,9 @@ class Galeri extends Model
         'id_admin',
         'judul',
         'gambar',
-        'deskripsi'
+        'deskripsi',
+        'tanggal_sewa',
+        'kategori'
     ];
 
     public function admin(): BelongsTo

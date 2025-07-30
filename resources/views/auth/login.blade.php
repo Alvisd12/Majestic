@@ -200,20 +200,39 @@
             gap: 8px;
         }
 
+        .success-message::before {
+            content: '✓';
+            font-weight: bold;
+        }
+
+        /* Alert Error Message */
+        .alert-error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .alert-error::before {
+            content: '⚠';
+            font-weight: bold;
+        }
+
         @media (max-width: 480px) {
             .form-container {
                 padding: 30px 20px;
                 margin: 20px;
             }
 
-            .logo-image,
-            .logo-placeholder {
+            .logo-image {
                 width: 150px;
                 height: 150px;
-            }
-
-            .logo-placeholder {
-                font-size: 2.5rem;
             }
         }
 
@@ -252,15 +271,24 @@
 <body>
     <div class="container">
         <div class="logo">
-            <img src="{{ asset('assets/images/logo.png') }}" alt="Majestic Transport" class="logo-image">
+            <img src="{{ asset('assets/images/logo.png') }}" alt="Majestic Transport" class="logo-image" 
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
         </div>
 
         <div class="form-container">
             <h1 class="form-title">LOGIN</h1>
 
+            <!-- Success Message -->
             @if (session('success'))
                 <div class="success-message">
                     {{ session('success') }}
+                </div>
+            @endif
+
+            <!-- Error Message -->
+            @if ($errors->has('login'))
+                <div class="alert-error">
+                    {{ $errors->first('login') }}
                 </div>
             @endif
 
@@ -270,8 +298,10 @@
                 <div class="input-group">
                     <label for="username">Username</label>
                     <input type="text" id="username" name="username"
-                        class="form-input @error('username') error @enderror" value="{{ old('username') }}"
-                        placeholder="Masukkan username" required>
+                        class="form-input @error('username') error @enderror" 
+                        value="{{ old('username') }}"
+                        placeholder="Masukkan username" 
+                        required>
                     @error('username')
                         <span class="error-message">{{ $message }}</span>
                     @enderror
@@ -281,7 +311,8 @@
                     <label for="password">Password</label>
                     <div class="password-container">
                         <input type="password" id="password" name="password"
-                            class="form-input @error('password') error @enderror" placeholder="Masukkan password"
+                            class="form-input @error('password') error @enderror" 
+                            placeholder="Masukkan password"
                             required>
                         <button type="button" class="password-toggle" onclick="togglePassword('password')">👁</button>
                     </div>
@@ -289,12 +320,6 @@
                         <span class="error-message">{{ $message }}</span>
                     @enderror
                 </div>
-
-                @error('login')
-                    <div class="error-message" style="margin-bottom: 15px; justify-content: center;">
-                        {{ $message }}
-                    </div>
-                @enderror
 
                 <div class="forgot-password">
                     <a href="#" onclick="showForgotPassword()">Lupa password?</a>
@@ -344,6 +369,18 @@
                 }
             }
         });
+
+        // Auto hide success/error messages after 5 seconds
+        setTimeout(function() {
+            const messages = document.querySelectorAll('.success-message, .alert-error');
+            messages.forEach(function(message) {
+                message.style.transition = 'opacity 0.5s ease';
+                message.style.opacity = '0';
+                setTimeout(function() {
+                    message.remove();
+                }, 500);
+            });
+        }, 5000);
     </script>
 </body>
 

@@ -46,7 +46,6 @@ class TestimoniSeeder extends Seeder
             
             Testimoni::create([
                 'id_pengunjung' => $pengunjung->id,
-                'nama' => $pengunjung->nama,
                 'pesan' => $testimoni['pesan'],
                 'rating' => $testimoni['rating'],
                 'approved' => $testimoni['approved'],

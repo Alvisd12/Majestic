@@ -1,4 +1,5 @@
 <?php
+// app/Http/Controllers/AuthController.php
 
 namespace App\Http\Controllers;
 
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 class AuthController extends Controller
 {
     // =========================
-    // === PENGUNJUNG AUTH ====
+    // === REGISTER PENGUNJUNG ===
     // =========================
 
     public function showRegister()
@@ -23,17 +24,19 @@ class AuthController extends Controller
     {
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
-            'username' => 'required|string|max:255|unique:pengunjung,username',
-            'password' => 'required|string|min:8|confirmed',
+            'username' => 'required|string|max:50|unique:pengunjung,username',
+            'password' => 'required|string|min:6',
             'phone' => 'required|string|max:20|unique:pengunjung,phone',
         ], [
             'nama.required' => 'Nama wajib diisi.',
+            'nama.max' => 'Nama maksimal 255 karakter.',
             'username.required' => 'Username wajib diisi.',
+            'username.max' => 'Username maksimal 50 karakter.',
             'username.unique' => 'Username sudah digunakan.',
             'password.required' => 'Password wajib diisi.',
-            'password.min' => 'Password minimal 8 karakter.',
-            'password.confirmed' => 'Konfirmasi password tidak cocok.',
+            'password.min' => 'Password minimal 6 karakter.',
             'phone.required' => 'Nomor HP wajib diisi.',
+            'phone.max' => 'Nomor HP maksimal 20 karakter.',
             'phone.unique' => 'Nomor HP sudah digunakan.',
         ]);
 
@@ -46,6 +49,10 @@ class AuthController extends Controller
 
         return redirect()->route('login')->with('success', 'Registrasi berhasil! Silakan login.');
     }
+
+    // =========================
+    // === LOGIN ===
+    // =========================
 
     public function showLogin()
     {
@@ -65,31 +72,35 @@ class AuthController extends Controller
         // Cek admin terlebih dahulu
         $admin = Admin::where('username', $credentials['username'])->first();
         if ($admin && Hash::check($credentials['password'], $admin->password)) {
-            Auth::login($admin);
+            // Set session tanpa menggunakan Auth facade
             $request->session()->regenerate();
+            
             session([
                 'user_role' => 'admin',
                 'user_id' => $admin->id,
-                'user_name' => $admin->nama
+                'user_name' => $admin->nama,
+                'is_logged_in' => true
             ]);
             
-            return redirect()->intended(route('admin.dashboard'))
+            return redirect()->route('auth.dashboard')
                 ->with('success', 'Login admin berhasil!');
         }
 
         // Cek pengunjung jika bukan admin
         $pengunjung = Pengunjung::where('username', $credentials['username'])->first();
         if ($pengunjung && Hash::check($credentials['password'], $pengunjung->password)) {
-            Auth::login($pengunjung);
+            // Set session tanpa menggunakan Auth facade
             $request->session()->regenerate();
+            
             session([
                 'user_role' => 'pengunjung',
                 'user_id' => $pengunjung->id,
-                'user_name' => $pengunjung->nama
+                'user_name' => $pengunjung->nama,
+                'is_logged_in' => true
             ]);
             
-            return redirect()->intended(route('dashboard'))
-                ->with('success', 'Login berhasil!');
+            return redirect()->route('auth.dashboard')
+                ->with('success', 'Login berhasil! Selamat datang ' . $pengunjung->nama);
         }
 
         return back()->withErrors([
@@ -97,11 +108,15 @@ class AuthController extends Controller
         ])->onlyInput('username');
     }
 
+    // =========================
+    // === LOGOUT ===
+    // =========================
+
     public function logout(Request $request)
     {
         $userRole = session('user_role');
         
-        Auth::logout();
+        // Clear session tanpa menggunakan Auth facade
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
@@ -110,21 +125,31 @@ class AuthController extends Controller
         return redirect()->route('home')->with('success', $message);
     }
 
-    // ====================
-    // ==== ADMIN AUTH ====
-    // ====================
+    // =========================
+    // === ADMIN REGISTER (Optional) ===
+    // =========================
 
     public function showAdminRegister()
     {
+        // Hanya bisa diakses jika sudah ada admin yang login
+        if (!session('user_role') === 'admin') {
+            abort(403, 'Akses ditolak.');
+        }
+        
         return view('auth.admin-register');
     }
 
     public function adminRegister(Request $request)
     {
+        // Hanya bisa diakses jika sudah ada admin yang login
+        if (!session('user_role') === 'admin') {
+            abort(403, 'Akses ditolak.');
+        }
+
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
-            'username' => 'required|string|max:255|unique:admin,username',
-            'password' => 'required|string|min:8|confirmed',
+            'username' => 'required|string|max:50|unique:admin,username',
+            'password' => 'required|string|min:8',
             'phone' => 'required|string|max:20|unique:admin,phone',
             'email' => 'nullable|email|unique:admin,email',
         ], [
@@ -133,87 +158,45 @@ class AuthController extends Controller
             'username.unique' => 'Username admin sudah digunakan.',
             'password.required' => 'Password wajib diisi.',
             'password.min' => 'Password minimal 8 karakter.',
-            'password.confirmed' => 'Konfirmasi password tidak cocok.',
             'phone.required' => 'Nomor HP wajib diisi.',
             'phone.unique' => 'Nomor HP admin sudah digunakan.',
             'email.email' => 'Format email tidak valid.',
             'email.unique' => 'Email admin sudah digunakan.',
         ]);
 
-        $admin = Admin::create([
+        Admin::create([
             'nama' => $validated['nama'],
             'username' => $validated['username'],
             'password' => Hash::make($validated['password']),
             'phone' => $validated['phone'],
-            'email' => $validated['email'] ?? null,
+            'email' => $validated['email'],
         ]);
 
-        return redirect()->route('login')->with('success', 'Registrasi admin berhasil! Silakan login.');
+        return redirect()->route('admin.dashboard')
+            ->with('success', 'Admin baru berhasil didaftarkan!');
     }
 
-    public function showAdminLogin()
-    {
-        return view('auth.admin-login');
-    }
+    // =========================
+    // === STATIC METHODS FOR OTHER CONTROLLERS ===
+    // =========================
 
-    // =======================
-    // ==== HELPER METHODS ====
-    // =======================
-
-    /**
-     * Check if current user is admin
-     */
-    public static function isAdmin()
-    {
-        return session('user_role') === 'admin';
-    }
-
-    /**
-     * Check if current user is pengunjung
-     */
-    public static function isPengunjung()
-    {
-        return session('user_role') === 'pengunjung';
-    }
-
-    /**
-     * Get current user data
-     */
-    public static function getCurrentUser()
-    {
-        $userRole = session('user_role');
-        $userId = session('user_id');
-
-        if (!$userRole || !$userId) {
-            return null;
-        }
-
-        if ($userRole === 'admin') {
-            return Admin::find($userId);
-        } elseif ($userRole === 'pengunjung') {
-            return Pengunjung::find($userId);
-        }
-
-        return null;
-    }
-
-    /**
-     * Middleware alternative for checking admin access
-     */
     public static function requireAdmin()
     {
-        if (!self::isAdmin()) {
+        if (session('user_role') !== 'admin') {
             abort(403, 'Akses ditolak. Hanya admin yang dapat mengakses halaman ini.');
         }
     }
 
-    /**
-     * Middleware alternative for checking authenticated user
-     */
-    public static function requireAuth()
+    public static function getCurrentUser()
     {
-        if (!Auth::check()) {
-            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
+        $userRole = session('user_role');
+        $userId = session('user_id');
+        $userName = session('user_name');
+        
+        if ($userRole === 'admin') {
+            return Admin::find($userId);
+        } else {
+            return Pengunjung::find($userId);
         }
     }
 }

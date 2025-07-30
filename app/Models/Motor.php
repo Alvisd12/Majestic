@@ -17,6 +17,7 @@ class Motor extends Model
         'model',
         'tahun',
         'plat_nomor',
+        'warna',
         'harga_per_hari',
         'status',
         'deskripsi',

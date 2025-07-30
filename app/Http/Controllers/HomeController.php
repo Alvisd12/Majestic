@@ -26,7 +26,7 @@ class HomeController extends Controller
             'total_peminjaman' => \App\Models\Peminjaman::where('status', 'Selesai')->count(),
         ];
         
-        return view('home', compact('motors', 'testimoni', 'blogs', 'galeri', 'stats'));
+        return view('home.dashboard', compact('motors', 'testimoni', 'blogs', 'galeri', 'stats'));
     }
     
     public function about()
