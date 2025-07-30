@@ -361,7 +361,8 @@ class AdminController extends Controller
         if ($request->has('search') && $request->search) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
-                $q->where('deskripsi', 'like', "%{$search}%")
+                $q->where('judul', 'like', "%{$search}%")
+                  ->orWhere('deskripsi', 'like', "%{$search}%")
                   ->orWhere('kategori', 'like', "%{$search}%");
             });
         }
@@ -383,16 +384,17 @@ class AdminController extends Controller
         AuthController::requireAdmin();
         
         $validated = $request->validate([
+            'judul' => 'nullable|string|max:255',
             'gambar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'deskripsi' => 'nullable|string|max:500',
-            'tanggal_sewa' => 'required|date',
+            'tanggal_sewa' => 'nullable|date',
             'kategori' => 'nullable|string|max:50'
         ], [
+            'judul.max' => 'Judul maksimal 255 karakter.',
             'gambar.required' => 'Gambar wajib diupload.',
             'gambar.image' => 'File harus berupa gambar.',
             'gambar.mimes' => 'Format gambar harus JPG, PNG, atau GIF.',
             'gambar.max' => 'Ukuran gambar maksimal 2MB.',
-            'tanggal_sewa.required' => 'Tanggal sewa wajib diisi.',
             'tanggal_sewa.date' => 'Format tanggal tidak valid.'
         ]);
         
@@ -429,15 +431,16 @@ class AdminController extends Controller
         $galeri = \App\Models\Galeri::findOrFail($id);
         
         $validated = $request->validate([
+            'judul' => 'nullable|string|max:255',
             'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'deskripsi' => 'nullable|string|max:500',
-            'tanggal_sewa' => 'required|date',
+            'tanggal_sewa' => 'nullable|date',
             'kategori' => 'nullable|string|max:50'
         ], [
+            'judul.max' => 'Judul maksimal 255 karakter.',
             'gambar.image' => 'File harus berupa gambar.',
             'gambar.mimes' => 'Format gambar harus JPG, PNG, atau GIF.',
             'gambar.max' => 'Ukuran gambar maksimal 2MB.',
-            'tanggal_sewa.required' => 'Tanggal sewa wajib diisi.',
             'tanggal_sewa.date' => 'Format tanggal tidak valid.'
         ]);
         

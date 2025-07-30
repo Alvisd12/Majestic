@@ -17,6 +17,16 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
+                            <label for="judul" class="form-label">Judul</label>
+                            <input type="text" class="form-control @error('judul') is-invalid @enderror" 
+                                   id="judul" name="judul" value="{{ old('judul', $galeri->judul) }}" 
+                                   placeholder="Masukkan judul galeri...">
+                            @error('judul')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        
+                        <div class="mb-3">
                             <label for="gambar" class="form-label">Gambar</label>
                             <input type="file" class="form-control @error('gambar') is-invalid @enderror" 
                                    id="gambar" name="gambar" accept="image/*">
@@ -40,10 +50,11 @@
                             <label for="tanggal_sewa" class="form-label">Tanggal Sewa</label>
                             <input type="date" class="form-control @error('tanggal_sewa') is-invalid @enderror" 
                                    id="tanggal_sewa" name="tanggal_sewa" 
-                                   value="{{ old('tanggal_sewa', $galeri->tanggal_sewa) }}" required>
+                                   value="{{ old('tanggal_sewa', $galeri->tanggal_sewa) }}">
                             @error('tanggal_sewa')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
+                            <small class="form-text text-muted">Opsional: Tanggal terkait dengan galeri ini.</small>
                         </div>
                     </div>
                     
