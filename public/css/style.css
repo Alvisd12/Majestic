@@ -1,0 +1,238 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: #f4c600;
+}
+nav ul {
+  list-style: none;
+  display: flex;
+  gap: 1.5rem;
+}
+nav a {
+  text-decoration: none;
+  color: #000;
+  font-weight: bold;
+}
+.hero img {
+  width: 100%;
+  max-height: 400px;
+  object-fit: cover;
+}
+.about, .gallery, .features, .sewa, .wisata, .testimoni {
+  padding: 2rem;
+  text-align: center;
+}
+.gallery-list, .motor-list, .wisata-list, .testimoni-list {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+.feature, .card {
+  padding: 1rem;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.1);
+}
+
+.section-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #00358E;
+}
+
+.hero img {
+  max-width: 100%;
+  height: auto;
+}
+
+.testimoni .card {
+  border-radius: 1rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.card strong {
+  color: #00358E;
+}
+
+.bg-warning-subtle {
+  background-color: #fff56c4d;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #fff;
+  margin: 0;
+  padding: 0;
+}
+
+.hero img {
+  width: 100%;
+  height: auto;
+}
+
+.harga-sewa .card img {
+  height: 250px;
+  object-fit: cover;
+}
+
+.harga-sewa .card {
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.layanan-section {
+  background-color: #fff059;
+}
+
+.layanan-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease-in-out;
+}
+
+.layanan-card:hover {
+  transform: translateY(-5px);
+}
+
+.layanan-card .icon-img {
+  width: 50px;
+  height: 50px;
+}
+
+.text-primary {
+  color: #007bff;
+}
+
+.section-spacing {
+  padding-top: 100px;
+  padding-bottom: 100px;
+  margin-top: 100px;
+  margin-bottom: 100px;
+}
+
+.galeri-section {
+  background-color: #fff;
+}
+
+.galeri-card {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.galeri-card:hover {
+  transform: scale(1.03);
+}
+
+.galeri-img {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+
+.kontak-section {
+  background: #fff;
+}
+
+.kontak-card {
+  border-radius: 12px;
+  padding: 25px 20px;
+  color: #fff;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.kontak-card.blue {
+  background-color: #0056d2;
+}
+
+.kontak-card.white {
+  background-color: #fff;
+  color: #000;
+  border: 1px solid #ddd;
+}
+
+.kontak-card i {
+  margin-bottom: 10px;
+}
+
+.maps-ulasan textarea,
+.maps-ulasan input {
+  border-radius: 8px;
+}
+
+.maps-ulasan button {
+  border-radius: 30px;
+}
+
+.rating {
+  display: flex;
+  gap: 8px;
+  font-size: 24px;
+  cursor: pointer;
+  color: #ddd;
+}
+
+.rating .fa-star.selected,
+.rating .fa-star:hover,
+.rating .fa-star.hovered {
+  color: #ffc107;
+}
+
+.footer {
+  background: #000;
+  color: white;
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+.footer-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+  max-width: 1000px;
+  margin: auto;
+}
+
+.footer-item {
+  flex: 1 1 200px;
+  min-width: 200px;
+}
+
+.footer-item h4 {
+  margin-bottom: 0.5rem;
+}
+
+.footer-item img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.footer-bottom {
+  margin-top: 2rem;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
