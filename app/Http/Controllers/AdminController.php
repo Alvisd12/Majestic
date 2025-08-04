@@ -384,6 +384,7 @@ class AdminController extends Controller
         
         $validated = $request->validate([
             'gambar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'judul' => 'required|string|max:255',
             'deskripsi' => 'nullable|string|max:500',
             'tanggal_sewa' => 'required|date',
             'kategori' => 'nullable|string|max:50'
@@ -392,6 +393,9 @@ class AdminController extends Controller
             'gambar.image' => 'File harus berupa gambar.',
             'gambar.mimes' => 'Format gambar harus JPG, PNG, atau GIF.',
             'gambar.max' => 'Ukuran gambar maksimal 2MB.',
+            'judul.required' => 'Judul wajib diisi.',
+            'judul.string' => 'Judul harus berupa teks.',
+            'judul.max' => 'Judul maksimal 255 karakter.',
             'tanggal_sewa.required' => 'Tanggal sewa wajib diisi.',
             'tanggal_sewa.date' => 'Format tanggal tidak valid.'
         ]);
@@ -430,6 +434,7 @@ class AdminController extends Controller
         
         $validated = $request->validate([
             'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'judul' => 'required|string|max:255',
             'deskripsi' => 'nullable|string|max:500',
             'tanggal_sewa' => 'required|date',
             'kategori' => 'nullable|string|max:50'
@@ -437,6 +442,9 @@ class AdminController extends Controller
             'gambar.image' => 'File harus berupa gambar.',
             'gambar.mimes' => 'Format gambar harus JPG, PNG, atau GIF.',
             'gambar.max' => 'Ukuran gambar maksimal 2MB.',
+            'judul.required' => 'Judul wajib diisi.',
+            'judul.string' => 'Judul harus berupa teks.',
+            'judul.max' => 'Judul maksimal 255 karakter.',
             'tanggal_sewa.required' => 'Tanggal sewa wajib diisi.',
             'tanggal_sewa.date' => 'Format tanggal tidak valid.'
         ]);

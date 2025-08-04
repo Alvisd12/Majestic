@@ -37,6 +37,7 @@
                     <tr>
                         <th>No</th>
                         <th>Gambar</th>
+                        <th>Judul</th>
                         <th>Deskripsi</th>
                         <th>Tanggal Sewa</th>
                         <th>Tanggal Upload</th>
@@ -60,6 +61,7 @@
                                 </div>
                             @endif
                         </td>
+                        <td>{{ $item->judul }}</td>
                         <td>
                             <div class="text-truncate" style="max-width: 200px;" title="{{ $item->deskripsi }}">
                                 {{ $item->deskripsi ?: 'Lorem Ipsum is simply dummy text' }}
