@@ -75,8 +75,11 @@ Route::middleware('check.login')->group(function () {
             // Get available motors
             $availableMotor = \App\Models\Motor::where('status', 'Tersedia')
                 ->orderBy('created_at', 'desc')
-                ->limit(6)
+                ->limit(1)
                 ->get();
+            if ($availableMotor->isEmpty()) {
+                $availableMotor = collect(); // Return an empty collection if no motors are available
+            }
             
             // Statistics
             $stats = [

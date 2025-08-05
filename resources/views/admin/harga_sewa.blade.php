@@ -5,6 +5,17 @@
 @section('page-title', 'Harga Sewa')
 
 @section('content')
+<style>
+.badge {
+    color: #222 !important;
+    font-weight: 600;
+}
+.badge-success { background: #d4edda !important; color: #155724 !important; }
+.badge-warning { background: #fff3cd !important; color: #856404 !important; }
+.badge-danger { background: #f8d7da !important; color: #721c24 !important; }
+.badge-secondary { background: #e2e3e5 !important; color: #383d41 !important; }
+</style>
+
     <!-- Search and Add Button Row -->
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <!-- Search Box -->
@@ -37,6 +48,7 @@
                                 <th>Harga</th>
                                 <th>Deskripsi</th>
                                 <th>Tanggal Upload</th>
+                                <th>Status</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -65,6 +77,18 @@
                                     {{ Str::limit($motor->deskripsi ?: 'Motor ' . $motor->merk . ' ' . $motor->model . ' tahun ' . $motor->tahun, 50) }}
                                 </td>
                                 <td class="text-muted">{{ $motor->created_at->format('M d, Y') }}</td>
+                                <td class="text-center">
+                                    @php
+                                        $badgeClass = match($motor->status) {
+                                            'Tersedia' => 'badge-success',
+                                            'Disewa' => 'badge-warning',
+                                            'Maintenance' => 'badge-danger',
+                                            default => 'badge-secondary'
+                                        };
+                                    @endphp
+                                    <span class="badge {{ $badgeClass }}">
+                                        {{ $motor->status }}
+                                    </span></td>
                                 <td>
                                     <button class="action-btn btn-edit" onclick="editMotor({{ $motor->id }})">
                                         <i class="fas fa-edit"></i>
@@ -141,4 +165,4 @@
         }
     });
 </script>
-@endsection 
+@endsection

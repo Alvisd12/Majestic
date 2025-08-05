@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('username')->unique();
             $table->string('password');
             $table->string('phone')->unique();
+            $table->string('foto_ktp')->nullable(); // Tambahkan ini
             $table->timestamps();
         });
     }

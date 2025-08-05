@@ -300,12 +300,11 @@
 </head>
 <body>
     <div class="container">
-        <div class="logo">
-            <img src="{{ asset('assets/images/logo.png') }}" alt="Majestic Transport" class="logo-image" 
-                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-        </div>
-        
         <div class="register-card">
+            <div class="logo">
+                <img src="{{ asset('assets/images/logo.png') }}" alt="Majestic Transport" class="logo-image" 
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            </div>
             <h2 class="title">REGISTER</h2>
             
             @if(session('success'))

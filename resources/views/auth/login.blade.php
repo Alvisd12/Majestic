@@ -270,12 +270,11 @@
 
 <body>
     <div class="container">
-        <div class="logo">
+        <div class="form-container">
+            <div class="logo">
             <img src="{{ asset('assets/images/logo.png') }}" alt="Majestic Transport" class="logo-image" 
                  onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-        </div>
-
-        <div class="form-container">
+            </div>
             <h1 class="form-title">LOGIN</h1>
 
             <!-- Success Message -->

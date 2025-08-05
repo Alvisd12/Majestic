@@ -12,15 +12,12 @@ return new class extends Migration
         Schema::create('peminjaman', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('pengunjung')->onDelete('cascade');
-            $table->string('nama'); // Redundant untuk kemudahan query
-            $table->string('no_handphone');
             $table->date('tanggal_rental');
             $table->time('jam_sewa')->nullable();
             $table->string('jenis_motor');
             $table->integer('durasi_sewa');
             $table->decimal('total_harga', 10, 2)->nullable();
             $table->string('bukti_jaminan')->nullable();
-            $table->string('foto_ktp')->nullable();
             $table->enum('status', ['Pending', 'Confirmed', 'Belum Kembali', 'Disewa', 'Selesai', 'Cancelled'])->default('Pending');
             $table->date('tanggal_kembali')->nullable();
             $table->text('keterangan')->nullable();

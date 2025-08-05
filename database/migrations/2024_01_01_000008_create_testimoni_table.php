@@ -12,7 +12,6 @@ return new class extends Migration
         Schema::create('testimoni', function (Blueprint $table) {
             $table->id();
             $table->foreignId('id_pengunjung')->constrained('pengunjung')->onDelete('cascade');
-            $table->string('nama');
             $table->text('pesan');
             $table->integer('rating')->default(5);
             $table->boolean('approved')->default(false);

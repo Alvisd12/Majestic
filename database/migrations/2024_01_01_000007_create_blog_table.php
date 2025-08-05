@@ -13,7 +13,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('id_admin')->constrained('admin')->onDelete('cascade');
             $table->string('judul');
-            $table->string('slug')->unique();
             $table->text('isi');
             $table->string('gambar')->nullable();
             $table->boolean('published')->default(true);

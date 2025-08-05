@@ -76,14 +76,17 @@ class PeminjamanController extends Controller
             'durasi_sewa.min' => 'Durasi sewa minimal 1 hari.',
         ]);
 
-        // Hitung total harga jika ada motor yang dipilih
+        // Cari motor yang sesuai
+        $motor = Motor::where('merk', 'like', '%' . explode(' ', $validated['jenis_motor'])[0] . '%')
+            ->where('status', 'Tersedia')
+            ->first();
+
         $totalHarga = null;
-        $motor = Motor::where('merk', 'like', '%' . explode(' ', $validated['jenis_motor'])[0] . '%')->first();
         if ($motor) {
             $totalHarga = $motor->harga_per_hari * $validated['durasi_sewa'];
         }
 
-        // Create peminjaman dengan user_id
+        // Buat peminjaman
         Peminjaman::create([
             'user_id' => $user->id,
             'tanggal_rental' => $validated['tanggal_rental'],
@@ -91,8 +94,13 @@ class PeminjamanController extends Controller
             'jenis_motor' => $validated['jenis_motor'],
             'durasi_sewa' => $validated['durasi_sewa'],
             'total_harga' => $totalHarga,
-            'status' => 'Pending', // Default status
+            'status' => 'Pending',
         ]);
+
+        // Update status motor menjadi Disewa
+        if ($motor) {
+            $motor->update(['status' => 'Disewa']);
+        }
 
         return redirect()->route('peminjaman.index')
             ->with('success', 'Peminjaman berhasil diajukan! Menunggu konfirmasi admin.');

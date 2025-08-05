@@ -15,6 +15,8 @@ return new class extends Migration
             $table->string('judul')->nullable();
             $table->string('gambar');
             $table->text('deskripsi')->nullable();
+            $table->string('kategori')->nullable(); // Tambah kolom kategori
+            $table->date('tanggal_sewa')->nullable(); // Tambah kolom tanggal_sewa
             $table->timestamps();
         });
     }

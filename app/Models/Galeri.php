@@ -18,7 +18,6 @@ class Galeri extends Model
         'judul',
         'gambar',
         'deskripsi',
-        'tanggal_sewa',
         'kategori'
     ];
 
