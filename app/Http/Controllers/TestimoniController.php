@@ -10,9 +10,9 @@ class TestimoniController extends Controller
 {
     public function create()
     {
-        AuthController::requireAuth();
+        $this->requireAuth();
         
-        $user = AuthController::getCurrentUser();
+        $user = $this->getCurrentUser();
         
         // Cek apakah user sudah pernah memberikan testimoni
         $existingTestimoni = Testimoni::where('id_pengunjung', $user->id)->first();
@@ -22,9 +22,9 @@ class TestimoniController extends Controller
     
     public function store(Request $request)
     {
-        AuthController::requireAuth();
+        $this->requireAuth();
         
-        $user = AuthController::getCurrentUser();
+        $user = $this->getCurrentUser();
         
         // Cek apakah user sudah pernah memberikan testimoni
         $existingTestimoni = Testimoni::where('id_pengunjung', $user->id)->first();
@@ -59,12 +59,12 @@ class TestimoniController extends Controller
     
     public function index()
     {
-        AuthController::requireAuth();
+        $this->requireAuth();
         
-        $user = AuthController::getCurrentUser();
+        $user = $this->getCurrentUser();
         
         // Jika admin, tampilkan semua testimoni
-        if (AuthController::isAdmin()) {
+        if ($this->isAdmin()) {
             $testimoni = Testimoni::with('pengunjung')->latest()->paginate(10);
         } else {
             // Jika pengunjung, tampilkan hanya testimoni miliknya
@@ -76,13 +76,13 @@ class TestimoniController extends Controller
     
     public function show($id)
     {
-        AuthController::requireAuth();
+        $this->requireAuth();
         
-        $user = AuthController::getCurrentUser();
+        $user = $this->getCurrentUser();
         $testimoni = Testimoni::with('pengunjung')->findOrFail($id);
         
         // Cek apakah user berhak melihat testimoni ini
-        if (!AuthController::isAdmin() && $testimoni->id_pengunjung !== $user->id) {
+        if (!$this->isAdmin() && $testimoni->id_pengunjung !== $user->id) {
             abort(403, 'Anda tidak berhak melihat testimoni ini.');
         }
         
@@ -91,18 +91,18 @@ class TestimoniController extends Controller
     
     public function edit($id)
     {
-        AuthController::requireAuth();
+        $this->requireAuth();
         
-        $user = AuthController::getCurrentUser();
+        $user = $this->getCurrentUser();
         $testimoni = Testimoni::findOrFail($id);
         
         // Cek apakah user berhak mengedit testimoni ini
-        if (!AuthController::isAdmin() && $testimoni->id_pengunjung !== $user->id) {
+        if (!$this->isAdmin() && $testimoni->id_pengunjung !== $user->id) {
             abort(403, 'Anda tidak berhak mengedit testimoni ini.');
         }
         
         // Tidak bisa edit jika testimoni sudah disetujui (kecuali admin)
-        if ($testimoni->approved && !AuthController::isAdmin()) {
+        if ($testimoni->approved && !$this->isAdmin()) {
             return redirect()->back()->with('error', 'Testimoni yang sudah disetujui tidak dapat diubah.');
         }
         
@@ -111,13 +111,13 @@ class TestimoniController extends Controller
     
     public function update(Request $request, $id)
     {
-        AuthController::requireAuth();
+        $this->requireAuth();
         
-        $user = AuthController::getCurrentUser();
+        $user = $this->getCurrentUser();
         $testimoni = Testimoni::findOrFail($id);
         
         // Cek apakah user berhak mengupdate testimoni ini
-        if (!AuthController::isAdmin() && $testimoni->id_pengunjung !== $user->id) {
+        if (!$this->isAdmin() && $testimoni->id_pengunjung !== $user->id) {
             abort(403, 'Anda tidak berhak mengupdate testimoni ini.');
         }
         
@@ -127,7 +127,7 @@ class TestimoniController extends Controller
         ]);
         
         // Jika bukan admin dan testimoni sudah disetujui, set approved ke false lagi
-        if (!AuthController::isAdmin() && $testimoni->approved) {
+        if (!$this->isAdmin() && $testimoni->approved) {
             $validated['approved'] = false;
         }
         
@@ -139,13 +139,13 @@ class TestimoniController extends Controller
     
     public function destroy($id)
     {
-        AuthController::requireAuth();
+        $this->requireAuth();
         
-        $user = AuthController::getCurrentUser();
+        $user = $this->getCurrentUser();
         $testimoni = Testimoni::findOrFail($id);
         
         // Cek apakah user berhak menghapus testimoni ini
-        if (!AuthController::isAdmin() && $testimoni->id_pengunjung !== $user->id) {
+        if (!$this->isAdmin() && $testimoni->id_pengunjung !== $user->id) {
             abort(403, 'Anda tidak berhak menghapus testimoni ini.');
         }
         
@@ -153,5 +153,23 @@ class TestimoniController extends Controller
         
         return redirect()->route('testimoni.index')
             ->with('success', 'Testimoni berhasil dihapus!');
+    }
+
+    // Helper methods
+    private function requireAuth()
+    {
+        if (!session('is_logged_in')) {
+            abort(403, 'Anda harus login terlebih dahulu.');
+        }
+    }
+
+    private function isAdmin()
+    {
+        return session('user_role') === 'admin';
+    }
+
+    private function getCurrentUser()
+    {
+        return AuthController::getCurrentUser();
     }
 }

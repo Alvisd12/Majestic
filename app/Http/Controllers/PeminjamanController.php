@@ -11,14 +11,14 @@ class PeminjamanController extends Controller
 {
     public function index(Request $request)
     {
-        AuthController::requireAuth(); // Cek login
+        $this->requireAuth(); // Cek login
         
-        $user = AuthController::getCurrentUser();
+        $user = $this->getCurrentUser();
         
         $query = Peminjaman::with('user'); // Load relasi user untuk mendapatkan nama
         
         // Jika admin, tampilkan semua peminjaman
-        if (AuthController::isAdmin()) {
+        if ($this->isAdmin()) {
             // Search functionality untuk admin
             if ($request->has('search') && $request->search) {
                 $search = $request->search;
@@ -43,24 +43,30 @@ class PeminjamanController extends Controller
         
         $peminjaman = $query->orderBy('created_at', 'desc')->paginate(10);
         
-        return view('peminjaman.index', compact('peminjaman'));
+        // Use admin view for now since regular peminjaman views don't exist
+        if ($this->isAdmin()) {
+            return view('admin.dashboard', compact('peminjaman'));
+        } else {
+            return view('auth.dashboard', compact('peminjaman'));
+        }
     }
 
     public function create()
     {
-        AuthController::requireAuth(); // Cek login
+        $this->requireAuth(); // Cek login
         
         // Ambil motor yang tersedia
         $motors = Motor::tersedia()->get();
         
-        return view('peminjaman.create', compact('motors'));
+        // Use admin motor create view as fallback since peminjaman.create doesn't exist
+        return view('admin.motor.create', compact('motors'));
     }
 
     public function store(Request $request)
     {
-        AuthController::requireAuth(); // Cek login
+        $this->requireAuth(); // Cek login
         
-        $user = AuthController::getCurrentUser();
+        $user = $this->getCurrentUser();
         
         $validated = $request->validate([
             'tanggal_rental' => 'required|date|after_or_equal:today',
@@ -76,14 +82,16 @@ class PeminjamanController extends Controller
             'durasi_sewa.min' => 'Durasi sewa minimal 1 hari.',
         ]);
 
-        // Cari motor yang sesuai
-        $motor = Motor::where('merk', 'like', '%' . explode(' ', $validated['jenis_motor'])[0] . '%')
-            ->where('status', 'Tersedia')
-            ->first();
+        // Improved motor search logic
+        $motor = $this->findMotorByJenis($validated['jenis_motor']);
 
         $totalHarga = null;
         if ($motor) {
             $totalHarga = $motor->harga_per_hari * $validated['durasi_sewa'];
+        } else {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Motor yang dipilih tidak tersedia.');
         }
 
         // Buat peminjaman
@@ -97,7 +105,7 @@ class PeminjamanController extends Controller
             'status' => 'Pending',
         ]);
 
-        // Update status motor menjadi Disewa
+        // Update status motor menjadi Disewa only if motor found
         if ($motor) {
             $motor->update(['status' => 'Disewa']);
         }
@@ -108,28 +116,28 @@ class PeminjamanController extends Controller
 
     public function show($id)
     {
-        AuthController::requireAuth(); // Cek login
+        $this->requireAuth(); // Cek login
         
-        $user = AuthController::getCurrentUser();
+        $user = $this->getCurrentUser();
         $peminjaman = Peminjaman::with('user')->findOrFail($id);
         
         // Cek apakah user berhak melihat peminjaman ini
-        if (!AuthController::isAdmin() && $peminjaman->user_id !== $user->id) {
+        if (!$this->isAdmin() && $peminjaman->user_id !== $user->id) {
             abort(403, 'Anda tidak berhak melihat data ini.');
         }
         
-        return view('peminjaman.show', compact('peminjaman'));
+        return view('admin.peminjaman.show', compact('peminjaman'));
     }
 
     public function edit($id)
     {
-        AuthController::requireAuth(); // Cek login
+        $this->requireAuth(); // Cek login
         
-        $user = AuthController::getCurrentUser();
+        $user = $this->getCurrentUser();
         $peminjaman = Peminjaman::findOrFail($id);
         
         // Cek apakah user berhak mengedit peminjaman ini
-        if (!AuthController::isAdmin() && $peminjaman->user_id !== $user->id) {
+        if (!$this->isAdmin() && $peminjaman->user_id !== $user->id) {
             abort(403, 'Anda tidak berhak mengedit data ini.');
         }
         
@@ -142,18 +150,19 @@ class PeminjamanController extends Controller
         // Ambil motor yang tersedia untuk dropdown
         $motors = Motor::tersedia()->get();
         
-        return view('peminjaman.edit', compact('peminjaman', 'motors'));
+        // Use admin motor edit view as fallback
+        return view('admin.motor.edit', compact('peminjaman', 'motors'));
     }
 
     public function update(Request $request, $id)
     {
-        AuthController::requireAuth(); // Cek login
+        $this->requireAuth(); // Cek login
         
-        $user = AuthController::getCurrentUser();
+        $user = $this->getCurrentUser();
         $peminjaman = Peminjaman::findOrFail($id);
         
         // Cek apakah user berhak mengupdate peminjaman ini
-        if (!AuthController::isAdmin() && $peminjaman->user_id !== $user->id) {
+        if (!$this->isAdmin() && $peminjaman->user_id !== $user->id) {
             abort(403, 'Anda tidak berhak mengupdate data ini.');
         }
         
@@ -164,11 +173,9 @@ class PeminjamanController extends Controller
             'durasi_sewa' => 'required|integer|min:1',
         ]);
 
-
-
         // Hitung ulang total harga jika motor berubah
         if ($validated['jenis_motor'] !== $peminjaman->jenis_motor || $validated['durasi_sewa'] !== $peminjaman->durasi_sewa) {
-            $motor = Motor::where('merk', 'like', '%' . explode(' ', $validated['jenis_motor'])[0] . '%')->first();
+            $motor = $this->findMotorByJenis($validated['jenis_motor']);
             if ($motor) {
                 $validated['total_harga'] = $motor->harga_per_hari * $validated['durasi_sewa'];
             }
@@ -182,17 +189,21 @@ class PeminjamanController extends Controller
 
     public function destroy($id)
     {
-        AuthController::requireAuth(); // Cek login
+        $this->requireAuth(); // Cek login
         
-        $user = AuthController::getCurrentUser();
+        $user = $this->getCurrentUser();
         $peminjaman = Peminjaman::findOrFail($id);
         
         // Cek apakah user berhak menghapus peminjaman ini
-        if (!AuthController::isAdmin() && $peminjaman->user_id !== $user->id) {
+        if (!$this->isAdmin() && $peminjaman->user_id !== $user->id) {
             abort(403, 'Anda tidak berhak menghapus data ini.');
         }
         
-
+        // Release motor if it's associated with this peminjaman
+        $motor = $this->findMotorByJenis($peminjaman->jenis_motor);
+        if ($motor && $motor->status === 'Disewa') {
+            $motor->update(['status' => 'Tersedia']);
+        }
         
         $peminjaman->delete();
 
@@ -203,7 +214,7 @@ class PeminjamanController extends Controller
     // Method khusus untuk admin
     public function updateStatus(Request $request, $id)
     {
-        AuthController::requireAdmin(); // Cek admin access
+        $this->requireAdmin(); // Cek admin access
         
         $validated = $request->validate([
             'status' => 'required|in:Pending,Confirmed,Belum Kembali,Disewa,Selesai,Cancelled'
@@ -223,7 +234,7 @@ class PeminjamanController extends Controller
 
     public function confirm($id)
     {
-        AuthController::requireAdmin(); // Cek admin access
+        $this->requireAdmin(); // Cek admin access
         
         $peminjaman = Peminjaman::findOrFail($id);
         $peminjaman->update(['status' => 'Confirmed']);
@@ -233,22 +244,28 @@ class PeminjamanController extends Controller
 
     public function reject($id)
     {
-        AuthController::requireAdmin(); // Cek admin access
+        $this->requireAdmin(); // Cek admin access
         
         $peminjaman = Peminjaman::findOrFail($id);
         $peminjaman->update(['status' => 'Cancelled']);
+        
+        // Release motor when rejected
+        $motor = $this->findMotorByJenis($peminjaman->jenis_motor);
+        if ($motor) {
+            $motor->update(['status' => 'Tersedia']);
+        }
         
         return redirect()->back()->with('success', 'Peminjaman berhasil ditolak!');
     }
 
     public function startRental($id)
     {
-        AuthController::requireAdmin(); // Cek admin access
+        $this->requireAdmin(); // Cek admin access
         
         $peminjaman = Peminjaman::findOrFail($id);
         
         // Update status motor menjadi disewa
-        $motor = Motor::where('merk', 'like', '%' . explode(' ', $peminjaman->jenis_motor)[0] . '%')->first();
+        $motor = $this->findMotorByJenis($peminjaman->jenis_motor);
         if ($motor) {
             $motor->update(['status' => 'Disewa']);
         }
@@ -260,12 +277,12 @@ class PeminjamanController extends Controller
 
     public function finishRental($id)
     {
-        AuthController::requireAdmin(); // Cek admin access
+        $this->requireAdmin(); // Cek admin access
         
         $peminjaman = Peminjaman::findOrFail($id);
         
         // Update status motor menjadi tersedia
-        $motor = Motor::where('merk', 'like', '%' . explode(' ', $peminjaman->jenis_motor)[0] . '%')->first();
+        $motor = $this->findMotorByJenis($peminjaman->jenis_motor);
         if ($motor) {
             $motor->update(['status' => 'Tersedia']);
         }
@@ -276,5 +293,54 @@ class PeminjamanController extends Controller
         ]);
         
         return redirect()->back()->with('success', 'Rental berhasil diselesaikan!');
+    }
+
+    // Helper methods
+    private function requireAuth()
+    {
+        if (!session('is_logged_in')) {
+            abort(403, 'Anda harus login terlebih dahulu.');
+        }
+    }
+
+    private function requireAdmin()
+    {
+        if (session('user_role') !== 'admin') {
+            abort(403, 'Akses ditolak. Hanya admin yang dapat mengakses halaman ini.');
+        }
+    }
+
+    private function isAdmin()
+    {
+        return session('user_role') === 'admin';
+    }
+
+    private function getCurrentUser()
+    {
+        return AuthController::getCurrentUser();
+    }
+
+    private function findMotorByJenis($jenisMotor)
+    {
+        if (empty($jenisMotor)) {
+            return null;
+        }
+
+        // Try to find motor by exact match first
+        $motor = Motor::where('merk', $jenisMotor)
+            ->where('status', 'Tersedia')
+            ->first();
+
+        if (!$motor) {
+            // Try to find by partial match
+            $keywords = explode(' ', $jenisMotor);
+            if (!empty($keywords[0])) {
+                $motor = Motor::where('merk', 'like', '%' . $keywords[0] . '%')
+                    ->where('status', 'Tersedia')
+                    ->first();
+            }
+        }
+
+        return $motor;
     }
 }
