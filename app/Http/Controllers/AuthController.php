@@ -180,11 +180,23 @@ class AuthController extends Controller
     // === STATIC METHODS FOR OTHER CONTROLLERS ===
     // =========================
 
+    public static function requireAuth()
+    {
+        if (!session('is_logged_in')) {
+            abort(401, 'Anda harus login terlebih dahulu.');
+        }
+    }
+
     public static function requireAdmin()
     {
         if (session('user_role') !== 'admin') {
             abort(403, 'Akses ditolak. Hanya admin yang dapat mengakses halaman ini.');
         }
+    }
+
+    public static function isAdmin()
+    {
+        return session('user_role') === 'admin';
     }
 
     public static function getCurrentUser()
