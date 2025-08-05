@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PeminjamanController;
+use App\Http\Controllers\WisataController;
 
 // Halaman utama (home)
 Route::get('/', function () {
@@ -25,6 +26,10 @@ Route::get('/galeri', function () {
 Route::get('/kontak', function () {
     return view('home.kontak');
 })->name('kontak');
+
+// Wisata routes
+Route::get('/wisata', [WisataController::class, 'index'])->name('wisata.index');
+Route::get('/wisata/{id}', [WisataController::class, 'show'])->name('wisata.show');
 
 // Guest routes (untuk user yang belum login)
 Route::middleware('check.guest')->group(function () {

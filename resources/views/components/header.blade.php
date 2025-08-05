@@ -10,6 +10,7 @@
       <li><a href="{{ route('harga_sewa') }}">Harga Sewa</a></li>
       <li><a href="{{ route('layanan') }}">Layanan</a></li>
       <li><a href="{{ route('galeri') }}">Galeri</a></li>
+      <li><a href="{{ route('wisata.index') }}">Wisata</a></li>
       <li><a href="{{ route('kontak') }}">Kontak Kami</a></li>
       <li><a href="{{ route('login') }}">Login</a></li>
     </ul>

@@ -60,7 +60,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link {{ request()->routeIs('wisata.*') ? 'active' : '' }}" href="{{ route('wisata.index') }}">
                     <i class="fas fa-map-marker-alt"></i>
                     Wisata
                 </a>
