@@ -6,6 +6,8 @@ namespace App\Http\Controllers;
 use App\Models\Peminjaman;
 use App\Models\Motor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class PeminjamanController extends Controller
 {
@@ -51,7 +53,7 @@ class PeminjamanController extends Controller
         AuthController::requireAuth(); // Cek login
         
         // Ambil motor yang tersedia
-        $motors = Motor::tersedia()->get();
+        $motors = Motor::where('status', 'Tersedia')->get();
         
         return view('peminjaman.create', compact('motors'));
     }
@@ -66,7 +68,7 @@ class PeminjamanController extends Controller
             'tanggal_rental' => 'required|date|after_or_equal:today',
             'jam_sewa' => 'nullable|date_format:H:i',
             'jenis_motor' => 'required|string|max:255',
-            'durasi_sewa' => 'required|integer|min:1',
+            'durasi_sewa' => 'required|integer|min:1|max:30', // Tambah max 30 hari
         ], [
             'tanggal_rental.required' => 'Tanggal rental wajib diisi.',
             'tanggal_rental.after_or_equal' => 'Tanggal rental tidak boleh kurang dari hari ini.',
@@ -74,36 +76,49 @@ class PeminjamanController extends Controller
             'jenis_motor.required' => 'Jenis motor wajib diisi.',
             'durasi_sewa.required' => 'Durasi sewa wajib diisi.',
             'durasi_sewa.min' => 'Durasi sewa minimal 1 hari.',
+            'durasi_sewa.max' => 'Durasi sewa maksimal 30 hari.',
         ]);
 
-        // Cari motor yang sesuai
+        // Cari motor yang sesuai dan tersedia
         $motor = Motor::where('merk', 'like', '%' . explode(' ', $validated['jenis_motor'])[0] . '%')
             ->where('status', 'Tersedia')
             ->first();
 
-        $totalHarga = null;
-        if ($motor) {
-            $totalHarga = $motor->harga_per_hari * $validated['durasi_sewa'];
+        if (!$motor) {
+            throw ValidationException::withMessages([
+                'jenis_motor' => 'Motor yang dipilih tidak tersedia.'
+            ]);
         }
 
-        // Buat peminjaman
-        Peminjaman::create([
-            'user_id' => $user->id,
-            'tanggal_rental' => $validated['tanggal_rental'],
-            'jam_sewa' => $validated['jam_sewa'],
-            'jenis_motor' => $validated['jenis_motor'],
-            'durasi_sewa' => $validated['durasi_sewa'],
-            'total_harga' => $totalHarga,
-            'status' => 'Pending',
-        ]);
+        $totalHarga = $motor->harga_per_hari * $validated['durasi_sewa'];
 
-        // Update status motor menjadi Disewa
-        if ($motor) {
+        // Gunakan transaction untuk memastikan konsistensi data
+        DB::beginTransaction();
+        try {
+            // Buat peminjaman
+            $peminjaman = Peminjaman::create([
+                'user_id' => $user->id,
+                'tanggal_rental' => $validated['tanggal_rental'],
+                'jam_sewa' => $validated['jam_sewa'],
+                'jenis_motor' => $validated['jenis_motor'],
+                'durasi_sewa' => $validated['durasi_sewa'],
+                'total_harga' => $totalHarga,
+                'status' => 'Pending',
+            ]);
+
+            // Update status motor menjadi Disewa
             $motor->update(['status' => 'Disewa']);
-        }
 
-        return redirect()->route('peminjaman.index')
-            ->with('success', 'Peminjaman berhasil diajukan! Menunggu konfirmasi admin.');
+            DB::commit();
+
+            return redirect()->route('peminjaman.index')
+                ->with('success', 'Peminjaman berhasil diajukan! Menunggu konfirmasi admin.');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()->back()
+                ->with('error', 'Terjadi kesalahan saat membuat peminjaman.')
+                ->withInput();
+        }
     }
 
     public function show($id)
@@ -133,14 +148,14 @@ class PeminjamanController extends Controller
             abort(403, 'Anda tidak berhak mengedit data ini.');
         }
         
-        // Tidak bisa edit jika status sudah 'Selesai' atau 'Cancelled'
-        if (in_array($peminjaman->status, ['Selesai', 'Cancelled'])) {
+        // Tidak bisa edit jika status sudah 'Selesai' atau 'Cancelled' atau 'Disewa'
+        if (in_array($peminjaman->status, ['Selesai', 'Cancelled', 'Disewa'])) {
             return redirect()->route('peminjaman.index')
-                ->with('error', 'Tidak dapat mengedit peminjaman yang sudah selesai atau dibatalkan.');
+                ->with('error', 'Tidak dapat mengedit peminjaman yang sudah selesai, dibatalkan, atau sedang disewa.');
         }
         
         // Ambil motor yang tersedia untuk dropdown
-        $motors = Motor::tersedia()->get();
+        $motors = Motor::where('status', 'Tersedia')->get();
         
         return view('peminjaman.edit', compact('peminjaman', 'motors'));
     }
@@ -156,21 +171,40 @@ class PeminjamanController extends Controller
         if (!AuthController::isAdmin() && $peminjaman->user_id !== $user->id) {
             abort(403, 'Anda tidak berhak mengupdate data ini.');
         }
+
+        // Tidak bisa update jika status sudah 'Selesai' atau 'Cancelled' atau 'Disewa'
+        if (in_array($peminjaman->status, ['Selesai', 'Cancelled', 'Disewa'])) {
+            return redirect()->route('peminjaman.index')
+                ->with('error', 'Tidak dapat mengupdate peminjaman yang sudah selesai, dibatalkan, atau sedang disewa.');
+        }
         
         $validated = $request->validate([
-            'tanggal_rental' => 'required|date',
+            'tanggal_rental' => 'required|date|after_or_equal:today',
             'jam_sewa' => 'nullable|date_format:H:i',
             'jenis_motor' => 'required|string|max:255',
-            'durasi_sewa' => 'required|integer|min:1',
+            'durasi_sewa' => 'required|integer|min:1|max:30',
+        ], [
+            'tanggal_rental.required' => 'Tanggal rental wajib diisi.',
+            'tanggal_rental.after_or_equal' => 'Tanggal rental tidak boleh kurang dari hari ini.',
+            'jam_sewa.date_format' => 'Format jam sewa tidak valid (HH:MM).',
+            'jenis_motor.required' => 'Jenis motor wajib diisi.',
+            'durasi_sewa.required' => 'Durasi sewa wajib diisi.',
+            'durasi_sewa.min' => 'Durasi sewa minimal 1 hari.',
+            'durasi_sewa.max' => 'Durasi sewa maksimal 30 hari.',
         ]);
-
-
 
         // Hitung ulang total harga jika motor berubah
         if ($validated['jenis_motor'] !== $peminjaman->jenis_motor || $validated['durasi_sewa'] !== $peminjaman->durasi_sewa) {
-            $motor = Motor::where('merk', 'like', '%' . explode(' ', $validated['jenis_motor'])[0] . '%')->first();
+            $motor = Motor::where('merk', 'like', '%' . explode(' ', $validated['jenis_motor'])[0] . '%')
+                ->where('status', 'Tersedia')
+                ->first();
+            
             if ($motor) {
                 $validated['total_harga'] = $motor->harga_per_hari * $validated['durasi_sewa'];
+            } else {
+                throw ValidationException::withMessages([
+                    'jenis_motor' => 'Motor yang dipilih tidak tersedia.'
+                ]);
             }
         }
 
@@ -191,8 +225,20 @@ class PeminjamanController extends Controller
         if (!AuthController::isAdmin() && $peminjaman->user_id !== $user->id) {
             abort(403, 'Anda tidak berhak menghapus data ini.');
         }
-        
 
+        // Tidak bisa hapus jika status sudah 'Disewa' atau 'Selesai'
+        if (in_array($peminjaman->status, ['Disewa', 'Selesai'])) {
+            return redirect()->route('peminjaman.index')
+                ->with('error', 'Tidak dapat menghapus peminjaman yang sedang disewa atau sudah selesai.');
+        }
+
+        // Jika status Confirmed, kembalikan motor ke status Tersedia
+        if ($peminjaman->status === 'Confirmed') {
+            $motor = Motor::where('merk', 'like', '%' . explode(' ', $peminjaman->jenis_motor)[0] . '%')->first();
+            if ($motor) {
+                $motor->update(['status' => 'Tersedia']);
+            }
+        }
         
         $peminjaman->delete();
 
@@ -206,19 +252,49 @@ class PeminjamanController extends Controller
         AuthController::requireAdmin(); // Cek admin access
         
         $validated = $request->validate([
-            'status' => 'required|in:Pending,Confirmed,Belum Kembali,Disewa,Selesai,Cancelled'
+            'status' => 'required|in:Pending,Confirmed,Disewa,Selesai,Cancelled'
         ]);
         
         $peminjaman = Peminjaman::findOrFail($id);
         
-        // Set tanggal kembali jika status menjadi Selesai
-        if ($validated['status'] === 'Selesai' && !$peminjaman->tanggal_kembali) {
-            $validated['tanggal_kembali'] = now()->toDateString();
+        DB::beginTransaction();
+        try {
+            // Set tanggal kembali jika status menjadi Selesai
+            if ($validated['status'] === 'Selesai' && !$peminjaman->tanggal_kembali) {
+                $validated['tanggal_kembali'] = now()->toDateString();
+                
+                // Kembalikan motor ke status Tersedia
+                $motor = Motor::where('merk', 'like', '%' . explode(' ', $peminjaman->jenis_motor)[0] . '%')->first();
+                if ($motor) {
+                    $motor->update(['status' => 'Tersedia']);
+                }
+            }
+            
+            // Jika status berubah ke Confirmed, update motor menjadi Disewa
+            if ($validated['status'] === 'Confirmed' && $peminjaman->status !== 'Confirmed') {
+                $motor = Motor::where('merk', 'like', '%' . explode(' ', $peminjaman->jenis_motor)[0] . '%')->first();
+                if ($motor) {
+                    $motor->update(['status' => 'Disewa']);
+                }
+            }
+            
+            // Jika status berubah ke Disewa, pastikan motor sudah Disewa
+            if ($validated['status'] === 'Disewa' && $peminjaman->status !== 'Disewa') {
+                $motor = Motor::where('merk', 'like', '%' . explode(' ', $peminjaman->jenis_motor)[0] . '%')->first();
+                if ($motor) {
+                    $motor->update(['status' => 'Disewa']);
+                }
+            }
+            
+            $peminjaman->update($validated);
+            
+            DB::commit();
+            
+            return response()->json(['success' => true, 'message' => 'Status berhasil diupdate!']);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan saat mengupdate status.'], 500);
         }
-        
-        $peminjaman->update($validated);
-        
-        return response()->json(['success' => true, 'message' => 'Status berhasil diupdate!']);
     }
 
     public function confirm($id)
@@ -226,9 +302,28 @@ class PeminjamanController extends Controller
         AuthController::requireAdmin(); // Cek admin access
         
         $peminjaman = Peminjaman::findOrFail($id);
-        $peminjaman->update(['status' => 'Confirmed']);
         
-        return redirect()->back()->with('success', 'Peminjaman berhasil dikonfirmasi!');
+        if ($peminjaman->status !== 'Pending') {
+            return redirect()->back()->with('error', 'Hanya peminjaman dengan status Pending yang dapat dikonfirmasi.');
+        }
+        
+        DB::beginTransaction();
+        try {
+            // Update status motor menjadi Disewa
+            $motor = Motor::where('merk', 'like', '%' . explode(' ', $peminjaman->jenis_motor)[0] . '%')->first();
+            if ($motor) {
+                $motor->update(['status' => 'Disewa']);
+            }
+            
+            $peminjaman->update(['status' => 'Confirmed']);
+            
+            DB::commit();
+            
+            return redirect()->back()->with('success', 'Peminjaman berhasil dikonfirmasi!');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat mengkonfirmasi peminjaman.');
+        }
     }
 
     public function reject($id)
@@ -236,6 +331,11 @@ class PeminjamanController extends Controller
         AuthController::requireAdmin(); // Cek admin access
         
         $peminjaman = Peminjaman::findOrFail($id);
+        
+        if ($peminjaman->status !== 'Pending') {
+            return redirect()->back()->with('error', 'Hanya peminjaman dengan status Pending yang dapat ditolak.');
+        }
+        
         $peminjaman->update(['status' => 'Cancelled']);
         
         return redirect()->back()->with('success', 'Peminjaman berhasil ditolak!');
@@ -247,15 +347,27 @@ class PeminjamanController extends Controller
         
         $peminjaman = Peminjaman::findOrFail($id);
         
-        // Update status motor menjadi disewa
-        $motor = Motor::where('merk', 'like', '%' . explode(' ', $peminjaman->jenis_motor)[0] . '%')->first();
-        if ($motor) {
-            $motor->update(['status' => 'Disewa']);
+        if ($peminjaman->status !== 'Confirmed') {
+            return redirect()->back()->with('error', 'Hanya peminjaman dengan status Confirmed yang dapat dimulai.');
         }
         
-        $peminjaman->update(['status' => 'Disewa']);
-        
-        return redirect()->back()->with('success', 'Rental berhasil dimulai!');
+        DB::beginTransaction();
+        try {
+            // Update status motor menjadi disewa
+            $motor = Motor::where('merk', 'like', '%' . explode(' ', $peminjaman->jenis_motor)[0] . '%')->first();
+            if ($motor) {
+                $motor->update(['status' => 'Disewa']);
+            }
+            
+            $peminjaman->update(['status' => 'Disewa']);
+            
+            DB::commit();
+            
+            return redirect()->back()->with('success', 'Rental berhasil dimulai!');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat memulai rental.');
+        }
     }
 
     public function finishRental($id)
@@ -264,17 +376,29 @@ class PeminjamanController extends Controller
         
         $peminjaman = Peminjaman::findOrFail($id);
         
-        // Update status motor menjadi tersedia
-        $motor = Motor::where('merk', 'like', '%' . explode(' ', $peminjaman->jenis_motor)[0] . '%')->first();
-        if ($motor) {
-            $motor->update(['status' => 'Tersedia']);
+        if ($peminjaman->status !== 'Disewa') {
+            return redirect()->back()->with('error', 'Hanya peminjaman dengan status Disewa yang dapat diselesaikan.');
         }
         
-        $peminjaman->update([
-            'status' => 'Selesai',
-            'tanggal_kembali' => now()->toDateString()
-        ]);
-        
-        return redirect()->back()->with('success', 'Rental berhasil diselesaikan!');
+        DB::beginTransaction();
+        try {
+            // Update status motor menjadi tersedia
+            $motor = Motor::where('merk', 'like', '%' . explode(' ', $peminjaman->jenis_motor)[0] . '%')->first();
+            if ($motor) {
+                $motor->update(['status' => 'Tersedia']);
+            }
+            
+            $peminjaman->update([
+                'status' => 'Selesai',
+                'tanggal_kembali' => now()->toDateString()
+            ]);
+            
+            DB::commit();
+            
+            return redirect()->back()->with('success', 'Rental berhasil diselesaikan!');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat menyelesaikan rental.');
+        }
     }
 }
