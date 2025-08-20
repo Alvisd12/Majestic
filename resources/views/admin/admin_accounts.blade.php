@@ -1,8 +1,8 @@
 @extends('layouts.admin')
 
-@section('title', 'Galeri')
+@section('title', 'Admin Accounts')
 
-@section('page-title', 'Galeri')
+@section('page-title', 'Admin Accounts')
 
 @section('content')
     <!-- Success Notification -->
@@ -16,16 +16,16 @@
 
     <!-- Search and Add Section -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <form method="GET" action="{{ route('admin.galeri') }}" class="flex-grow-1 me-3">
+        <form method="GET" action="{{ route('admin.admin_accounts') }}" class="flex-grow-1 me-3">
             <div class="search-box">
                 <input type="text" class="form-control" name="search" 
-                       placeholder="Search here..." value="{{ request('search') }}">
+                       placeholder="Search admin accounts..." value="{{ request('search') }}">
                 <i class="fas fa-search"></i>
             </div>
         </form>
-        <a href="{{ route('admin.galeri.create') }}" class="btn btn-warning">
+        <a href="{{ route('admin.admin_accounts.create') }}" class="btn btn-warning">
             <i class="fas fa-plus text-white"></i>
-            <span class="text-white">Tambah</span>
+            <span class="text-white">Tambah Admin</span>
         </a>
     </div>
 
@@ -36,50 +36,49 @@
                 <thead>
                     <tr>
                         <th>No</th>
-                        <th>Gambar</th>
-                        <th>Judul</th>
-                        <th>Deskripsi</th>
-                        <th>Penulis</th>
-                        <th>Tanggal Sewa</th>
-                        <th>Tanggal Upload</th>
+                        <th>Avatar</th>
+                        <th>Nama</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Role</th>
+                        <th>Tanggal Dibuat</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($galeri as $index => $item)
+                    @forelse($admins as $index => $admin)
                     <tr>
-                        <td>{{ $galeri->firstItem() + $index }}.</td>
+                        <td>{{ $admins->firstItem() + $index }}.</td>
                         <td>
-                            @if($item->gambar)
-                                <img src="{{ asset('storage/' . $item->gambar) }}" 
-                                     alt="Galeri Image" 
-                                     class="img-thumbnail" 
-                                     style="width: 80px; height: 60px; object-fit: cover;">
-                            @else
-                                <div class="bg-secondary d-flex align-items-center justify-content-center" 
-                                     style="width: 80px; height: 60px;">
-                                    <i class="fas fa-image text-white"></i>
+                            <div class="admin-avatar">
+                                <div class="bg-primary d-flex align-items-center justify-content-center rounded-circle" 
+                                     style="width: 40px; height: 40px;">
+                                    <i class="fas fa-user text-white"></i>
                                 </div>
-                            @endif
-                        </td>
-                        <td>{{ $item->judul }}</td>
-                        <td>
-                            <div class="text-truncate" style="max-width: 200px;" title="{{ $item->deskripsi }}">
-                                {{ $item->deskripsi ?: 'Lorem Ipsum is simply dummy text' }}
                             </div>
                         </td>
-                        <td>{{ $item->admin->nama ?? 'Admin' }}</td>
-                        <td>{{ \Carbon\Carbon::parse($item->tanggal_sewa)->format('M d, Y') }}</td>
-                        <td>{{ \Carbon\Carbon::parse($item->created_at)->format('M d, Y') }}</td>
+                        <td>
+                            <div class="fw-semibold">{{ $admin->nama }}</div>
+                        </td>
+                        <td>{{ $admin->username }}</td>
+                        <td>{{ $admin->email ?: '-' }}</td>
+                        <td>{{ $admin->phone }}</td>
+                        <td>
+                            <span class="badge {{ $admin->role === 'super_admin' ? 'bg-danger' : 'bg-primary' }}">
+                                {{ ucfirst(str_replace('_', ' ', $admin->role)) }}
+                            </span>
+                        </td>
+                        <td>{{ \Carbon\Carbon::parse($admin->created_at)->format('M d, Y') }}</td>
                         <td>
                             <div class="btn-group" role="group">
-                                <a href="{{ route('admin.galeri.edit', $item->id) }}" 
+                                <a href="{{ route('admin.admin_accounts.edit', $admin->id) }}" 
                                    class="btn btn-sm btn-outline-primary" 
                                    title="Edit">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <button type="button" class="btn btn-sm btn-outline-danger delete-btn" 
-                                        data-id="{{ $item->id }}" 
+                                <button type="button" class="btn btn-sm btn-outline-danger delete-admin-btn" 
+                                        data-id="{{ $admin->id }}" 
                                         title="Delete">
                                     <i class="fas fa-trash"></i>
                                 </button>
@@ -88,9 +87,9 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="text-center py-4">
-                            <i class="fas fa-images fa-3x text-muted mb-3"></i>
-                            <p class="text-muted">Tidak ada data galeri</p>
+                        <td colspan="9" class="text-center py-4">
+                            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Tidak ada data admin</p>
                         </td>
                     </tr>
                     @endforelse
@@ -99,9 +98,9 @@
         </div>
         
         <!-- Pagination -->
-        @if($galeri->hasPages())
+        @if($admins->hasPages())
         <div class="pagination-container">
-            {{ $galeri->appends(request()->query())->links() }}
+            {{ $admins->appends(request()->query())->links() }}
         </div>
         @endif
     </div>
@@ -109,16 +108,16 @@
 
 @section('additional-scripts')
 <script>
-    // Delete Galeri Function using event delegation
+    // Delete Admin Function using event delegation
     document.addEventListener('DOMContentLoaded', function() {
         // Handle delete button clicks
         document.addEventListener('click', function(e) {
-            if (e.target.closest('.delete-btn')) {
-                const button = e.target.closest('.delete-btn');
+            if (e.target.closest('.delete-admin-btn')) {
+                const button = e.target.closest('.delete-admin-btn');
                 const id = button.getAttribute('data-id');
                 
-                if (confirm('Apakah Anda yakin ingin menghapus item galeri ini?')) {
-                    fetch(`/admin/galeri/${id}`, {
+                if (confirm('Apakah Anda yakin ingin menghapus admin ini?')) {
+                    fetch(`/admin/admin-accounts/${id}`, {
                         method: 'DELETE',
                         headers: {
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
@@ -129,12 +128,12 @@
                         if (data.success) {
                             location.reload();
                         } else {
-                            alert('Gagal menghapus item galeri');
+                            alert(data.message || 'Gagal menghapus admin');
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        alert('Gagal menghapus item galeri');
+                        alert('Gagal menghapus admin');
                     });
                 }
             }
@@ -151,4 +150,4 @@
         }
     });
 </script>
-@endsection 
+@endsection

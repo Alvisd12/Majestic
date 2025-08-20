@@ -1,13 +1,7 @@
 <!-- Sidebar -->
 <div class="sidebar">
     <div class="sidebar-brand">
-        <div class="d-flex align-items-center justify-content-center">
-            <i class="fas fa-motorcycle text-warning me-2" style="font-size: 2rem;"></i>
-            <div>
-                <h3>MAJESTIC</h3>
-                <small>TRANSPORT</small>
-            </div>
-        </div>
+        <image src="{{ asset('assets/images/logo.png') }}" alt="Logo" class="logo">
     </div>
     
     <nav class="sidebar-nav">
@@ -16,6 +10,12 @@
                 <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
                     <i class="fas fa-tachometer-alt"></i>
                     Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.admin_accounts*') ? 'active' : '' }}" href="{{ route('admin.admin_accounts') }}">
+                    <i class="fas fa-users-cog"></i>
+                    Admin Accounts
                 </a>
             </li>
             <li class="nav-item">
@@ -56,19 +56,13 @@
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('admin.galeri*') ? 'active' : '' }}" href="{{ route('admin.galeri') }}">
                     <i class="fas fa-images"></i>
-                    Galeri
+                    <span>Galeri</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">
-                    <i class="fas fa-map-marker-alt"></i>
-                    Wisata
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link {{ request()->routeIs('admin.testimoni*') ? 'active' : '' }}" href="{{ route('admin.testimoni') }}">
                     <i class="fas fa-star"></i>
-                    Testimoni
+                    <span>Testimoni</span>
                 </a>
             </li>
             <li class="nav-item">

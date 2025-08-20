@@ -91,11 +91,6 @@
                                         title="Lihat Detail">
                                     <i class="fas fa-eye"></i>
                                 </button>
-                                <button type="button" class="btn btn-sm btn-outline-success" 
-                                        onclick="startRental({{ $item->id }})" 
-                                        title="Mulai Rental">
-                                    <i class="fas fa-play"></i>
-                                </button>
                                 <button type="button" class="btn btn-sm btn-outline-info" 
                                         onclick="finishRental({{ $item->id }})" 
                                         title="Selesai Rental">

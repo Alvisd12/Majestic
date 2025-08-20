@@ -16,8 +16,10 @@ class Pengunjung extends Authenticatable
     protected $fillable = [
         'nama',
         'username',
+        'email',
         'password',
-        'phone',
+        'no_handphone',
+        'alamat',
         'foto_ktp',
     ];
 

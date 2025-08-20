@@ -137,161 +137,306 @@
         </div>
     </form>
 
-    <!-- Data Table -->
-    <div class="data-table">
-        <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
-            <h5 class="mb-0 fw-bold">Data Peminjaman Terbaru</h5>
-            <a href="{{ route('admin.harga_sewa') }}" class="btn btn-sm btn-outline-primary">
-                <i class="fas fa-plus me-1"></i>Kelola Motor
-            </a>
+    <!-- Data Peminjaman Terbaru -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-list me-2"></i>Data Peminjaman Terbaru</h5>
+                    <small class="text-muted">{{ now()->format('d M Y, H:i') }}</small>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Nama Penyewa</th>
+                                    <th>Motor</th>
+                                    <th>Tanggal Sewa</th>
+                                    <th>Status</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($recentRentals as $index => $rental)
+                                <tr>
+                                    <td>{{ ($recentRentals->currentPage() - 1) * $recentRentals->perPage() + $index + 1 }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-2">
+                                                <i class="fas fa-user text-primary"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0">{{ $rental->user->nama ?? $rental->nama ?? 'N/A' }}</h6>
+                                                <small class="text-muted">{{ $rental->user->phone ?? $rental->no_handphone ?? 'N/A' }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <span class="fw-bold">{{ $rental->jenis_motor ?? 'N/A' }}</span>
+                                            <br>
+                                            <small class="text-muted">{{ $rental->durasi_sewa ?? 1 }} hari</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="text-muted">{{ $rental->tanggal_rental ? $rental->tanggal_rental->format('d M Y') : 'N/A' }}</span>
+                                        <br>
+                                        <small class="text-muted">{{ $rental->created_at ? $rental->created_at->diffForHumans() : 'N/A' }}</small>
+                                    </td>
+                                    <td>
+                                        @php
+                                            $status = $rental->status ?? 'Pending';
+                                            $badgeClass = match($status) {
+                                                'Pending' => 'bg-warning',
+                                                'Confirmed' => 'bg-info',
+                                                'Disewa' => 'bg-success', 
+                                                'Selesai' => 'bg-success',
+                                                'Cancelled' => 'bg-danger',
+                                                'Belum Kembali' => 'bg-danger',
+                                                default => 'bg-secondary'
+                                            };
+                                        @endphp
+                                        <span class="badge {{ $badgeClass }}">{{ $status }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold text-success">Rp {{ number_format($rental->total_harga ?? 0, 0, ',', '.') }}</span>
+                                    </td>
+                                </tr>
+                                @empty
+                                <!-- Sample Data when no rentals exist -->
+                                <tr>
+                                    <td>1</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-2">
+                                                <i class="fas fa-user text-primary"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0">Ahmad Rizki</h6>
+                                                <small class="text-muted">081234567890</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <span class="fw-bold">Honda Beat</span>
+                                            <br>
+                                            <small class="text-muted">B 1234 ABC</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="text-muted">{{ now()->format('d M Y') }}</span>
+                                        <br>
+                                        <small class="text-muted">2 jam yang lalu</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-success">Disewa</span>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold text-success">Rp 150.000</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-2">
+                                                <i class="fas fa-user text-primary"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0">Siti Nurhaliza</h6>
+                                                <small class="text-muted">081987654321</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <span class="fw-bold">Yamaha Mio</span>
+                                            <br>
+                                            <small class="text-muted">B 5678 DEF</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="text-muted">{{ now()->subHours(5)->format('d M Y') }}</span>
+                                        <br>
+                                        <small class="text-muted">5 jam yang lalu</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-warning">Pending</span>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold text-success">Rp 120.000</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-2">
+                                                <i class="fas fa-user text-primary"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0">Budi Santoso</h6>
+                                                <small class="text-muted">081555666777</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <span class="fw-bold">Honda Vario</span>
+                                            <br>
+                                            <small class="text-muted">B 9012 GHI</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="text-muted">{{ now()->subDay()->format('d M Y') }}</span>
+                                        <br>
+                                        <small class="text-muted">1 hari yang lalu</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">Selesai</span>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold text-success">Rp 200.000</span>
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    @if(isset($recentRentals) && $recentRentals->hasPages())
+                    <div class="d-flex justify-content-center mt-4">
+                        <nav aria-label="Pagination Navigation">
+                            {{ $recentRentals->appends(request()->query())->links('pagination::bootstrap-4') }}
+                        </nav>
+                    </div>
+                    @endif
+                </div>
+            </div>
         </div>
-        <div class="table-responsive">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Nama Pengunjung</th>
-                        <th>Jenis Motor</th>
-                        <th>Tanggal Rental</th>
-                        <th>Durasi</th>
-                        <th>Status</th>
-                        <th>Total Harga</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($peminjaman as $index => $item)
-                    <tr>
-                        <td>{{ $peminjaman->firstItem() + $index }}.</td>
-                        <td>
-                            <div class="d-flex align-items-center">
-                                <div class="user-avatar me-2" style="width: 35px; height: 35px; font-size: 0.8rem;">
-                                    {{ substr($item->user->nama ?? 'U', 0, 1) }}
-                                </div>
-                                <div>
-                                    <div class="fw-bold">{{ $item->user->nama ?? 'Unknown' }}</div>
-                                    <small class="text-muted">{{ $item->user->phone ?? '-' }}</small>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="fw-bold">{{ $item->jenis_motor }}</td>
-                        <td>{{ \Carbon\Carbon::parse($item->tanggal_rental)->format('M d, Y') }}</td>
-                        <td>{{ $item->durasi }} hari</td>
-                        <td>
-                            @php
-                                $statusColors = [
-                                    'Pending' => 'warning',
-                                    'Confirmed' => 'info',
-                                    'Disewa' => 'primary',
-                                    'Belum Kembali' => 'warning',
-                                    'Selesai' => 'success',
-                                    'Cancelled' => 'danger'
-                                ];
-                                $color = $statusColors[$item->status] ?? 'secondary';
-                            @endphp
-                            <span class="badge bg-{{ $color }}">{{ $item->status }}</span>
-                        </td>
-                        <td class="fw-bold">Rp {{ number_format($item->total_harga, 0, ',', '.') }}</td>
-                        <td>
-                            <div class="btn-group" role="group">
-                                <button type="button" class="btn btn-sm btn-outline-primary" 
-                                        onclick="viewDetails({{ $item->id }})">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-success" 
-                                        onclick="updateStatus({{ $item->id }}, 'Confirmed')">
-                                    <i class="fas fa-check"></i>
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-danger" 
-                                        onclick="deletePeminjaman({{ $item->id }})">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="8" class="text-center py-4">
-                            <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
-                            <p class="text-muted">Tidak ada data peminjaman</p>
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        
-        <!-- Pagination -->
-        @if($peminjaman->hasPages())
-        <div class="pagination-container">
-            {{ $peminjaman->appends(request()->query())->links() }}
-        </div>
-        @endif
     </div>
 @endsection
 
 @section('additional-scripts')
-<script>
-    // View Details Function
-    function viewDetails(id) {
-        window.location.href = `/admin/peminjaman/${id}`;
-    }
+<script src="{{ asset('js/dashboard.js') }}"></script>
 
-    // Update Status Function
-    function updateStatus(id, status) {
-        if (confirm('Apakah Anda yakin ingin mengubah status peminjaman ini?')) {
-            fetch(`/admin/peminjaman/${id}/status`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                body: JSON.stringify({ status: status })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    location.reload();
-                } else {
-                    alert('Gagal mengubah status');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Gagal mengubah status');
-            });
-        }
-    }
+<style>
+.avatar-sm {
+    width: 35px;
+    height: 35px;
+    font-size: 14px;
+}
 
-    // Delete Peminjaman Function
-    function deletePeminjaman(id) {
-        if (confirm('Apakah Anda yakin ingin menghapus peminjaman ini?')) {
-            fetch(`/admin/peminjaman/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    location.reload();
-                } else {
-                    alert('Gagal menghapus peminjaman');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Gagal menghapus peminjaman');
-            });
-        }
-    }
+.table-hover tbody tr:hover {
+    background-color: rgba(0,0,0,0.02);
+}
 
-    // Auto-submit search form on input
-    document.querySelector('input[name="search"]').addEventListener('keyup', function(e) {
-        if (e.key === 'Enter') {
-            this.form.submit();
-        }
-    });
-</script>
+.badge {
+    font-size: 0.75em;
+    padding: 0.4em 0.6em;
+    border-radius: 0.375rem;
+}
+
+.table th {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #6c757d;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.table td {
+    vertical-align: middle;
+    padding: 1rem 0.75rem;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    padding: 1rem 1.25rem;
+}
+
+.text-success {
+    color: #198754 !important;
+}
+
+.border-top {
+    border-top: 1px solid #dee2e6 !important;
+}
+
+/* Pagination Styling */
+.pagination {
+    margin: 0;
+    padding: 0;
+}
+
+.pagination .page-item {
+    margin: 0 2px;
+}
+
+.pagination .page-link {
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    color: #6c757d;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.pagination .page-link:hover {
+    background-color: #f8f9fa;
+    border-color: #adb5bd;
+    color: #495057;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0,123,255,0.3);
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #adb5bd;
+    background-color: #fff;
+    border-color: #dee2e6;
+    cursor: not-allowed;
+}
+
+.pagination .page-item.disabled .page-link:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* Pagination container */
+.d-flex.justify-content-center {
+    padding: 1rem 0;
+    border-top: 1px solid #f1f3f4;
+    margin-top: 1.5rem;
+}
+
+/* Responsive pagination */
+@media (max-width: 576px) {
+    .pagination .page-link {
+        padding: 0.375rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    .pagination .page-item {
+        margin: 0 1px;
+    }
+}
+</style>
 @endsection

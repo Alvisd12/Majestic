@@ -74,8 +74,6 @@
                                 <option value="">Pilih Kategori</option>
                                 <option value="motor" {{ old('kategori', $galeri->kategori) == 'motor' ? 'selected' : '' }}>Motor</option>
                                 <option value="wisata" {{ old('kategori', $galeri->kategori) == 'wisata' ? 'selected' : '' }}>Wisata</option>
-                                <option value="event" {{ old('kategori', $galeri->kategori) == 'event' ? 'selected' : '' }}>Event</option>
-                                <option value="lainnya" {{ old('kategori', $galeri->kategori) == 'lainnya' ? 'selected' : '' }}>Lainnya</option>
                             </select>
                             @error('kategori')
                                 <div class="invalid-feedback">{{ $message }}</div>

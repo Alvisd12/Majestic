@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Motor;
 use App\Models\Testimoni;
-use App\Models\Blog;
+use App\Models\Wisata;
 use App\Models\Galeri;
 use Illuminate\Http\Request;
 
@@ -16,7 +16,7 @@ class HomeController extends Controller
         // Data untuk homepage
         $motors = Motor::tersedia()->take(6)->get();
         $testimoni = Testimoni::approved()->with('pengunjung')->take(6)->latest()->get();
-        $blogs = Blog::published()->take(3)->latest()->get();
+        $blogs = Wisata::published()->take(3)->latest()->get();
         $galeri = Galeri::take(8)->latest()->get();
         
         $stats = [

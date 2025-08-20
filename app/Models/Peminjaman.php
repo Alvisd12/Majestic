@@ -15,15 +15,12 @@ class Peminjaman extends Model
     
     protected $fillable = [
         'user_id',
-        'nama',
-        'no_handphone',
         'tanggal_rental',
         'jam_sewa',
         'jenis_motor',
         'durasi_sewa',
         'total_harga',
         'bukti_jaminan',
-        'foto_ktp',
         'status',
         'tanggal_kembali',
         'keterangan'

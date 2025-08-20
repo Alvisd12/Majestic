@@ -25,26 +25,48 @@ class AuthController extends Controller
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
             'username' => 'required|string|max:50|unique:pengunjung,username',
+            'email' => 'required|email|max:255|unique:pengunjung,email',
             'password' => 'required|string|min:6',
-            'phone' => 'required|string|max:20|unique:pengunjung,phone',
+            'no_handphone' => 'required|string|max:20|unique:pengunjung,no_handphone',
+            'alamat' => 'required|string|max:500',
+            'foto_ktp' => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
         ], [
             'nama.required' => 'Nama wajib diisi.',
             'nama.max' => 'Nama maksimal 255 karakter.',
             'username.required' => 'Username wajib diisi.',
             'username.max' => 'Username maksimal 50 karakter.',
             'username.unique' => 'Username sudah digunakan.',
+            'email.required' => 'Email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+            'email.unique' => 'Email sudah digunakan.',
             'password.required' => 'Password wajib diisi.',
             'password.min' => 'Password minimal 6 karakter.',
-            'phone.required' => 'Nomor HP wajib diisi.',
-            'phone.max' => 'Nomor HP maksimal 20 karakter.',
-            'phone.unique' => 'Nomor HP sudah digunakan.',
+            'no_handphone.required' => 'Nomor HP wajib diisi.',
+            'no_handphone.max' => 'Nomor HP maksimal 20 karakter.',
+            'no_handphone.unique' => 'Nomor HP sudah digunakan.',
+            'alamat.required' => 'Alamat wajib diisi.',
+            'alamat.max' => 'Alamat maksimal 500 karakter.',
+            'foto_ktp.image' => 'File harus berupa gambar.',
+            'foto_ktp.mimes' => 'Format file harus JPG, JPEG, atau PNG.',
+            'foto_ktp.max' => 'Ukuran file maksimal 2MB.',
         ]);
+
+        // Handle file upload
+        $fotoKtpPath = null;
+        if ($request->hasFile('foto_ktp')) {
+            $file = $request->file('foto_ktp');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $fotoKtpPath = $file->storeAs('ktp', $filename, 'public');
+        }
 
         $pengunjung = Pengunjung::create([
             'nama' => $validated['nama'],
             'username' => $validated['username'],
+            'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'phone' => $validated['phone'],
+            'no_handphone' => $validated['no_handphone'],
+            'alamat' => $validated['alamat'],
+            'foto_ktp' => $fotoKtpPath,
         ]);
 
         return redirect()->route('login')->with('success', 'Registrasi berhasil! Silakan login.');
@@ -99,7 +121,7 @@ class AuthController extends Controller
                 'is_logged_in' => true
             ]);
             
-            return redirect()->route('auth.dashboard')
+            return redirect()->route('home')
                 ->with('success', 'Login berhasil! Selamat datang ' . $pengunjung->nama);
         }
 
@@ -180,11 +202,23 @@ class AuthController extends Controller
     // === STATIC METHODS FOR OTHER CONTROLLERS ===
     // =========================
 
+    public static function requireAuth()
+    {
+        if (!session('is_logged_in')) {
+            abort(401, 'Anda harus login terlebih dahulu.');
+        }
+    }
+
     public static function requireAdmin()
     {
         if (session('user_role') !== 'admin') {
             abort(403, 'Akses ditolak. Hanya admin yang dapat mengakses halaman ini.');
         }
+    }
+
+    public static function isAdmin()
+    {
+        return session('user_role') === 'admin';
     }
 
     public static function getCurrentUser()
@@ -198,5 +232,68 @@ class AuthController extends Controller
         } else {
             return Pengunjung::find($userId);
         }
+    }
+
+    /**
+     * Show user profile
+     */
+    public function showProfile()
+    {
+        self::requireAuth();
+        
+        $user = self::getCurrentUser();
+        
+        return view('profile.show', compact('user'));
+    }
+
+    /**
+     * Update user profile
+     */
+    public function updateProfile(Request $request)
+    {
+        self::requireAuth();
+        
+        $user = self::getCurrentUser();
+        
+        $validated = $request->validate([
+            'nama' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:pengunjung,email,' . $user->id,
+            'no_handphone' => 'required|string|max:20',
+            'alamat' => 'required|string|max:500',
+            'password' => 'nullable|string|min:6|confirmed',
+        ], [
+            'nama.required' => 'Nama wajib diisi.',
+            'email.required' => 'Email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+            'email.unique' => 'Email sudah digunakan.',
+            'no_handphone.required' => 'Nomor handphone wajib diisi.',
+            'alamat.required' => 'Alamat wajib diisi.',
+            'password.min' => 'Password minimal 6 karakter.',
+            'password.confirmed' => 'Konfirmasi password tidak cocok.',
+        ]);
+
+        // Update data
+        $updateData = [
+            'nama' => $validated['nama'],
+            'email' => $validated['email'],
+            'no_handphone' => $validated['no_handphone'],
+            'alamat' => $validated['alamat'],
+        ];
+
+        // Update password if provided
+        if (!empty($validated['password'])) {
+            $updateData['password'] = bcrypt($validated['password']);
+        }
+
+        if (session('user_role') === 'admin') {
+            \App\Models\Admin::where('id', $user->id)->update($updateData);
+        } else {
+            \App\Models\Pengunjung::where('id', $user->id)->update($updateData);
+        }
+
+        // Update session data
+        session(['user_name' => $validated['nama']]);
+
+        return redirect()->route('user.profile')->with('success', 'Profile berhasil diperbarui!');
     }
 }

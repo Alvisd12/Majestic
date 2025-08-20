@@ -278,10 +278,83 @@
             }
         }
 
+        /* File Upload Styles */
+        .file-upload-wrapper {
+            position: relative;
+        }
+
+        .file-input {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .file-input::-webkit-file-upload-button {
+            background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .file-input::-webkit-file-upload-button:hover {
+            background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
+        }
+
+        .file-upload-info {
+            margin-top: 5px;
+        }
+
+        .file-upload-info small {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .image-preview {
+            position: relative;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .image-preview img {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .remove-image {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            font-size: 16px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease;
+        }
+
+        .remove-image:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+
         /* Focus visible for accessibility */
         .form-input:focus-visible,
         .register-btn:focus-visible,
-        .toggle-password:focus-visible {
+        .toggle-password:focus-visible,
+        .file-input:focus-visible {
             outline: 2px solid #1e88e5;
             outline-offset: 2px;
         }
@@ -305,7 +378,7 @@
                 <img src="{{ asset('assets/images/logo.png') }}" alt="Majestic Transport" class="logo-image" 
                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
             </div>
-            <h2 class="title">REGISTER</h2>
+            <h2 class="title">REGISTER PENGUNJUNG</h2>
             
             @if(session('success'))
                 <div class="success-message">
@@ -313,7 +386,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('register') }}" method="POST" class="register-form" id="registerForm">
+            <form action="{{ route('register') }}" method="POST" class="register-form" id="registerForm" enctype="multipart/form-data">
                 @csrf
                 
                 <div class="form-group">
@@ -375,19 +448,76 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="phone">No. HP</label>
+                    <label for="email">Email</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        class="form-input @error('email') error @enderror"
+                        value="{{ old('email') }}"
+                        placeholder="Masukkan email"
+                        maxlength="255"
+                        required
+                    >
+                    @error('email')
+                        <span class="error-message">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="form-group">
+                    <label for="no_handphone">No. HP</label>
                     <input 
                         type="tel" 
-                        id="phone" 
-                        name="phone" 
-                        class="form-input @error('phone') error @enderror"
-                        value="{{ old('phone') }}"
+                        id="no_handphone" 
+                        name="no_handphone" 
+                        class="form-input @error('no_handphone') error @enderror"
+                        value="{{ old('no_handphone') }}"
                         placeholder="Masukkan nomor HP"
                         pattern="[0-9]{10,15}"
                         maxlength="20"
                         required
                     >
-                    @error('phone')
+                    @error('no_handphone')
+                        <span class="error-message">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="form-group">
+                    <label for="alamat">Alamat</label>
+                    <textarea 
+                        id="alamat" 
+                        name="alamat" 
+                        class="form-input @error('alamat') error @enderror"
+                        placeholder="Masukkan alamat lengkap"
+                        rows="3"
+                        maxlength="500"
+                        required
+                    >{{ old('alamat') }}</textarea>
+                    @error('alamat')
+                        <span class="error-message">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="form-group">
+                    <label for="foto_ktp">Foto KTP</label>
+                    <div class="file-upload-wrapper">
+                        <input 
+                            type="file" 
+                            id="foto_ktp" 
+                            name="foto_ktp" 
+                            class="form-input file-input @error('foto_ktp') error @enderror"
+                            accept="image/*"
+                            onchange="previewImage(this)"
+                        >
+                        <div class="file-upload-info">
+                            <small class="text-muted">Format: JPG, PNG, JPEG. Maksimal 2MB</small>
+                        </div>
+                        <div id="image-preview" class="image-preview" style="display: none;">
+                            <img id="preview-img" src="" alt="Preview KTP" style="max-width: 200px; max-height: 150px; border-radius: 8px; margin-top: 10px;">
+                            <button type="button" class="remove-image" onclick="removeImage()">×</button>
+                        </div>
+                    </div>
+                    @error('foto_ktp')
                         <span class="error-message">{{ $message }}</span>
                     @enderror
                 </div>
@@ -422,7 +552,7 @@
         }
 
         // Phone number formatting
-        document.getElementById('phone').addEventListener('input', function(e) {
+        document.getElementById('no_handphone').addEventListener('input', function(e) {
             // Remove non-numeric characters
             let value = e.target.value.replace(/\D/g, '');
             
@@ -469,8 +599,10 @@
         document.getElementById('registerForm').addEventListener('submit', function(e) {
             const nama = document.getElementById('nama').value.trim();
             const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
-            const phone = document.getElementById('phone').value.trim();
+            const no_handphone = document.getElementById('no_handphone').value.trim();
+            const alamat = document.getElementById('alamat').value.trim();
 
             // Basic validation
             if (nama.length < 2) {
@@ -485,18 +617,71 @@
                 return;
             }
 
+            if (!email.includes('@')) {
+                alert('Format email tidak valid');
+                e.preventDefault();
+                return;
+            }
+
             if (password.length < 6) {
                 alert('Password harus minimal 6 karakter');
                 e.preventDefault();
                 return;
             }
 
-            if (phone.length < 10) {
+            if (no_handphone.length < 10) {
                 alert('Nomor HP harus minimal 10 digit');
                 e.preventDefault();
                 return;
             }
+
+            if (alamat.length < 10) {
+                alert('Alamat harus minimal 10 karakter');
+                e.preventDefault();
+                return;
+            }
         });
+
+        // Image preview functions
+        function previewImage(input) {
+            const file = input.files[0];
+            const preview = document.getElementById('image-preview');
+            const previewImg = document.getElementById('preview-img');
+            
+            if (file) {
+                // Check file size (2MB limit)
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('Ukuran file terlalu besar. Maksimal 2MB.');
+                    input.value = '';
+                    return;
+                }
+                
+                // Check file type
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+                if (!allowedTypes.includes(file.type)) {
+                    alert('Format file tidak didukung. Gunakan JPG, JPEG, atau PNG.');
+                    input.value = '';
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+
+        function removeImage() {
+            const input = document.getElementById('foto_ktp');
+            const preview = document.getElementById('image-preview');
+            
+            input.value = '';
+            preview.style.display = 'none';
+        }
     </script>
 </body>
 </html>

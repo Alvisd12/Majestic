@@ -4,7 +4,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\Blog;
+use App\Models\Wisata;
 use App\Models\Admin;
 
 class BlogSeeder extends Seeder
@@ -39,6 +39,7 @@ Selalu gunakan lampu sein saat akan berbelok atau berpindah jalur untuk memberi 
 
 Dengan mengikuti tips-tips di atas, perjalanan Anda akan lebih aman dan nyaman.',
                 'gambar' => null,
+                'penulis' => $admin->name,
                 'published' => true,
             ],
             [
@@ -62,6 +63,7 @@ Pulau dewata dengan berbagai destinasi wisata yang terkenal di seluruh dunia.
 
 Setiap destinasi memiliki keunikan tersendiri dan cocok untuk road trip dengan motor. Pastikan untuk merencanakan perjalanan dengan baik dan memilih motor yang sesuai dengan kebutuhan Anda.',
                 'gambar' => null,
+                'penulis' => $admin->name,
                 'published' => true,
             ],
             [
@@ -91,16 +93,18 @@ Pastikan semua lampu dan sistem elektrik berfungsi dengan baik untuk keselamatan
 
 Dengan merawat motor secara rutin, motor Anda akan tetap prima dan awet dalam jangka waktu yang lama.',
                 'gambar' => null,
+                'penulis' => $admin->name,
                 'published' => true,
             ]
         ];
 
         foreach ($blogs as $blog) {
-            Blog::create([
+            Wisata::create([
                 'id_admin' => $admin->id,
                 'judul' => $blog['judul'],
                 'isi' => $blog['isi'],
                 'gambar' => $blog['gambar'],
+                'penulis' => $admin->name,
                 'published' => $blog['published'],
             ]);
         }

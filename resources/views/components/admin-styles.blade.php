@@ -1,7 +1,7 @@
 <style>
     :root {
         --primary-blue: #2563eb;
-        --sidebar-bg: #1e40af;
+        --sidebar-bg: #000000;
         --sidebar-active: #fbbf24;
         --text-muted: #6b7280;
     }
@@ -12,7 +12,7 @@
     }
 
     .sidebar {
-        background: linear-gradient(180deg, var(--sidebar-bg) 0%, #1d4ed8 100%);
+        background: linear-gradient(180deg, var(--sidebar-bg) 0%, #000000 100%);
         min-height: 100vh;
         width: 250px;
         position: fixed;
@@ -29,8 +29,8 @@
     }
 
     .sidebar-brand img {
-        width: 40px;
-        height: 40px;
+        width: 180px;
+        height: 60px;
         margin-right: 10px;
     }
 
@@ -422,5 +422,12 @@
         .table-responsive {
             font-size: 0.85rem;
         }
+    }
+
+    .logo {
+        width: 120px;
+        height: 50px;
+        border-radius: 8px;
+        object-fit: contain;
     }
 </style> 

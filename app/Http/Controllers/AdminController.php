@@ -31,6 +31,22 @@ class AdminController extends Controller
         $peminjamanPending = Peminjaman::where('status', 'Pending')->count();
         $peminjamanAktif = Peminjaman::whereIn('status', ['Confirmed', 'Disewa', 'Belum Kembali'])->count();
         
+        // Monthly statistics comparison
+        $currentMonth = now()->startOfMonth();
+        $previousMonth = now()->subMonth()->startOfMonth();
+        $previousMonthEnd = now()->subMonth()->endOfMonth();
+        
+        $peminjamanBulanIni = Peminjaman::where('created_at', '>=', $currentMonth)->count();
+        $peminjamanBulanLalu = Peminjaman::whereBetween('created_at', [$previousMonth, $previousMonthEnd])->count();
+        
+        // Calculate percentage change
+        $persentasePerubahan = 0;
+        if ($peminjamanBulanLalu > 0) {
+            $persentasePerubahan = (($peminjamanBulanIni - $peminjamanBulanLalu) / $peminjamanBulanLalu) * 100;
+        } elseif ($peminjamanBulanIni > 0) {
+            $persentasePerubahan = 100;
+        }
+        
         $query = Peminjaman::with('user'); // Load relasi user untuk mendapatkan nama
         
         // Search functionality
@@ -82,6 +98,11 @@ class AdminController extends Controller
             session()->flash('status_updated', $message);
         }
         
+        // Recent rentals for dashboard with pagination (5 per page)
+        $recentRentals = Peminjaman::with('user')
+            ->orderBy('created_at', 'desc')
+            ->paginate(5, ['*'], 'rentals_page');
+        
         return view('admin.dashboard', compact(
             'peminjaman', 
             'currentUser',
@@ -92,7 +113,11 @@ class AdminController extends Controller
             'motorDisewa',
             'peminjamanPending',
             'peminjamanAktif',
-            'peminjamanPerBulan'
+            'peminjamanPerBulan',
+            'peminjamanBulanIni',
+            'peminjamanBulanLalu',
+            'persentasePerubahan',
+            'recentRentals'
         ));
     }
 
@@ -168,6 +193,10 @@ class AdminController extends Controller
         AuthController::requireAdmin(); // Cek admin access
         
         $peminjaman = Peminjaman::findOrFail($id);
+        $oldStatus = $peminjaman->status;
+        
+        // Handle motor status automatically when approving
+        $this->handleMotorStatus($peminjaman, $oldStatus, 'Confirmed');
         
         // Update status to Confirmed - data akan otomatis muncul di halaman dipinjam
         $peminjaman->update(['status' => 'Confirmed']);
@@ -240,12 +269,10 @@ class AdminController extends Controller
         AuthController::requireAdmin(); // Cek admin access
         
         $peminjaman = Peminjaman::findOrFail($id);
+        $oldStatus = $peminjaman->status;
         
-        // Update status motor menjadi disewa
-        $motor = Motor::where('merk', 'like', '%' . explode(' ', $peminjaman->jenis_motor)[0] . '%')->first();
-        if ($motor) {
-            $motor->update(['status' => 'Disewa']);
-        }
+        // Handle motor status automatically
+        $this->handleMotorStatus($peminjaman, $oldStatus, 'Disewa');
         
         $peminjaman->update(['status' => 'Disewa']);
         
@@ -260,12 +287,10 @@ class AdminController extends Controller
         AuthController::requireAdmin(); // Cek admin access
         
         $peminjaman = Peminjaman::findOrFail($id);
+        $oldStatus = $peminjaman->status;
         
-        // Update status motor menjadi tersedia
-        $motor = Motor::where('merk', 'like', '%' . explode(' ', $peminjaman->jenis_motor)[0] . '%')->first();
-        if ($motor) {
-            $motor->update(['status' => 'Tersedia']);
-        }
+        // Handle motor status automatically
+        $this->handleMotorStatus($peminjaman, $oldStatus, 'Selesai');
         
         $peminjaman->update([
             'status' => 'Selesai',
@@ -381,7 +406,7 @@ class AdminController extends Controller
     public function galeriStore(Request $request)
     {
         AuthController::requireAdmin();
-        
+
         $validated = $request->validate([
             'gambar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'judul' => 'required|string|max:255',
@@ -399,7 +424,7 @@ class AdminController extends Controller
             'tanggal_sewa.required' => 'Tanggal sewa wajib diisi.',
             'tanggal_sewa.date' => 'Format tanggal tidak valid.'
         ]);
-        
+
         // Handle file upload
         if ($request->hasFile('gambar')) {
             $gambar = $request->file('gambar');
@@ -407,12 +432,18 @@ class AdminController extends Controller
             $gambarPath = $gambar->storeAs('galeri', $gambarName, 'public');
             $validated['gambar'] = $gambarPath;
         }
-        
+
         // Add admin ID
         $validated['id_admin'] = AuthController::getCurrentUser()->id;
-        
-        \App\Models\Galeri::create($validated);
-        
+
+        // Create galeri entry
+        $galeri = \App\Models\Galeri::create($validated);
+
+        // If category is wisata, also create blog entry
+        if ($request->kategori === 'wisata') {
+            $this->createBlogFromGaleri($galeri);
+        }
+
         return redirect()->route('admin.galeri')
             ->with('success', 'Item galeri berhasil ditambahkan!');
     }
@@ -449,6 +480,9 @@ class AdminController extends Controller
             'tanggal_sewa.date' => 'Format tanggal tidak valid.'
         ]);
         
+        // Store old category for comparison
+        $oldCategory = $galeri->kategori;
+        
         // Handle file upload if new image is provided
         if ($request->hasFile('gambar')) {
             // Delete old image
@@ -463,6 +497,18 @@ class AdminController extends Controller
         }
         
         $galeri->update($validated);
+        
+        // Handle blog table updates based on category changes
+        if ($request->kategori === 'wisata' && $oldCategory !== 'wisata') {
+            // Category changed to wisata - create blog entry
+            $this->createBlogFromGaleri($galeri);
+        } elseif ($request->kategori !== 'wisata' && $oldCategory === 'wisata') {
+            // Category changed from wisata - remove blog entry
+            $this->deleteBlogFromGaleri($galeri);
+        } elseif ($request->kategori === 'wisata' && $oldCategory === 'wisata') {
+            // Category remains wisata - update blog entry
+            $this->updateBlogFromGaleri($galeri);
+        }
         
         return redirect()->route('admin.galeri')
             ->with('success', 'Item galeri berhasil diupdate!');
@@ -631,13 +677,104 @@ class AdminController extends Controller
     }
 
     // Testimoni Management
-    public function testimoniIndex()
+    public function testimoniIndex(Request $request)
     {
         AuthController::requireAdmin();
         
-        $testimoni = Testimoni::with('pengunjung')->orderBy('created_at', 'desc')->paginate(10);
+        $query = Testimoni::with('pengunjung');
         
-        return view('admin.testimoni.index', compact('testimoni'));
+        // Search functionality
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('pesan', 'like', "%{$search}%")
+                  ->orWhereHas('pengunjung', function($userQuery) use ($search) {
+                      $userQuery->where('nama', 'like', "%{$search}%")
+                               ->orWhere('username', 'like', "%{$search}%");
+                  });
+            });
+        }
+        
+        // Filter by status
+        if ($request->has('status') && $request->status) {
+            switch ($request->status) {
+                case 'pending':
+                    $query->whereNull('approved');
+                    break;
+                case 'approved':
+                    $query->where('approved', true);
+                    break;
+                case 'rejected':
+                    $query->where('approved', false);
+                    break;
+            }
+        }
+        
+        $testimoni = $query->orderBy('created_at', 'desc')->paginate(10);
+        
+        return view('admin.testimoni', compact('testimoni'));
+    }
+
+    public function testimoniCreate()
+    {
+        AuthController::requireAdmin();
+        
+        $pengunjung = Pengunjung::orderBy('nama')->get();
+        
+        return view('admin.testimoni.create', compact('pengunjung'));
+    }
+
+    public function testimoniStore(Request $request)
+    {
+        AuthController::requireAdmin();
+        
+        $request->validate([
+            'id_pengunjung' => 'required|exists:pengunjung,id',
+            'pesan' => 'required|string|max:1000',
+            'rating' => 'required|integer|min:1|max:5',
+            'approved' => 'nullable|boolean',
+        ]);
+
+        Testimoni::create([
+            'id_pengunjung' => $request->id_pengunjung,
+            'pesan' => $request->pesan,
+            'rating' => $request->rating,
+            'approved' => $request->approved !== '' ? (bool)$request->approved : null,
+        ]);
+
+        return redirect()->route('admin.testimoni')->with('success', 'Testimoni berhasil ditambahkan!');
+    }
+
+    public function testimoniShow($id)
+    {
+        AuthController::requireAdmin();
+        
+        $testimoni = Testimoni::with('pengunjung')->findOrFail($id);
+        
+        return view('admin.testimoni.show', compact('testimoni'));
+    }
+
+    public function testimoniUpdate(Request $request, $id)
+    {
+        AuthController::requireAdmin();
+        
+        $testimoni = Testimoni::findOrFail($id);
+        
+        $request->validate([
+            'id_pengunjung' => 'required|exists:pengunjung,id',
+            'pesan' => 'required|string|max:1000',
+            'rating' => 'required|integer|min:1|max:5',
+            'approved' => 'nullable|boolean',
+        ]);
+
+        $testimoni->update([
+            'id_pengunjung' => $request->id_pengunjung,
+            'pesan' => $request->pesan,
+            'rating' => $request->rating,
+            'approved' => $request->approved !== '' ? (bool)$request->approved : null,
+        ]);
+
+        return redirect()->route('admin.testimoni')->with('success', 'Testimoni berhasil diupdate!');
     }
 
     public function testimoniApprove($id)
@@ -756,17 +893,29 @@ class AdminController extends Controller
     // Helper Methods
     private function handleMotorStatus($peminjaman, $oldStatus, $newStatus)
     {
-        $motor = Motor::where('merk', 'like', '%' . explode(' ', $peminjaman->jenis_motor)[0] . '%')->first();
+        // Find motor based on jenis_motor with better matching
+        $motorParts = explode(' ', $peminjaman->jenis_motor);
+        $motor = Motor::where(function($query) use ($motorParts) {
+            $query->where('merk', 'like', '%' . $motorParts[0] . '%');
+            if (isset($motorParts[1])) {
+                $query->where('model', 'like', '%' . $motorParts[1] . '%');
+            }
+        })->first();
         
         if (!$motor) return;
         
-        // Jika status berubah dari non-Disewa ke Disewa
-        if ($oldStatus !== 'Disewa' && $newStatus === 'Disewa') {
+        // Handle motor status based on peminjaman status changes
+        if ($newStatus === 'Confirmed' && $oldStatus !== 'Confirmed') {
+            // Motor reserved when booking confirmed
             $motor->update(['status' => 'Disewa']);
-        }
-        
-        // Jika status berubah dari Disewa ke Selesai atau Cancelled
-        if ($oldStatus === 'Disewa' && in_array($newStatus, ['Selesai', 'Cancelled'])) {
+        } elseif ($newStatus === 'Disewa' && $oldStatus !== 'Disewa') {
+            // Motor actively rented
+            $motor->update(['status' => 'Disewa']);
+        } elseif ($newStatus === 'Selesai' && $oldStatus !== 'Selesai') {
+            // Motor returned and available again
+            $motor->update(['status' => 'Tersedia']);
+        } elseif ($newStatus === 'Cancelled' && in_array($oldStatus, ['Confirmed', 'Disewa'])) {
+            // Booking cancelled, motor becomes available
             $motor->update(['status' => 'Tersedia']);
         }
     }
@@ -775,5 +924,23 @@ class AdminController extends Controller
     {
         // File deletion is no longer needed as files are stored in pengunjung table
         // This method is kept for future use if needed
+    }
+
+    private function createBlogFromGaleri($galeri)
+    {
+        // Blog functionality removed - wisata model no longer exists
+        // This method is kept for backward compatibility
+    }
+
+    private function updateBlogFromGaleri($galeri)
+    {
+        // Blog functionality removed - wisata model no longer exists
+        // This method is kept for backward compatibility
+    }
+
+    private function deleteBlogFromGaleri($galeri)
+    {
+        // Blog functionality removed - wisata model no longer exists
+        // This method is kept for backward compatibility
     }
 }

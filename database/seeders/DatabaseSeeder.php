@@ -23,22 +23,19 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@majesticrentals.com'
         ]);
 
-        // Create sample pengunjung
-        $pengunjung1 = Pengunjung::create([
-            'nama' => 'John Doe',
-            'username' => 'johndoe',
-            'password' => Hash::make('password123'),
-            'phone' => '081234567891',
-            'foto_ktp' => null
+        // Pengunjung will be created by PengunjungSeeder
+        // Get first two pengunjung for sample data after seeding
+        $this->call([
+            MotorSeeder::class,
+            PengunjungSeeder::class,
+            TestimoniSeeder::class,
+            BlogSeeder::class,
+            GaleriSeeder::class,
         ]);
 
-        $pengunjung2 = Pengunjung::create([
-            'nama' => 'Jane Smith',
-            'username' => 'janesmith',
-            'password' => Hash::make('password123'),
-            'phone' => '081234567892',
-            'foto_ktp' => null
-        ]);
+        // Get pengunjung for sample peminjaman
+        $pengunjung1 = Pengunjung::where('username', 'johndoe')->first();
+        $pengunjung2 = Pengunjung::where('username', 'janesmith')->first();
 
         // Create sample motors
         $motors = [
@@ -102,46 +99,43 @@ class DatabaseSeeder extends Seeder
             Motor::create($motorData);
         }
 
-        // Create sample peminjaman
-        Peminjaman::create([
-            'user_id' => $pengunjung1->id,
-            'tanggal_rental' => now()->subDays(2),
-            'jam_sewa' => '09:00',
-            'durasi_sewa' => 3,
-            'jenis_motor' => 'Honda Beat',
-            'total_harga' => 150000,
-            'status' => 'Disewa'
-        ]);
+        // Create sample peminjaman if pengunjung exist
+        if ($pengunjung1 && $pengunjung2) {
+            Peminjaman::create([
+                'user_id' => $pengunjung1->id,
+                'tanggal_rental' => now()->subDays(2),
+                'jam_sewa' => '09:00',
+                'durasi_sewa' => 3,
+                'jenis_motor' => 'Honda Beat',
+                'total_harga' => 150000,
+                'status' => 'Disewa'
+            ]);
 
-        Peminjaman::create([
-            'user_id' => $pengunjung2->id,
-            'tanggal_rental' => now()->subDays(5),
-            'jam_sewa' => '10:00',
-            'durasi_sewa' => 2,
-            'jenis_motor' => 'Yamaha Vixion',
-            'total_harga' => 150000,
-            'status' => 'Selesai',
-            'tanggal_kembali' => now()->subDays(3)
-        ]);
+            Peminjaman::create([
+                'user_id' => $pengunjung2->id,
+                'tanggal_rental' => now()->subDays(5),
+                'jam_sewa' => '10:00',
+                'durasi_sewa' => 2,
+                'jenis_motor' => 'Yamaha Vixion',
+                'total_harga' => 150000,
+                'status' => 'Selesai',
+                'tanggal_kembali' => now()->subDays(3)
+            ]);
 
-        Peminjaman::create([
-            'user_id' => $pengunjung1->id,
-            'tanggal_rental' => now()->addDays(1),
-            'jam_sewa' => '08:00',
-            'durasi_sewa' => 1,
-            'jenis_motor' => 'Suzuki Address',
-            'total_harga' => 60000,
-            'status' => 'Confirmed'
-        ]);
+            Peminjaman::create([
+                'user_id' => $pengunjung1->id,
+                'tanggal_rental' => now()->addDays(1),
+                'jam_sewa' => '08:00',
+                'durasi_sewa' => 1,
+                'jenis_motor' => 'Suzuki Address',
+                'total_harga' => 60000,
+                'status' => 'Confirmed'
+            ]);
+        }
 
-        // Call other seeders
+        // Call PeminjamanSeeder for additional sample data
         $this->call([
-            MotorSeeder::class,
-            PengunjungSeeder::class,
             PeminjamanSeeder::class,
-            TestimoniSeeder::class,
-            BlogSeeder::class,
-            GaleriSeeder::class,
         ]);
     }
 }

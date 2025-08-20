@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PeminjamanController;
+use App\Http\Controllers\AdminAccountController;
 
 // Halaman utama (home)
 Route::get('/', function () {
@@ -103,6 +104,13 @@ Route::middleware('check.login')->group(function () {
     // Peminjaman routes (untuk user biasa dan admin)
     Route::resource('peminjaman', PeminjamanController::class);
     
+    // Booking routes for pengunjung
+    Route::get('/booking', [PeminjamanController::class, 'create'])->name('booking.create');
+    Route::post('/booking', [PeminjamanController::class, 'store'])->name('booking.store');
+    Route::get('/my-bookings', [PeminjamanController::class, 'userBookings'])->name('user.bookings');
+    Route::get('/profile', [AuthController::class, 'showProfile'])->name('user.profile');
+    Route::put('/profile', [AuthController::class, 'updateProfile'])->name('user.profile.update');
+    
     // Admin routes dengan prefix 'admin'
     Route::prefix('admin')->middleware('auto.update.status')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
@@ -111,14 +119,21 @@ Route::middleware('check.login')->group(function () {
         // Motor Management Routes
         Route::get('/motor', [AdminController::class, 'motorIndex'])->name('admin.motor.index');
         Route::get('/motor/create', [AdminController::class, 'motorCreate'])->name('admin.motor.create');
-        Route::post('/motor', [AdminController::class, 'motorStore'])->name('admin.motor.store');
-        Route::get('/motor/{id}/edit', [AdminController::class, 'motorEdit'])->name('admin.motor.edit');
-        Route::put('/motor/{id}', [AdminController::class, 'motorUpdate'])->name('admin.motor.update');
-        Route::delete('/motor/{id}', [AdminController::class, 'motorDestroy'])->name('admin.motor.destroy');
+        
+        // Testimoni routes
+        Route::get('/testimoni', [AdminController::class, 'testimoniIndex'])->name('admin.testimoni');
+        Route::get('/testimoni/{id}', [AdminController::class, 'testimoniShow'])->name('admin.testimoni.show');
+        Route::delete('/testimoni/{id}', [AdminController::class, 'testimoniDestroy'])->name('admin.testimoni.destroy');
         
         Route::put('/peminjaman/{id}/status', [AdminController::class, 'updateStatus'])->name('admin.peminjaman.status');
         Route::delete('/peminjaman/{id}', [AdminController::class, 'destroy'])->name('admin.peminjaman.destroy');
         Route::get('/peminjaman/{id}', [AdminController::class, 'show'])->name('admin.peminjaman.show');
+        
+        // Motor Management Routes
+        Route::post('/motor', [AdminController::class, 'motorStore'])->name('admin.motor.store');
+        Route::get('/motor/{id}/edit', [AdminController::class, 'motorEdit'])->name('admin.motor.edit');
+        Route::put('/motor/{id}', [AdminController::class, 'motorUpdate'])->name('admin.motor.update');
+        Route::delete('/motor/{id}', [AdminController::class, 'motorDestroy'])->name('admin.motor.destroy');
         
         // Confirmation routes
         Route::get('/konfirmasi', [AdminController::class, 'konfirmasi'])->name('admin.konfirmasi');
@@ -140,6 +155,14 @@ Route::middleware('check.login')->group(function () {
         Route::get('/galeri/{id}/edit', [AdminController::class, 'galeriEdit'])->name('admin.galeri.edit');
         Route::put('/galeri/{id}', [AdminController::class, 'galeriUpdate'])->name('admin.galeri.update');
         Route::delete('/galeri/{id}', [AdminController::class, 'galeriDestroy'])->name('admin.galeri.destroy');
+
+        // Admin Account Management routes
+        Route::get('/admin-accounts', [AdminAccountController::class, 'index'])->name('admin.admin_accounts');
+        Route::get('/admin-accounts/create', [AdminAccountController::class, 'create'])->name('admin.admin_accounts.create');
+        Route::post('/admin-accounts', [AdminAccountController::class, 'store'])->name('admin.admin_accounts.store');
+        Route::get('/admin-accounts/{id}/edit', [AdminAccountController::class, 'edit'])->name('admin.admin_accounts.edit');
+        Route::put('/admin-accounts/{id}', [AdminAccountController::class, 'update'])->name('admin.admin_accounts.update');
+        Route::delete('/admin-accounts/{id}', [AdminAccountController::class, 'destroy'])->name('admin.admin_accounts.destroy');
         
         Route::get('/export', [AdminController::class, 'export'])->name('admin.export');
         Route::get('/statistics', [AdminController::class, 'getStatistics'])->name('admin.statistics');

@@ -19,6 +19,7 @@ class Admin extends Authenticatable
         'password',
         'phone',
         'email',
+        'role',
     ];
 
     protected $hidden = [
@@ -37,6 +38,6 @@ class Admin extends Authenticatable
 
     public function blog(): HasMany
     {
-        return $this->hasMany(Blog::class, 'id_admin');
+        return $this->hasMany(Wisata::class, 'id_admin');
     }
 }

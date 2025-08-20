@@ -5,19 +5,16 @@
 @section('page-title', 'Harga Sewa')
 
 @section('content')
-<style>
-.badge {
-    color: #222 !important;
-    font-weight: 600;
-}
-.badge-success { background: #d4edda !important; color: #155724 !important; }
-.badge-warning { background: #fff3cd !important; color: #856404 !important; }
-.badge-danger { background: #f8d7da !important; color: #721c24 !important; }
-.badge-secondary { background: #e2e3e5 !important; color: #383d41 !important; }
-</style>
-
-    <!-- Search and Add Button Row -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 fw-bold">Daftar Harga Sewa Motor</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Search and Add Button Row -->
+                    <div class="d-flex justify-content-between align-items-center mb-4">
                 <!-- Search Box -->
                 <form method="GET" action="{{ route('admin.harga_sewa') }}" class="d-flex align-items-center">
                     <div class="search-box me-3">
@@ -27,15 +24,14 @@
                     </div>
                 </form>
                 
-                <!-- Add Button -->
-                <button class="add-button" onclick="addMotor()">
-                    <i class="fas fa-plus"></i>
-                    Tambah
-                </button>
-            </div>
+                        <!-- Add Button -->
+                        <button type="button" class="btn btn-primary" onclick="addMotor()">
+                            <i class="fas fa-plus me-2"></i>
+                            Tambah Motor
+                        </button>
+                    </div>
 
-            <!-- Data Table -->
-            <div class="data-table">
+                    <!-- Data Table -->
                 <div class="table-responsive">
                     <table class="table">
                         <thead>
@@ -90,17 +86,19 @@
                                         {{ $motor->status }}
                                     </span></td>
                                 <td>
-                                    <button class="action-btn btn-edit" onclick="editMotor({{ $motor->id }})">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="action-btn btn-delete" onclick="deleteMotor({{ $motor->id }})">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="editMotor({{ $motor->id ?? 0 }})">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteMotor({{ $motor->id ?? 0 }})">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="9" class="text-center py-4">
+                                <td colspan="10" class="text-center py-4">
                                     <i class="fas fa-motorcycle fa-3x text-muted mb-3"></i>
                                     <p class="text-muted">Tidak ada data motor</p>
                                 </td>
@@ -110,58 +108,180 @@
                     </table>
                 </div>
                 
-                <!-- Pagination -->
-                @if($motors->hasPages())
-                <div class="pagination-container">
-                    {{ $motors->appends(request()->query())->links() }}
+                    <!-- Pagination -->
+                    @if($motors->hasPages())
+                    <div class="d-flex justify-content-center mt-4">
+                        {{ $motors->appends(request()->query())->links() }}
+                    </div>
+                    @endif
                 </div>
-                @endif
             </div>
         </div>
     </div>
+</div>
+@endsection
 
+@section('additional-styles')
+<style>
+.motor-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+}
+
+.motor-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.motor-image i {
+    font-size: 24px;
+    color: #6c757d;
+}
+
+.price-badge {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    display: inline-block;
+}
+
+.search-box {
+    position: relative;
+}
+
+.search-box input {
+    padding-left: 40px;
+    border-radius: 25px;
+    border: 1px solid #dee2e6;
+    width: 300px;
+}
+
+.search-box i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+}
+
+.badge {
+    font-size: 0.75rem;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-weight: 600;
+}
+
+.badge-success { 
+    background: #d4edda !important; 
+    color: #155724 !important; 
+    border: 1px solid #c3e6cb;
+}
+
+.badge-warning { 
+    background: #fff3cd !important; 
+    color: #856404 !important; 
+    border: 1px solid #ffeaa7;
+}
+
+.badge-danger { 
+    background: #f8d7da !important; 
+    color: #721c24 !important; 
+    border: 1px solid #f5c6cb;
+}
+
+.badge-secondary { 
+    background: #e2e3e5 !important; 
+    color: #383d41 !important; 
+    border: 1px solid #d6d8db;
+}
+
+.table th {
+    background: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+    color: #495057;
+}
+
+.table td {
+    vertical-align: middle;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.btn-group .btn {
+    margin: 0 2px;
+}
+</style>
 @endsection
 
 @section('additional-scripts')
 <script>
     // Add Motor Function
     function addMotor() {
-        // Redirect to motor create page or show modal
         window.location.href = '{{ route("admin.motor.create") }}';
     }
 
     // Edit Motor Function
     function editMotor(id) {
-        // Redirect to motor edit page
-        window.location.href = `/admin/motor/${id}/edit`;
+        window.location.href = '{{ route("admin.motor.edit", ":id") }}'.replace(':id', id);
     }
 
     // Delete Motor Function
     function deleteMotor(id) {
-        if (confirm('Apakah Anda yakin ingin menghapus motor ini?')) {
-            fetch(`/admin/motor/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    location.reload();
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Gagal menghapus motor');
-            });
-        }
+        Swal.fire({
+            title: 'Konfirmasi Hapus',
+            text: 'Apakah Anda yakin ingin menghapus motor ini?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch('{{ route("admin.motor.destroy", ":id") }}'.replace(':id', id), {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire('Berhasil!', 'Motor berhasil dihapus.', 'success')
+                        .then(() => location.reload());
+                    } else {
+                        Swal.fire('Error!', data.message || 'Gagal menghapus motor.', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire('Error!', 'Terjadi kesalahan saat menghapus motor.', 'error');
+                });
+            }
+        });
     }
 
     // Auto-submit search form on input
-    document.querySelector('input[name="search"]').addEventListener('keyup', function(e) {
-        if (e.key === 'Enter') {
-            this.form.submit();
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.querySelector('input[name="search"]');
+        if (searchInput) {
+            searchInput.addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') {
+                    this.form.submit();
+                }
+            });
         }
     });
 </script>

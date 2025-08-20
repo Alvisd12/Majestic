@@ -13,9 +13,11 @@ return new class extends Migration
             $table->id();
             $table->string('nama');
             $table->string('username')->unique();
+            $table->string('email')->unique();
             $table->string('password');
-            $table->string('phone')->unique();
-            $table->string('foto_ktp')->nullable(); // Tambahkan ini
+            $table->string('no_handphone')->unique();
+            $table->text('alamat');
+            $table->string('foto_ktp')->nullable();
             $table->timestamps();
         });
     }

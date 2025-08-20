@@ -7,6 +7,7 @@
     <title>@yield('title', 'Admin Dashboard') - Majestic Transport</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     @include('components.admin-styles')
     @yield('additional-styles')
 </head>
@@ -20,12 +21,15 @@
         <div class="topbar">
             <h1 class="page-title">@yield('page-title', 'Dashboard')</h1>
             <div class="user-profile">
+                @php
+                    $currentAdmin = \App\Http\Controllers\AuthController::getCurrentUser();
+                @endphp
                 <div class="text-end me-2">
-                    <div class="fw-bold">{{ Auth::user()->nama ?? 'Administrator' }}</div>
-                    <small class="text-muted">Admin</small>
+                    <div class="fw-bold">{{ $currentAdmin->nama ?? 'Administrator' }}</div>
+                    <small class="text-muted">{{ ucfirst($currentAdmin->role ?? 'Admin') }}</small>
                 </div>
                 <div class="user-avatar">
-                    {{ substr(Auth::user()->nama ?? 'A', 0, 1) }}
+                    {{ substr($currentAdmin->nama ?? 'A', 0, 1) }}
                 </div>
             </div>
         </div>
