@@ -52,10 +52,17 @@
                         <td>{{ $admins->firstItem() + $index }}.</td>
                         <td>
                             <div class="admin-avatar">
-                                <div class="bg-primary d-flex align-items-center justify-content-center rounded-circle" 
-                                     style="width: 40px; height: 40px;">
-                                    <i class="fas fa-user text-white"></i>
-                                </div>
+                                @if($admin->profile_photo)
+                                    <img src="{{ asset('storage/' . $admin->profile_photo) }}" 
+                                         alt="Profile Photo" 
+                                         class="rounded-circle" 
+                                         style="width: 40px; height: 40px; object-fit: cover; border: 2px solid #e5e7eb;">
+                                @else
+                                    <div class="bg-primary d-flex align-items-center justify-content-center rounded-circle text-white fw-bold" 
+                                         style="width: 40px; height: 40px; border: 2px solid #e5e7eb;">
+                                        {{ substr($admin->nama, 0, 1) }}
+                                    </div>
+                                @endif
                             </div>
                         </td>
                         <td>

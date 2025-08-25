@@ -66,6 +66,12 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.profile.show') ? 'active' : '' }}" href="{{ route('admin.profile.show') }}">
+                    <i class="fas fa-user-cog"></i>
+                    <span>Profile Settings</span>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                     <i class="fas fa-sign-out-alt"></i>
                     Logout

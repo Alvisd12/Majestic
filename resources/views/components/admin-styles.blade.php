@@ -1,7 +1,7 @@
 <style>
     :root {
         --primary-blue: #2563eb;
-        --sidebar-bg: #000000;
+        --sidebar-bg:rgb(66, 69, 235);
         --sidebar-active: #fbbf24;
         --text-muted: #6b7280;
     }
@@ -12,7 +12,7 @@
     }
 
     .sidebar {
-        background: linear-gradient(180deg, var(--sidebar-bg) 0%, #000000 100%);
+        background: linear-gradient(180deg, var(--sidebar-bg) 0%,rgb(46, 84, 255) 100%);
         min-height: 100vh;
         width: 250px;
         position: fixed;
@@ -171,6 +171,45 @@
         justify-content: center;
         color: white;
         font-weight: bold;
+        overflow: hidden;
+        border: 2px solid #e5e7eb;
+        transition: all 0.3s ease;
+    }
+
+    .user-avatar:hover {
+        border-color: var(--primary-blue);
+        transform: scale(1.05);
+    }
+
+    .user-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+
+    .dropdown-menu {
+        border: none;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        border-radius: 8px;
+        padding: 8px 0;
+        margin-top: 8px;
+    }
+
+    .dropdown-item {
+        padding: 10px 20px;
+        transition: all 0.3s ease;
+        color: #374151;
+    }
+
+    .dropdown-item:hover {
+        background-color: #f3f4f6;
+        color: var(--primary-blue);
+    }
+
+    .dropdown-item i {
+        width: 16px;
+        text-align: center;
     }
 
     .content-area {

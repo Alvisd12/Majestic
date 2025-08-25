@@ -28,8 +28,26 @@
                     <div class="fw-bold">{{ $currentAdmin->nama ?? 'Administrator' }}</div>
                     <small class="text-muted">{{ ucfirst($currentAdmin->role ?? 'Admin') }}</small>
                 </div>
-                <div class="user-avatar">
-                    {{ substr($currentAdmin->nama ?? 'A', 0, 1) }}
+                <div class="dropdown">
+                    <div class="user-avatar dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
+                        @if($currentAdmin && $currentAdmin->profile_photo)
+                            <img src="{{ asset('storage/' . $currentAdmin->profile_photo) }}" 
+                                 alt="Profile Photo" 
+                                 class="rounded-circle" 
+                                 style="width: 40px; height: 40px; object-fit: cover;">
+                        @else
+                            {{ substr($currentAdmin->nama ?? 'A', 0, 1) }}
+                        @endif
+                    </div>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{{ route('admin.profile.show') }}">
+                            <i class="fas fa-user me-2"></i>Profile
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                            <i class="fas fa-sign-out-alt me-2"></i>Logout
+                        </a></li>
+                    </ul>
                 </div>
             </div>
         </div>

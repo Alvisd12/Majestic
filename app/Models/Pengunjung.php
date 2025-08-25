@@ -21,6 +21,7 @@ class Pengunjung extends Authenticatable
         'no_handphone',
         'alamat',
         'foto_ktp',
+        'profile_photo',
     ];
 
     protected $hidden = [

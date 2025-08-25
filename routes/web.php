@@ -110,6 +110,8 @@ Route::middleware('check.login')->group(function () {
     Route::get('/my-bookings', [PeminjamanController::class, 'userBookings'])->name('user.bookings');
     Route::get('/profile', [AuthController::class, 'showProfile'])->name('user.profile');
     Route::put('/profile', [AuthController::class, 'updateProfile'])->name('user.profile.update');
+    Route::post('/profile/upload-photo', [AuthController::class, 'uploadProfilePhoto'])->name('user.profile.upload-photo');
+    Route::delete('/profile/delete-photo', [AuthController::class, 'deleteProfilePhoto'])->name('user.profile.delete-photo');
     
     // Admin routes dengan prefix 'admin'
     Route::prefix('admin')->middleware('auto.update.status')->group(function () {
@@ -163,6 +165,12 @@ Route::middleware('check.login')->group(function () {
         Route::get('/admin-accounts/{id}/edit', [AdminAccountController::class, 'edit'])->name('admin.admin_accounts.edit');
         Route::put('/admin-accounts/{id}', [AdminAccountController::class, 'update'])->name('admin.admin_accounts.update');
         Route::delete('/admin-accounts/{id}', [AdminAccountController::class, 'destroy'])->name('admin.admin_accounts.destroy');
+        
+        // Admin Profile Management routes
+        Route::get('/profile', [\App\Http\Controllers\AdminProfileController::class, 'show'])->name('admin.profile.show');
+        Route::put('/profile', [\App\Http\Controllers\AdminProfileController::class, 'update'])->name('admin.profile.update');
+        Route::post('/profile/upload-photo', [\App\Http\Controllers\AdminProfileController::class, 'uploadPhoto'])->name('admin.profile.upload-photo');
+        Route::delete('/profile/delete-photo', [\App\Http\Controllers\AdminProfileController::class, 'deletePhoto'])->name('admin.profile.delete-photo');
         
         Route::get('/export', [AdminController::class, 'export'])->name('admin.export');
         Route::get('/statistics', [AdminController::class, 'getStatistics'])->name('admin.statistics');

@@ -254,38 +254,73 @@ class AuthController extends Controller
         self::requireAuth();
         
         $user = self::getCurrentUser();
+        $userRole = session('user_role');
         
-        $validated = $request->validate([
+        $rules = [
             'nama' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:pengunjung,email,' . $user->id,
-            'no_handphone' => 'required|string|max:20',
-            'alamat' => 'required|string|max:500',
             'password' => 'nullable|string|min:6|confirmed',
-        ], [
+            'profile_photo' => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
+        ];
+        
+        $messages = [
             'nama.required' => 'Nama wajib diisi.',
-            'email.required' => 'Email wajib diisi.',
-            'email.email' => 'Format email tidak valid.',
-            'email.unique' => 'Email sudah digunakan.',
-            'no_handphone.required' => 'Nomor handphone wajib diisi.',
-            'alamat.required' => 'Alamat wajib diisi.',
             'password.min' => 'Password minimal 6 karakter.',
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
-        ]);
+            'profile_photo.image' => 'File harus berupa gambar.',
+            'profile_photo.mimes' => 'Format gambar harus JPG, JPEG, atau PNG.',
+            'profile_photo.max' => 'Ukuran gambar maksimal 2MB.',
+        ];
+        
+        // Add role-specific validation rules
+        if ($userRole === 'admin') {
+            $rules['email'] = 'nullable|email|max:255|unique:admin,email,' . $user->id;
+            $rules['phone'] = 'required|string|max:20|unique:admin,phone,' . $user->id;
+            $messages['phone.required'] = 'Nomor handphone wajib diisi.';
+            $messages['phone.unique'] = 'Nomor handphone sudah digunakan.';
+        } else {
+            $rules['email'] = 'required|email|max:255|unique:pengunjung,email,' . $user->id;
+            $rules['no_handphone'] = 'required|string|max:20|unique:pengunjung,no_handphone,' . $user->id;
+            $rules['alamat'] = 'required|string|max:500';
+            $messages['email.required'] = 'Email wajib diisi.';
+            $messages['no_handphone.required'] = 'Nomor handphone wajib diisi.';
+            $messages['alamat.required'] = 'Alamat wajib diisi.';
+        }
+
+        $validated = $request->validate($rules, $messages);
 
         // Update data
         $updateData = [
             'nama' => $validated['nama'],
-            'email' => $validated['email'],
-            'no_handphone' => $validated['no_handphone'],
-            'alamat' => $validated['alamat'],
         ];
+        
+        if ($userRole === 'admin') {
+            if (isset($validated['email'])) $updateData['email'] = $validated['email'];
+            if (isset($validated['phone'])) $updateData['phone'] = $validated['phone'];
+        } else {
+            $updateData['email'] = $validated['email'];
+            $updateData['no_handphone'] = $validated['no_handphone'];
+            $updateData['alamat'] = $validated['alamat'];
+        }
+
+        // Handle profile photo upload
+        if ($request->hasFile('profile_photo')) {
+            // Delete old profile photo if exists
+            if ($user->profile_photo && \Illuminate\Support\Facades\Storage::disk('public')->exists($user->profile_photo)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->profile_photo);
+            }
+            
+            $file = $request->file('profile_photo');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $profilePhotoPath = $file->storeAs('profile_photos', $filename, 'public');
+            $updateData['profile_photo'] = $profilePhotoPath;
+        }
 
         // Update password if provided
         if (!empty($validated['password'])) {
             $updateData['password'] = bcrypt($validated['password']);
         }
 
-        if (session('user_role') === 'admin') {
+        if ($userRole === 'admin') {
             \App\Models\Admin::where('id', $user->id)->update($updateData);
         } else {
             \App\Models\Pengunjung::where('id', $user->id)->update($updateData);
@@ -295,5 +330,83 @@ class AuthController extends Controller
         session(['user_name' => $validated['nama']]);
 
         return redirect()->route('user.profile')->with('success', 'Profile berhasil diperbarui!');
+    }
+
+    /**
+     * Upload profile photo only
+     */
+    public function uploadProfilePhoto(Request $request)
+    {
+        self::requireAuth();
+        
+        $request->validate([
+            'profile_photo' => 'required|image|mimes:jpeg,jpg,png|max:2048',
+        ], [
+            'profile_photo.required' => 'Foto profil wajib dipilih.',
+            'profile_photo.image' => 'File harus berupa gambar.',
+            'profile_photo.mimes' => 'Format gambar harus JPG, JPEG, atau PNG.',
+            'profile_photo.max' => 'Ukuran gambar maksimal 2MB.',
+        ]);
+
+        $user = self::getCurrentUser();
+        $userRole = session('user_role');
+
+        // Delete old profile photo if exists
+        if ($user->profile_photo && \Illuminate\Support\Facades\Storage::disk('public')->exists($user->profile_photo)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($user->profile_photo);
+        }
+
+        // Upload new profile photo
+        $file = $request->file('profile_photo');
+        $filename = time() . '_' . $file->getClientOriginalName();
+        $profilePhotoPath = $file->storeAs('profile_photos', $filename, 'public');
+
+        // Update database
+        if ($userRole === 'admin') {
+            \App\Models\Admin::where('id', $user->id)->update(['profile_photo' => $profilePhotoPath]);
+        } else {
+            \App\Models\Pengunjung::where('id', $user->id)->update(['profile_photo' => $profilePhotoPath]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Foto profil berhasil diupload!',
+            'photo_url' => \Illuminate\Support\Facades\Storage::url($profilePhotoPath)
+        ]);
+    }
+
+    /**
+     * Delete profile photo
+     */
+    public function deleteProfilePhoto(Request $request)
+    {
+        self::requireAuth();
+        
+        $user = self::getCurrentUser();
+        $userRole = session('user_role');
+
+        if ($user->profile_photo) {
+            // Delete file from storage
+            if (\Illuminate\Support\Facades\Storage::disk('public')->exists($user->profile_photo)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->profile_photo);
+            }
+
+            // Update database
+            if ($userRole === 'admin') {
+                \App\Models\Admin::where('id', $user->id)->update(['profile_photo' => null]);
+            } else {
+                \App\Models\Pengunjung::where('id', $user->id)->update(['profile_photo' => null]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Foto profil berhasil dihapus!'
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Tidak ada foto profil untuk dihapus.'
+        ]);
     }
 }

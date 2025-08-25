@@ -28,7 +28,61 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('user.profile.update') }}" method="POST">
+                    <!-- Profile Photo Section -->
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <h5 class="mb-3">Profile Photo</h5>
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    @if($user->profile_photo)
+                                        <img src="{{ asset('storage/' . $user->profile_photo) }}" 
+                                             alt="Profile Photo" 
+                                             class="rounded-circle" 
+                                             style="width: 100px; height: 100px; object-fit: cover;"
+                                             id="profile-photo-preview">
+                                    @else
+                                        <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center" 
+                                             style="width: 100px; height: 100px;"
+                                             id="profile-photo-preview">
+                                            <i class="fas fa-user text-white fa-2x"></i>
+                                        </div>
+                                    @endif
+                                </div>
+                                <div>
+                                    <form id="photo-upload-form" enctype="multipart/form-data">
+                                        @csrf
+                                        <input type="file" 
+                                               id="profile_photo" 
+                                               name="profile_photo" 
+                                               accept="image/*" 
+                                               class="form-control mb-2" 
+                                               style="max-width: 250px;">
+                                        <div class="btn-group" role="group">
+                                            <button type="button" 
+                                                    class="btn btn-primary btn-sm" 
+                                                    id="upload-photo-btn">
+                                                <i class="fas fa-upload me-1"></i>Upload
+                                            </button>
+                                            @if($user->profile_photo)
+                                                <button type="button" 
+                                                        class="btn btn-danger btn-sm" 
+                                                        id="delete-photo-btn">
+                                                    <i class="fas fa-trash me-1"></i>Delete
+                                                </button>
+                                            @endif
+                                        </div>
+                                    </form>
+                                    <small class="text-muted d-block mt-1">
+                                        JPG, JPEG, PNG. Max 2MB.
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <form action="{{ route('user.profile.update') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
                         
@@ -46,16 +100,26 @@
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="no_handphone" class="form-label">Phone Number <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="no_handphone" name="no_handphone" 
-                                   value="{{ old('no_handphone', $user->no_handphone) }}" required>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                @if(session('user_role') === 'admin')
+                                    <label for="phone" class="form-label">Phone Number <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="phone" name="phone" 
+                                           value="{{ old('phone', $user->phone) }}" required>
+                                @else
+                                    <label for="no_handphone" class="form-label">Phone Number <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="no_handphone" name="no_handphone" 
+                                           value="{{ old('no_handphone', $user->no_handphone) }}" required>
+                                @endif
+                            </div>
                         </div>
 
+                        @if(session('user_role') !== 'admin')
                         <div class="mb-3">
                             <label for="alamat" class="form-label">Address <span class="text-danger">*</span></label>
                             <textarea class="form-control" id="alamat" name="alamat" rows="3" required>{{ old('alamat', $user->alamat) }}</textarea>
                         </div>
+                        @endif
 
                         <hr class="my-4">
                         
@@ -109,3 +173,147 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+$(document).ready(function() {
+    // Upload photo functionality
+    $('#upload-photo-btn').click(function() {
+        const fileInput = $('#profile_photo')[0];
+        const file = fileInput.files[0];
+        
+        if (!file) {
+            alert('Please select a photo first.');
+            return;
+        }
+        
+        const formData = new FormData();
+        formData.append('profile_photo', file);
+        formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+        
+        const uploadBtn = $(this);
+        const originalText = uploadBtn.html();
+        uploadBtn.html('<i class="fas fa-spinner fa-spin me-1"></i>Uploading...').prop('disabled', true);
+        
+        $.ajax({
+            url: '{{ route("user.profile.upload-photo") }}',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.success) {
+                    // Update the preview image
+                    $('#profile-photo-preview').html(
+                        '<img src="' + response.photo_url + '" alt="Profile Photo" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">'
+                    );
+                    
+                    // Add delete button if it doesn't exist
+                    if ($('#delete-photo-btn').length === 0) {
+                        uploadBtn.after(
+                            '<button type="button" class="btn btn-danger btn-sm" id="delete-photo-btn">' +
+                            '<i class="fas fa-trash me-1"></i>Delete</button>'
+                        );
+                    }
+                    
+                    // Clear file input
+                    fileInput.value = '';
+                    
+                    // Show success message
+                    showAlert('success', response.message);
+                } else {
+                    showAlert('danger', 'Upload failed. Please try again.');
+                }
+            },
+            error: function(xhr) {
+                let errorMessage = 'Upload failed. Please try again.';
+                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    errorMessage = Object.values(xhr.responseJSON.errors)[0][0];
+                }
+                showAlert('danger', errorMessage);
+            },
+            complete: function() {
+                uploadBtn.html(originalText).prop('disabled', false);
+            }
+        });
+    });
+    
+    // Delete photo functionality
+    $(document).on('click', '#delete-photo-btn', function() {
+        if (!confirm('Are you sure you want to delete your profile photo?')) {
+            return;
+        }
+        
+        const deleteBtn = $(this);
+        const originalText = deleteBtn.html();
+        deleteBtn.html('<i class="fas fa-spinner fa-spin me-1"></i>Deleting...').prop('disabled', true);
+        
+        $.ajax({
+            url: '{{ route("user.profile.delete-photo") }}',
+            type: 'DELETE',
+            data: {
+                '_token': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Update the preview to default
+                    $('#profile-photo-preview').html(
+                        '<div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">' +
+                        '<i class="fas fa-user text-white fa-2x"></i></div>'
+                    );
+                    
+                    // Remove delete button
+                    deleteBtn.remove();
+                    
+                    // Show success message
+                    showAlert('success', response.message);
+                } else {
+                    showAlert('danger', response.message || 'Delete failed. Please try again.');
+                }
+            },
+            error: function() {
+                showAlert('danger', 'Delete failed. Please try again.');
+            },
+            complete: function() {
+                deleteBtn.html(originalText).prop('disabled', false);
+            }
+        });
+    });
+    
+    // Preview selected image before upload
+    $('#profile_photo').change(function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                $('#profile-photo-preview').html(
+                    '<img src="' + e.target.result + '" alt="Profile Photo Preview" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">'
+                );
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+    
+    // Helper function to show alerts
+    function showAlert(type, message) {
+        const alertHtml = `
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        
+        // Remove existing alerts
+        $('.alert').remove();
+        
+        // Add new alert at the top of card body
+        $('.card-body').prepend(alertHtml);
+        
+        // Auto dismiss after 5 seconds
+        setTimeout(function() {
+            $('.alert').fadeOut();
+        }, 5000);
+    }
+});
+</script>
+@endpush
