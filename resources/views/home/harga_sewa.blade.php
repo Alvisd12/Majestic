@@ -5,7 +5,7 @@
 @php
   $motors = [
     ['gambar' => 'assets/images/motor1.jpg'],
-    ['gambar' => 'assets/images/unit beat 2.png'],
+    ['gambar' => 'assets/images/motor9.jpg'],
     ['gambar' => 'assets/images/motor4.jpg'],
     ['gambar' => 'assets/images/motor3.jpg'],
     ['gambar' => 'assets/images/motor2.jpg'],
@@ -17,23 +17,52 @@
 @endphp
 
 <style>
-  .judul-sewa {
+ .judul-sewa {
     text-align: center;
     margin-bottom: 2rem;
+    position: relative;
+    animation: fadeInDown 1s ease-out;
   }
 
   .judul-sewa h2 {
-    font-weight: 700;
-    font-size: 2rem;
-    color: #004aad;
+    font-weight: 800;
+    font-size: 2.5rem;
+    color: #0466C8;
     margin-bottom: 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
   }
 
   .judul-sewa h3 {
-    font-weight: 600;
-    font-size: 1.3rem;
-    color: #f5b700;
+    font-weight: 800;
+    font-size: 2.5rem;
+    color: #FFC107;
     margin-top: 0;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
+  }
+
+  @keyframes fadeInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .judul-sewa h2,
+    .judul-sewa h3 {
+      font-size: 2rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .judul-sewa h2,
+    .judul-sewa h3 {
+      font-size: 1.8rem;
+    }
   }
 
   .grid-motor {
@@ -53,7 +82,7 @@
 
   .motor-item:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15), 0 0 20px rgba(245, 183, 0, 0.3);
   }
 
   .motor-item img {
@@ -70,7 +99,6 @@
     transform: scale(1.05);
   }
 
-  /* Tombol Detail */
   .detail-btn {
     position: absolute;
     top: 50%;
@@ -78,12 +106,11 @@
     transform: translate(-50%, -50%) scale(0.8);
     background: linear-gradient(135deg, #004aad, #0066dd);
     color: white;
-    border: none;
+    text-decoration: none;
     padding: 12px 24px;
     border-radius: 25px;
     font-size: 1rem;
     font-weight: 600;
-    cursor: pointer;
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s ease;
@@ -95,6 +122,7 @@
     opacity: 1;
     visibility: visible;
     transform: translate(-50%, -50%) scale(1);
+    animation: bounce 0.8s ease-in-out;
   }
 
   .detail-btn:hover {
@@ -108,7 +136,6 @@
     margin-right: 6px;
   }
 
-  /* Animasi bounce */
   @keyframes bounce {
     0%, 20%, 50%, 80%, 100% {
       transform: translate(-50%, -50%) scale(1);
@@ -121,15 +148,11 @@
     }
   }
 
-  .motor-item:hover .detail-btn {
-    animation: bounce 0.8s ease-in-out;
-  }
-
-  /* Info tambahan di sudut */
+  /* POSISI UNIT DI KIRI */
   .motor-info {
     position: absolute;
     top: 15px;
-    right: 15px;
+    left: 15px; /* ubah dari right ke left */
     background: rgba(255, 255, 255, 0.9);
     color: #004aad;
     padding: 6px 12px;
@@ -137,7 +160,7 @@
     font-size: 0.8rem;
     font-weight: 600;
     opacity: 0;
-    transform: translateX(20px);
+    transform: translateX(-20px); /* animasi masuk dari kiri */
     transition: all 0.3s ease;
     z-index: 5;
   }
@@ -157,12 +180,12 @@
       grid-template-columns: repeat(2, 1fr);
       gap: 1rem;
     }
-    
+
     .detail-btn {
       font-size: 0.9rem;
       padding: 10px 20px;
     }
-    
+
     .motor-info {
       font-size: 0.75rem;
       padding: 4px 8px;
@@ -173,80 +196,32 @@
     .grid-motor {
       grid-template-columns: 1fr;
     }
-    
+
     .detail-btn {
       font-size: 0.95rem;
       padding: 12px 22px;
     }
-  }
-
-  /* Efek glow saat hover */
-  .motor-item:hover {
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15), 0 0 20px rgba(245, 183, 0, 0.3);
-  }
-
-  /* Loading animation untuk tombol */
-  .detail-btn:active {
-    transform: translate(-50%, -50%) scale(0.95);
-    transition: transform 0.1s ease;
   }
 </style>
 
 <section class="harga-sewa py-5">
   <div class="container">
     <div class="judul-sewa">
-      <h2>Sewa Motor</h2>
-      <h3>Sekarang</h3>
+      <h2>Harga Dan</h2>
+      <h3>Jenis Motor</h3>
     </div>
     <div class="grid-motor">
       @foreach ($motors as $index => $motor)
         <div class="motor-item">
           <img src="{{ asset($motor['gambar']) }}" alt="motor">
           <div class="motor-info">Unit {{ $index + 1 }}</div>
-          <button class="detail-btn" onclick="showDetail({{ $index + 1 }})">
+          <a href="{{ url('/motor-detail/' . ($index + 1)) }}" class="detail-btn">
             Lihat Detail
-          </button>
+          </a>
         </div>
       @endforeach
     </div>
   </div>
 </section>
-
-<script>
-function showDetail(motorId) {
-  // Efek klik pada tombol
-  event.target.style.transform = 'translate(-50%, -50%) scale(0.9)';
-  
-  setTimeout(() => {
-    event.target.style.transform = 'translate(-50%, -50%) scale(1)';
-    
-    // Alert sementara - bisa diganti dengan modal atau redirect
-    alert(`Menampilkan detail untuk Motor Unit ${motorId}\n\nFitur yang akan ditampilkan:\n• Spesifikasi motor\n• Harga sewa\n• Ketersediaan\n• Foto tambahan\n• Form booking`);
-    
-    // Contoh redirect ke halaman detail
-    // window.location.href = `/motor-detail/${motorId}`;
-    
-    // Atau buka modal
-    // showModalDetail(motorId);
-    
-  }, 150);
-}
-
-// Fungsi untuk menambah efek suara (opsional)
-function playClickSound() {
-  // Bisa ditambahkan audio click effect
-  console.log('Click sound played');
-}
-
-// Event listener untuk keyboard accessibility
-document.addEventListener('keydown', function(event) {
-  if (event.key === 'Enter' || event.key === ' ') {
-    const focusedBtn = document.activeElement;
-    if (focusedBtn.classList.contains('detail-btn')) {
-      focusedBtn.click();
-    }
-  }
-});
-</script>
 
 @endsection

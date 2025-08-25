@@ -17,23 +17,35 @@
 @endphp
 
 <style>
-  .judul-sewa {
+  body {
+    font-family: 'Poppins', sans-serif;
+  }
+
+  .judul-galeri {
     text-align: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
+    position: relative;
+    animation: fadeInDown 1s ease-out;
   }
 
-  .judul-sewa h2 {
-    font-weight: 700;
-    font-size: 1.75rem;
-    color: #004aad;
+  .judul-galeri h2 {
+    font-weight: 800;
+    font-size: 2.5rem;
+    color: #0466C8;
     margin-bottom: 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
   }
 
-  .judul-sewa h3 {
-    font-weight: 600;
-    font-size: 1.1rem;
-    color: #f5b700;
-    margin-top: 0;
+  /* Animations */
+  @keyframes fadeInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .grid-motor {
@@ -48,6 +60,7 @@
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
   }
 
   .motor-item:hover {
@@ -143,7 +156,28 @@
     visibility: hidden;
   }
 
+  /* Animasi bounce untuk tanggal yang baru muncul */
+  @keyframes bounce {
+    0% { transform: translate(-50%, -50%) scale(0.8); }
+    50% { transform: translate(-50%, -50%) scale(1.1); }
+    100% { transform: translate(-50%, -50%) scale(1); }
+  }
+
+  .tanggal-sewa.bounce {
+    animation: bounce 0.5s ease-out;
+  }
+
+  /* Efek glow */
+  .tanggal-sewa.show {
+    box-shadow: 0 4px 15px rgba(0, 74, 173, 0.4), 0 0 20px rgba(245, 183, 0, 0.3);
+  }
+
+  /* Responsive Design */
   @media (max-width: 768px) {
+    .judul-galeri h2 {
+      font-size: 2rem;
+    }
+
     .grid-motor {
       grid-template-columns: repeat(2, 1fr);
     }
@@ -160,6 +194,10 @@
   }
 
   @media (max-width: 500px) {
+    .judul-galeri h2 {
+      font-size: 1.8rem;
+    }
+
     .grid-motor {
       grid-template-columns: 1fr;
     }
@@ -169,29 +207,12 @@
       padding: 10px 18px;
     }
   }
-
-  /* Animasi bounce untuk tanggal yang baru muncul */
-  @keyframes bounce {
-    0% { transform: translate(-50%, -50%) scale(0.8); }
-    50% { transform: translate(-50%, -50%) scale(1.1); }
-    100% { transform: translate(-50%, -50%) scale(1); }
-  }
-
-  .tanggal-sewa.bounce {
-    animation: bounce 0.5s ease-out;
-  }
-
-  /* Efek glow */
-  .tanggal-sewa.show {
-    box-shadow: 0 4px 15px rgba(0, 74, 173, 0.4), 0 0 20px rgba(245, 183, 0, 0.3);
-  }
 </style>
 
 <section class="harga-sewa py-4">
   <div class="container">
-    <div class="judul-sewa">
-      <h2>Sewa Motor</h2>
-      <h3>Sekarang</h3>
+    <div class="judul-galeri">
+      <h2>Galeri</h2>
     </div>
     <div class="grid-motor">
       @foreach ($motors as $index => $motor)

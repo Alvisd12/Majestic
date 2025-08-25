@@ -249,8 +249,8 @@
         <ul>
           <li><a href="#">Harga Sewa</a></li>
           <li><a href="#">Layanan</a></li>
-          <li><a href="#">Tentang Kami</a></li>
-          <li><a href="#">Testimonial</a></li>
+          <li><a href="#">Galeri</a></li>
+          <li><a href="#">Kontak Kami</a></li>
         </ul>
       </div>
 

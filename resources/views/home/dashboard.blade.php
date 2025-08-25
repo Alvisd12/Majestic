@@ -8,6 +8,10 @@
         --secondary-blue: #1E90FF;
         --accent-orange: #FF8C00;
     }
+    body {
+  font-family: 'Poppins', sans-serif;
+}
+
 
     .section-title-tentangkami{
         font-size: 2rem;
@@ -199,142 +203,336 @@
         }
     }
     
-.facility-section {
-    padding: 35px 0; /* Further reduced from 50px */
-    background:	#0466C8;
+  body {
+  font-family: 'Poppins', sans-serif;
 }
 
-.facility-grid {
+  /* Layout utama */
+  .halaman-layanan-wrapper {
     display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  .spacer-top {
+    height: 80px;
+    background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+  }
+
+.layanan-section {
+    background: #ffffff; /* putih polos */
+    padding: 80px 20px 120px 20px;
+    color: #333; /* teks default hitam */
+    flex-grow: 1;
+    position: relative;
+}
+
+
+  /* Background decorative elements */
+  .layanan-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(circle at 20% 80%, rgba(255, 235, 59, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(255, 235, 59, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+.layanan-section h2 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 800;
+    color: #0466C8;
+    text-align: center;
+    margin-bottom: 60px;
+    font-size: 2.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    position: relative;
+    animation: fadeInDown 1s ease-out;
+}
+
+
+
+  .layanan-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+  }
+
+  .layanan-row {
+    display: flex;
+    gap: 30px;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 1.2rem; /* Further reduced from 1.5rem */
-    max-width: 950px; /* Further reduced from 1100px */
-    margin: 0 auto;
-}
+  }
 
-.facility-card {
-    background: white;
-    border-radius: 15px; /* Further reduced from 18px */
-    width: 240px; /* Further reduced from 280px */
-    padding: 20px 15px; /* Further reduced from 25px 20px */
+  .layanan-card {
+    background: linear-gradient(145deg, #ffffff, #f8f9fa);
+    color: #333;
+    width: 300px;
+    border-radius: 20px;
+    padding: 30px 25px;
+    box-shadow: 
+      0 10px 30px rgba(0, 0, 0, 0.1),
+      0 4px 15px rgba(0, 0, 0, 0.05);
     text-align: center;
-    box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.08); /* Further reduced shadow */
-    transition: transform 0.3s ease;
-    flex-shrink: 0;
-}
+    position: relative;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform: translateY(0);
+    opacity: 0;
+    animation: cardFadeInUp 0.8s ease-out forwards;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
 
-.facility-card:hover {
-    transform: translateY(-3px); /* Further reduced from -5px */
-}
+  .layanan-card:nth-child(1) { animation-delay: 0.2s; }
+  .layanan-card:nth-child(2) { animation-delay: 0.4s; }
+  .layanan-card:nth-child(3) { animation-delay: 0.6s; }
+  .layanan-card:nth-child(4) { animation-delay: 0.8s; }
+  .layanan-card:nth-child(5) { animation-delay: 1s; }
 
-.facility-icon {
-    width: 60px; /* Further reduced from 70px */
-    height: 60px; /* Further reduced from 70px */
-    background: #FFCD29;
+  .layanan-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #FFEB3B, #FDD835);
+    border-radius: 20px 20px 0 0;
+    transform: scaleX(0);
+    transition: transform 0.3s ease-out;
+  }
+
+
+  .layanan-card:hover::before {
+    transform: scaleX(1);
+  }
+
+  .icon-container {
+    background: linear-gradient(135deg, #FFEB3B 0%, #FDD835 50%, #F9A825 100%);
     border-radius: 50%;
+    width: 80px;
+    height: 80px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 15px; /* Further reduced from 18px */
-}
+    margin: 0 auto 25px;
+    box-shadow: 
+      0 8px 25px rgba(255, 235, 59, 0.4),
+      inset 0 2px 4px rgba(255, 255, 255, 0.3);
+    position: relative;
+    transition: all 0.3s ease-out;
+  }
 
-.facility-icon iconify-icon {
-    font-size: 28px; /* Further reduced from 32px */
-    color: white;
-}
+  .icon-container::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    background: linear-gradient(135deg, #FFEB3B, #FDD835);
+    border-radius: 50%;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease-out;
+  }
 
-.facility-card h5 {
-    font-weight: bold;
-    font-size: 18px; /* Further reduced from 20px */
-    margin-bottom: 10px; /* Further reduced from 12px */
-    color: #000;
-    line-height: 1.1; /* Further reduced */
-}
+  .layanan-card:hover .icon-container {
+    transform: scale(1.1);
+   
+  }
 
-.facility-card p {
-    font-size: 13px; /* Further reduced from 15px */
-    font-weight: 400;
-    color: #222;
+  .layanan-card:hover .icon-container::before {
+    opacity: 0.7;
+  }
+
+  .icon-container iconify-icon {
+    font-size: 36px;
+    color: #0466C8;
+    transition: all 0.3s ease-out;
+  }
+
+  .layanan-card:hover .icon-container iconify-icon {
+    transform: scale(1.1);
+    color: #034078;
+  }
+
+  .layanan-card h5 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: #2C5282;
+    transition: color 0.3s ease-out;
+  }
+
+  .layanan-card:hover h5 {
+    color: #1A365D;
+  }
+
+  .layanan-card p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #666;
     margin: 0;
-    line-height: 1.3; /* Further reduced */
-}
+    transition: color 0.3s ease-out;
+  }
 
-/* Responsive Design */
-@media (max-width: 1200px) {
-    .facility-grid {
-        max-width: 800px; /* Further reduced */
-        gap: 1rem; /* Further reduced */
-    }
-    
-    .facility-card {
-        width: 230px; /* Further reduced */
-    }
-}
+  .layanan-card:hover p {
+    color: #555;
+  }
 
-@media (max-width: 768px) {
-    .facility-section {
-        padding: 30px 0; /* Further reduced from 40px */
+  .spacer-footer {
+    height: 80px;
+    background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
+  }
+
+  /* Animations */
+  @keyframes fadeInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-30px);
     }
-    
-    .facility-grid {
-        gap: 0.8rem; /* Further reduced */
-        padding: 0 10px; /* Further reduced padding */
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
-    
-    .facility-card {
-        width: 75%; /* Further reduced from 80% */
-        max-width: 250px; /* Reduced */
-        padding: 18px 12px; /* Further reduced */
+  }
+
+  @keyframes slideIn {
+    from {
+      width: 0;
+      opacity: 0;
     }
-    
-    .facility-icon {
-        width: 50px; /* Further reduced from 60px */
-        height: 50px; /* Further reduced from 60px */
-        margin-bottom: 10px; /* Further reduced */
+    to {
+      width: 80px;
+      opacity: 1;
     }
-    
-    .facility-icon iconify-icon {
-        font-size: 24px; /* Further reduced from 28px */
+  }
+
+  @keyframes cardFadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      box-shadow: 
+        0 8px 25px rgba(255, 235, 59, 0.4),
+        inset 0 2px 4px rgba(255, 255, 255, 0.3);
+    }
+    50% {
+      box-shadow: 
+        0 12px 35px rgba(255, 235, 59, 0.6),
+        inset 0 2px 4px rgba(255, 255, 255, 0.3);
+    }
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  /* Scroll animations */
+  @media (prefers-reduced-motion: no-preference) {
+    .layanan-card {
+      animation: cardFadeInUp 0.8s ease-out forwards;
+    }
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .layanan-section {
+      padding: 60px 15px 100px 15px;
     }
 
-    .facility-card h5 {
-        font-size: 16px; /* Further reduced from 18px */
+    .layanan-section h2 {
+      font-size: 2rem;
+      margin-bottom: 40px;
     }
 
-    .facility-card p {
-        font-size: 12px; /* Further reduced from 14px */
-    }
-}
-
-@media (max-width: 576px) {
-    .facility-section {
-        padding: 25px 0; /* Further reduced */
-    }
-    
-    .facility-card {
-        width: 80%; /* Adjusted for mobile */
-        padding: 15px 12px; /* Further reduced */
+    .layanan-card {
+      width: 100%;
+      max-width: 320px;
+      padding: 25px 20px;
     }
 
-    .facility-card h5 {
-        font-size: 15px; /* Further reduced from 17px */
+    .icon-container {
+      width: 70px;
+      height: 70px;
     }
 
-    .facility-card p {
-        font-size: 11px; /* Further reduced from 13px */
+    .icon-container iconify-icon {
+      font-size: 32px;
     }
-    
-    .facility-icon {
-        width: 45px; /* Further reduced */
-        height: 45px;
-        margin-bottom: 8px; /* Further reduced */
+
+    .spacer-top {
+      height: 60px;
     }
-    
-    .facility-icon iconify-icon {
-        font-size: 20px; /* Further reduced */
+
+    .spacer-footer {
+      height: 60px;
     }
-}
+
+    .layanan-container {
+      gap: 25px;
+    }
+
+    .layanan-row {
+      gap: 20px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .layanan-section {
+      padding: 40px 10px 80px 10px;
+    }
+
+    .layanan-section h2 {
+      font-size: 1.8rem;
+    }
+
+    .layanan-card {
+      padding: 20px 15px;
+    }
+
+    .spacer-top {
+      height: 50px;
+    }
+  }
+
+  /* Accessibility improvements */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* Focus states for accessibility */
+  .layanan-card:focus-within {
+    outline: 3px solid #FFEB3B;
+    outline-offset: 2px;
+  }
 
 
 .section-title {
@@ -348,6 +546,7 @@
 .wisata-section {
     padding: 80px 0;
     background-color: #fff;
+    overflow: hidden; /* Mencegah overflow horizontal */
 }
 
 .judul-wisata {
@@ -363,10 +562,52 @@
     margin-top: 10px;
 }
 
+/* Styling untuk garis dekoratif */
+.garis-destinasi {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 30px 0 50px;
+}
+
+.garis {
+    height: 2px;
+    width: 80px;
+    background-color: #007BBD;
+}
+
+.titik {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #F7C200;
+    margin: 0 15px;
+}
+
+/* Perbaikan untuk carousel container */
+#wisataCarousel {
+    margin: 0 auto;
+    max-width: 1200px;
+    padding: 0 40px; /* Tambah padding untuk ruang carousel controls */
+}
+
+.carousel-inner {
+    padding: 20px 0; /* Tambah padding vertikal */
+}
+
+/* Perbaikan untuk row dan kolom */
+.carousel-item .row {
+    margin: 0 -10px; /* Negatif margin untuk mengkompensasi padding kolom */
+}
+
+.carousel-item [class*="col-"] {
+    padding: 0 10px; /* Padding horizontal untuk spacing antar card */
+}
+
 .card-wrapper {
     position: relative;
     height: 100%;
-    max-width: 280px;
+    max-width: 300px; /* Sedikit lebih besar */
     margin: 0 auto;
 }
 
@@ -374,7 +615,7 @@
     position: absolute;
     top: 12px;
     left: 12px;
-    width: 100%;
+    width: calc(100% - 12px); /* Perbaikan width agar tidak overflow */
     height: 100%;
     border-radius: 20px;
     background-color: #007BBD;
@@ -392,6 +633,7 @@
     position: relative;
     z-index: 1;
     transition: transform 0.3s ease;
+    min-height: 450px; /* Minimum height untuk konsistensi */
 }
 
 .wisata-card:hover {
@@ -400,12 +642,12 @@
 
 .wisata-card img {
     width: 100%;
-    height: 140px;
+    height: 160px; /* Sedikit lebih tinggi */
     object-fit: cover;
 }
 
 .wisata-card-body {
-    padding: 15px;
+    padding: 18px; /* Sedikit lebih besar */
     background-color: #FEF16C;
     flex-grow: 1;
     display: flex;
@@ -415,22 +657,26 @@
 
 .wisata-card-body h5 {
     font-weight: bold;
-    font-size: 16px;
-    margin-bottom: 10px;
+    font-size: 18px; /* Sedikit lebih besar */
+    margin-bottom: 12px;
     color: #000;
+    line-height: 1.3;
 }
 
 .wisata-card-body p {
     color: #222;
-    font-size: 13px;
-    margin-bottom: 10px;
+    font-size: 14px; /* Sedikit lebih besar */
+    margin-bottom: 12px;
     flex-grow: 1;
+    line-height: 1.5;
 }
 
 .lokasi {
     font-size: 12px;
     color: #333;
-    margin-top: 10px;
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .lokasi i {
@@ -441,22 +687,207 @@
 .lokasi a {
     color: #000;
     text-decoration: none;
+    line-height: 1.4;
 }
 
 .lokasi a:hover {
     text-decoration: underline;
 }
 
+/* Perbaikan carousel controls - posisi berdasarkan area gambar */
+.carousel-control-prev,
+.carousel-control-next {
+    width: 50px;
+    height: 50px;
+    top: 160px; /* Sesuaikan dengan tinggi gambar (160px) + padding atas card */
+    transform: translateY(-50%);
+    background-color: #fff;
+    border-radius: 50%;
+    opacity: 0.8;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.carousel-control-prev {
+    left: -10px; /* Posisi di dalam padding area */
+}
+
+.carousel-control-next {
+    right: -10px; /* Posisi di dalam padding area */
+}
+
+.carousel-control-prev:hover,
+.carousel-control-next:hover {
+    opacity: 1;
+    background-color: #fff;
+}
+
+.carousel-control-prev:focus,
+.carousel-control-next:focus {
+    opacity: 1;
+    background-color: #fff;
+}
+
+/* Custom icons untuk carousel controls */
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    display: none;
+}
+
+.carousel-custom-icon {
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* Media queries untuk responsivitas */
+@media (max-width: 1200px) {
+    #wisataCarousel {
+        padding: 0 30px;
+    }
+    
+    .card-wrapper {
+        max-width: 280px;
+    }
+    
+    .carousel-control-prev,
+    .carousel-control-next {
+        top: 150px; /* Adjust untuk mobile */
+    }
+}
+
+@media (max-width: 992px) {
+    #wisataCarousel {
+        padding: 0 20px;
+    }
+    
+    .wisata-card {
+        min-height: 420px;
+    }
+    
+    .wisata-card img {
+        height: 140px;
+    }
+    
+    .wisata-card-body {
+        padding: 16px;
+    }
+    
+    .wisata-card-body h5 {
+        font-size: 16px;
+    }
+    
+    .wisata-card-body p {
+        font-size: 13px;
+    }
+    
+    .carousel-control-prev,
+    .carousel-control-next {
+        top: 140px; /* Sesuaikan dengan tinggi gambar di tablet */
+    }
+}
+
+@media (max-width: 768px) {
+    #wisataCarousel {
+        padding: 0 15px;
+    }
+    
+    .carousel-control-prev,
+    .carousel-control-next {
+        width: 40px;
+        height: 40px;
+        top: 130px; /* Sesuaikan dengan tinggi gambar di mobile */
+    }
+    
+    .carousel-custom-icon {
+        font-size: 16px;
+    }
+    
+    .carousel-control-prev {
+        left: -5px;
+    }
+    
+    .carousel-control-next {
+        right: -5px;
+    }
+    
+    .card-wrapper {
+        max-width: 250px;
+    }
+    
+    .wisata-card {
+        min-height: 400px;
+    }
+    
+    .judul-wisata {
+        font-size: 28px;
+    }
+    
+    .subjudul-wisata {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 576px) {
+    #wisataCarousel {
+        padding: 0 10px;
+    }
+    
+    .carousel-control-prev,
+    .carousel-control-next {
+        display: none; /* Sembunyikan di mobile kecil */
+    }
+    
+    .card-wrapper {
+        max-width: 280px;
+    }
+    
+    .carousel-item [class*="col-"] {
+        padding: 0 8px;
+    }
+    
+    .carousel-item .row {
+        margin: 0 -8px;
+    }
+    
+    .wisata-card {
+        min-height: 380px;
+    }
+    
+    .wisata-card-body {
+        padding: 14px;
+    }
+    
+    .judul-wisata {
+        font-size: 24px;
+    }
+    
+    .subjudul-wisata {
+        font-size: 18px;
+    }
+}
+
+/* Tambahan untuk memastikan tidak ada overflow */
+.container {
+    overflow: hidden;
+}
+
+.row {
+    overflow: visible;
+}
+
 .testimoni-section {
-  padding: 30px 30px 45px 30px;
-  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #4169E1 100%);
+  padding: 80px 0 120px 0; /* Tambah padding bottom */
+  background: #ffffff; /* Background putih bersih */
   position: relative;
   overflow: hidden;
   color: #333;
-  margin: 60px 30px 100px 30px;
-  border-radius: 18px;
+  margin: 60px 0 0 0; /* Tambah margin top, hapus margin bottom */
+  border-radius: 0;
+  width: 100%;
 }
 
+/* Hapus semua pseudo-elements */
 .testimoni-section::before,
 .testimoni-section::after {
   display: none;
@@ -465,118 +896,126 @@
 .testimoni-section .container {
   position: relative;
   z-index: 2;
+  max-width: 1200px;
 }
 
 .testimoni-title {
-  color: #FFF56C;
-  font-size: 2rem;
+  color: #0466C8; /* Warna biru yang konsisten dengan tema */
+  font-size: 2.5rem;
   font-weight: 700;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-  margin-bottom: 2.5rem;
+  text-shadow: none; /* Hapus text shadow */
+  margin-bottom: 4rem; /* Tambah jarak ke bawah */
   position: relative;
   z-index: 2;
   text-align: center;
 }
 
+/* Garis dekoratif untuk title */
 .testimoni-title::after {
   content: '';
   position: absolute;
-  bottom: -10px;
+  bottom: -15px;
   left: 50%;
   transform: translateX(-50%);
-  width: 70px;
-  height: 2.5px;
-  background: linear-gradient(90deg, #FFF56C, #FFD700);
+  width: 80px;
+  height: 3px;
+  background: linear-gradient(90deg, #0466C8, #FFD700);
   border-radius: 2px;
 }
 
 .testimoni-card {
-  background: rgba(255, 255, 255, 0.98);
-  backdrop-filter: blur(10px);
+  background: #ffffff;
+  backdrop-filter: none;
   color: #333;
-  border-radius: 12px;
-  padding: 20px;
+  border-radius: 20px;
+  padding: 30px;
   box-shadow: 
-    0 8px 20px rgba(0, 0, 0, 0.15),
-    0 4px 10px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+    0 10px 30px rgba(0, 0, 0, 0.08),
+    0 5px 15px rgba(0, 0, 0, 0.05);
+  border: 2px solid #f8f9fa;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
   height: 100%;
-  min-height: 260px;
+  min-height: 300px;
   z-index: 2;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
 
+/* Hapus pseudo-element card */
 .testimoni-card::before {
   display: none;
 }
 
+/* Hover effect yang lebih elegant */
 .testimoni-card:hover {
-  transform: translateY(-6px) scale(1.015);
+  transform: translateY(-8px);
   box-shadow: 
-    0 18px 35px rgba(0, 0, 0, 0.25),
-    0 6px 20px rgba(0, 0, 0, 0.2);
+    0 20px 40px rgba(4, 102, 200, 0.12),
+    0 8px 25px rgba(4, 102, 200, 0.08);
+  border-color: #0466C8;
 }
 
 .testimoni-card .stars {
-  margin-bottom: 12px;
+  margin-bottom: 20px;
   display: flex;
-  gap: 2px;
+  gap: 4px;
   justify-content: flex-start;
 }
 
 .testimoni-card .stars iconify-icon {
-  font-size: 16px;
+  font-size: 18px;
   color: #FFD700;
-  filter: drop-shadow(0 2px 4px rgba(255, 215, 0, 0.4));
+  filter: drop-shadow(0 2px 4px rgba(255, 215, 0, 0.3));
   transition: transform 0.2s ease;
 }
 
 .testimoni-card:hover .stars iconify-icon {
-  transform: scale(1.08);
+  transform: scale(1.1);
 }
 
 .testimoni-content {
   flex-grow: 1;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .testimoni-card p {
-  font-size: 0.9rem;
-  line-height: 1.5;
+  font-size: 1rem;
+  line-height: 1.7;
   margin-bottom: 0;
-  color: #555;
+  color: #444;
   font-style: italic;
   position: relative;
   text-align: justify;
+  font-weight: 400;
 }
+
+/* Hapus quote marks */
 
 .testimoni-footer {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-top: 15px;
-  padding-top: 12px;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  gap: 15px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 2px solid #f1f3f4;
 }
 
 .avatar-img {
-  width: 45px;
-  height: 45px;
+  width: 55px;
+  height: 55px;
   border-radius: 50%;
-  border: 2px solid #4169E1;
+  border: 3px solid #0466C8;
   object-fit: cover;
-  transition: transform 0.3s ease;
+  transition: all 0.3s ease;
   flex-shrink: 0;
 }
 
 .testimoni-card:hover .avatar-img {
-  transform: scale(1.1);
-  border-color: #FFF56C;
+  transform: scale(1.05);
+  border-color: #FFD700;
 }
 
 .testimoni-info {
@@ -584,106 +1023,141 @@
 }
 
 .testimoni-card strong {
-  color: #2c3e50;
+  color: #0466C8;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 1.1rem;
   display: block;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
 }
 
 .testimoni-card .text-muted {
-  color: #7f8c8d !important;
-  font-size: 0.8rem;
+  color: #6c757d !important;
+  font-size: 0.85rem;
   font-style: normal;
 }
 
+/* Grid improvement */
+.testimoni-section .row {
+  justify-content: center;
+  margin-bottom: 2rem; /* Tambah margin bottom untuk spacing */
+}
+
+.testimoni-section [class*="col-"] {
+  display: flex;
+  align-items: stretch;
+  margin-bottom: 2rem; /* Tambah spacing antar card */
+}
+
+/* Additional spacing and layout improvements */
+.testimoni-section .container {
+  padding: 0 15px;
+}
+
+.testimoni-section .row {
+  margin: 0 -15px;
+}
+
+.testimoni-section [class*="col-"] {
+  padding: 0 15px;
+}
+
 /* Responsive adjustments */
-@media (max-width: 768px) {
+@media (max-width: 992px) {
   .testimoni-section {
-    padding: 25px 18px 40px 18px;
-    margin: 50px 18px 80px 18px;
-    border-radius: 15px;
+    padding: 60px 0 100px 0; /* Tambah padding bottom */
+    margin: 50px 0 0 0;
   }
 
   .testimoni-title {
-    font-size: 1.7rem;
-    margin-bottom: 2rem;
+    font-size: 2.2rem;
+    margin-bottom: 3rem;
   }
 
   .testimoni-card {
-    padding: 18px;
-    min-height: 240px;
+    padding: 25px;
+    min-height: 280px;
+  }
+
+  .testimoni-section [class*="col-"] {
+    margin-bottom: 1.5rem;
   }
 }
 
-@media (max-width: 576px) {
+@media (max-width: 768px) {
   .testimoni-section {
-    padding: 20px 12px 35px 12px;
-    margin: 40px 12px 70px 12px;
-    border-radius: 12px;
+    padding: 50px 0 80px 0; /* Tambah padding bottom */
+    margin: 40px 0 0 0;
   }
 
   .testimoni-title {
-    font-size: 1.5rem;
-    margin-bottom: 1.8rem;
+    font-size: 2rem;
+    margin-bottom: 2.5rem;
   }
 
   .testimoni-card {
-    padding: 16px;
-    min-height: 220px;
+    padding: 22px;
+    min-height: 260px;
+    margin-bottom: 20px;
   }
 
-  .testimoni-footer {
-    gap: 10px;
+  .testimoni-card p {
+    font-size: 0.95rem;
   }
 
   .avatar-img {
-    width: 42px;
-    height: 42px;
+    width: 50px;
+    height: 50px;
   }
-}
 
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .testimoni-section {
-    padding: 40px 20px 50px 20px;
-    margin: 60px 20px 100px 20px;
-    border-radius: 15px;
-  }
-  
-  .testimoni-title {
-    font-size: 1.8rem;
-    margin-bottom: 2.5rem;
-  }
-  
-  .testimoni-card {
-    padding: 20px;
-    min-height: 280px;
+  .testimoni-section [class*="col-"] {
+    margin-bottom: 1.5rem;
   }
 }
 
 @media (max-width: 576px) {
   .testimoni-section {
-    padding: 30px 15px 40px 15px;
-    margin: 50px 15px 80px 15px;
-    border-radius: 12px;
+    padding: 40px 0 70px 0; /* Tambah padding bottom */
+    margin: 30px 0 0 0;
   }
-  
+
   .testimoni-title {
-    font-size: 1.6rem;
+    font-size: 1.8rem;
     margin-bottom: 2rem;
   }
-  
+
   .testimoni-card {
-    padding: 18px;
-    min-height: 250px;
+    padding: 20px;
+    min-height: 240px;
   }
-  
+
+  .testimoni-card p {
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
   .testimoni-footer {
     gap: 12px;
+    padding-top: 15px;
   }
-  
+
+  .avatar-img {
+    width: 45px;
+    height: 45px;
+    border-width: 2px;
+  }
+
+  .testimoni-card strong {
+    font-size: 1rem;
+  }
+
+  .testimoni-card .text-muted {
+    font-size: 0.8rem;
+  }
+
+  .testimoni-section [class*="col-"] {
+    margin-bottom: 1.5rem;
+  }
+}
   .avatar-img {
     width: 45px;
     height: 45px;
@@ -699,29 +1173,6 @@
   border: 2px solid #FFD700;
 }
 
-.btn-sewa {
-    background: var(--secondary-blue);
-    border: none;
-    border-radius: 20px; /* Reduced from 25px */
-    color: white;
-    font-weight: bold;
-    padding: 12px 30px; /* Reduced from 15px 40px */
-    font-size: 16px; /* Reduced from 18px */
-    transition: all 0.3s ease;
-}
-
-.btn-sewa:hover {
-    background: #1873CC;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(30, 144, 255, 0.25); /* Reduced shadow */
-}
-
-.wisata-subtitle {
-    color: var(--accent-orange);
-    font-size: 1.6rem; /* Reduced from 1.8rem */
-    font-weight: 600;
-    margin-bottom: 30px; /* Reduced from 40px */
-}
 
 .btn-sewa {
     background: var(--secondary-blue);
@@ -925,10 +1376,25 @@
   border-radius: 50%;
   margin: 0 12px; /* Jarak antara garis dan titik */
 }
+.carousel-control-prev-icon,
+  .carousel-control-next-icon {
+    display: none;
+  }
 
+  .carousel-custom-icon {
+    color: black;
+    font-size: 2rem;
+    font-weight: bold;
+  }
 
-
-
+  .carousel-control-prev,
+  .carousel-control-next {
+    align-items: center;
+    justify-content: center;
+    top: 25%; /* Ganti ini sesuai kebutuhan: default-nya 50% */
+    transform: translateY(-50%);
+  }
+  
 </style>
 
 <!-- Tentang Kami -->
@@ -1072,55 +1538,52 @@ function handleSwipe() {
 }
 </script>
 
-<!-- Fasilitas-->
-<section class="facility-section">
-  <div class="container">
-    <h2 class="section-title">Fasilitas & Layanan Kami</h2>
-    <div class="facility-grid">
-
-      <div class="facility-card">
-        <div class="facility-icon">
-          <iconify-icon icon="mdi:helmet"></iconify-icon>
+  <!-- Section layanan -->
+  <section class="layanan-section">
+    <h2>Fasilitas Layanan Kami</h2>
+    <div class="layanan-container">
+      <div class="layanan-row">
+        <div class="layanan-card">
+          <div class="icon-container">
+            <iconify-icon icon="mdi:helmet"></iconify-icon>
+          </div>
+          <h5>Fasilitas 2 Helm</h5>
+          <p>Setiap sewa motor dilengkapi 2 helm standar demi keselamatan berkendara yang optimal.</p>
         </div>
-        <h5>Fasilitas 2 helm</h5>
-        <p>Setiap sewa motor dilengkapi 2 helm standar demi keselamatan berkendara.</p>
+        <div class="layanan-card">
+          <div class="icon-container">
+            <iconify-icon icon="wi:rain"></iconify-icon>
+          </div>
+          <h5>Fasilitas 2 Jas Hujan</h5>
+          <p>Kami sediakan jas hujan berkualitas untuk mendukung kenyamanan Anda di segala cuaca.</p>
+        </div>
+        <div class="layanan-card">
+          <div class="icon-container">
+            <iconify-icon icon="mdi:motorbike"></iconify-icon>
+          </div>
+          <h5>Motor Terjamin</h5>
+          <p>Motor selalu dalam kondisi prima karena rutin dirawat, demi kenyamanan dan keamanan Anda.</p>
+        </div>
       </div>
 
-      <div class="facility-card">
-        <div class="facility-icon">
-          <iconify-icon icon="material-symbols:rainy"></iconify-icon>
+      <div class="layanan-row">
+        <div class="layanan-card">
+          <div class="icon-container">
+            <iconify-icon icon="mdi:handshake"></iconify-icon>
+          </div>
+          <h5>Pelayanan Ramah</h5>
+          <p>Kami melayani dengan sepenuh hati, ramah, profesional, dan dapat dipercaya sepenuhnya.</p>
         </div>
-        <h5>Fasilitas 2 jas hujan</h5>
-        <p>Kami sediakan jas hujan untuk mendukung kenyamanan Anda di segala cuaca.</p>
-      </div>
-
-      <div class="facility-card">
-        <div class="facility-icon">
-          <iconify-icon icon="mdi:motorbike"></iconify-icon>
+        <div class="layanan-card">
+          <div class="icon-container">
+            <iconify-icon icon="mdi:cash"></iconify-icon>
+          </div>
+          <h5>Harga Sewa Terjangkau</h5>
+          <p>Nikmati tarif sewa yang ramah di kantong dengan pilihan motor sesuai kebutuhan Anda.</p>
         </div>
-        <h5>Motor terjamin</h5>
-        <p>Motor selalu dalam kondisi prima karena rutin dirawat, demi kenyamanan dan keamanan Anda.</p>
       </div>
-
-      <div class="facility-card">
-        <div class="facility-icon">
-          <iconify-icon icon="mdi:handshake"></iconify-icon>
-        </div>
-        <h5>Pelayanan ramah</h5>
-        <p>Kami melayani dengan sepenuh hati, ramah, dan dapat dipercaya.</p>
-      </div>
-
-      <div class="facility-card">
-        <div class="facility-icon">
-          <iconify-icon icon="mdi:cash-multiple"></iconify-icon>
-        </div>
-        <h5>Harga sewa terjangkau</h5>
-        <p>Nikmati tarif sewa yang ramah di kantong dengan pilihan motor sesuai kebutuhan Anda.</p>
-      </div>
-
     </div>
-  </div>
-</section>
+  </section>
 
 <!-- Sewa Motor Sekarang -->
 <section class="motor-section">
@@ -1136,17 +1599,10 @@ function handleSwipe() {
                 @endfor
             </div>
             
-            <!-- Bottom row - 2 motorcycles -->
-            <div class="motor-row motor-row-bottom">
-                @for ($i = 4; $i <= 5; $i++)
-                    <div class="motor-card">
-                        <img src="{{ asset("assets/images/motor{$i}.jpg") }}" alt="Motor {{ $i }}">
-                    </div>
-                @endfor
-            </div>
+          
         </div>
         <div class="text-center mt-5">
-            <button class="btn btn-sewa btn-lg" onclick="window.location.href='/harga_sewa.blade'">NEXT</button> 
+            <button class="btn btn-sewa btn-lg" onclick="window.location.href='/harga_sewa'">NEXT</button> 
         </div>
     </div>
 </section>
@@ -1164,152 +1620,152 @@ function handleSwipe() {
       <div class="garis"></div>
     </div>
 
-    <div class="row justify-content-center g-4">
+   <!-- CAROUSEL -->
+<div id="wisataCarousel" class="carousel slide" data-bs-ride="carousel">
+  <div class="carousel-inner">
 
-      <!-- CARD 1 -->
-      <div class="col-lg-3 col-md-4 col-sm-6">
-        <div class="card-wrapper">
-          <div class="card-back"></div>
-          <div class="wisata-card d-flex flex-column h-100">
-            <img src="{{ asset('assets/images/bukit nirwana.jpg') }}" alt="Bukit Nirwana">
-            <div class="wisata-card-body">
-              <h5>Bukit Nirwana</h5>
-              <p>Bukit Nirwana menawarkan pemandangan pegunungan yang memesona, taman bunga warna-warni,
-                dan udara sejuk <br> yang cocok untuk healing maupun berfoto. Tempat ini ideal untuk kamu
-                yang ingin melepas penat dari hiruk-pikuk kota.<br></p>
-              <p class="lokasi">
-                <i class="fa-solid fa-location-dot"></i>
-                <a href="https://maps.app.goo.gl/CSP26HSj5dpSto9j7" target="_blank">
-                 Tulungrejo, Desa Pujon Kidul, Kecamatan Pujon,
-                 Kabupaten Malang, Jawa Timur 65391
-                </a>
-              </p>
+    <!-- SLIDE 1 -->
+    <div class="carousel-item active">
+      <div class="row justify-content-center g-4">
+        <!-- CARD 1 -->
+        <div class="col-lg-3 col-md-4 col-sm-6">
+          <div class="card-wrapper">
+            <div class="card-back"></div>
+            <div class="wisata-card d-flex flex-column h-100">
+              <img src="{{ asset('assets/images/bukit nirwana.jpg') }}" alt="Bukit Nirwana">
+              <div class="wisata-card-body">
+                <h5>Bukit Nirwana</h5>
+                <p>Bukit Nirwana menawarkan pemandangan pegunungan yang memesona, taman bunga warna-warni,
+                  dan udara sejuk <br> yang cocok untuk healing maupun berfoto. Tempat ini ideal untuk kamu
+                  yang ingin melepas penat dari hiruk-pikuk kota.<br></p>
+                <p class="lokasi">
+                  <i class="fa-solid fa-location-dot"></i>
+                  <a href="https://maps.app.goo.gl/CSP26HSj5dpSto9j7" target="_blank">
+                    Tulungrejo, Desa Pujon Kidul, Kecamatan Pujon,
+                    Kabupaten Malang, Jawa Timur 65391
+                  </a>
+                </p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-
-      <!-- CARD 2 -->
-      <div class="col-lg-3 col-md-4 col-sm-6">
-        <div class="card-wrapper">
-          <div class="card-back"></div>
-          <div class="wisata-card d-flex flex-column h-100">
-            <img src="{{ asset('assets/images/sumber sirah.jpg') }}" alt="Mata Air Sumber Sirah">
-            <div class="wisata-card-body">
-              <h5>Mata Air Sumber Sirah</h5>
-              <p>Sumber Sirah merupakan mata air jernih alami dengan tanaman air yang menawan. 
+        <!-- CARD 2 -->
+        <div class="col-lg-3 col-md-4 col-sm-6">
+          <div class="card-wrapper">
+            <div class="card-back"></div>
+            <div class="wisata-card d-flex flex-column h-100">
+              <img src="{{ asset('assets/images/sumber sirah.jpg') }}" alt="Mata Air Sumber Sirah">
+              <div class="wisata-card-body">
+                <h5>Mata Air Sumber Sirah</h5>
+                <p>Sumber Sirah merupakan mata air jernih alami dengan tanaman air yang menawan. 
                 Cocok untuk berenang atau snorkeling ringan, tempat ini memberikan pengalaman menyegarkan di tengah alam pedesaan.</p>
-              <p class="lokasi">
-                <i class="fa-solid fa-location-dot"></i>
-                <a href="https://maps.app.goo.gl/apYcnzsUH8kRhimu7" target="_blank">
-                  Jl. Sunan Gunungjati, Putukrejo, Kecamatan Gondanglegi, Kabupaten Malang, Jawa Timur 65174
-                </a>
-              </p>
+                <p class="lokasi">
+                  <i class="fa-solid fa-location-dot"></i>
+                  <a href="https://maps.app.goo.gl/apYcnzsUH8kRhimu7" target="_blank">
+                    Jl. Sunan Gunungjati, Putukrejo, Kecamatan Gondanglegi, Kabupaten Malang, Jawa Timur 65174
+                  </a>
+                </p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-
-      <!-- CARD 3 -->
-      <div class="col-lg-3 col-md-4 col-sm-6">
-        <div class="card-wrapper">
-          <div class="card-back"></div>
-          <div class="wisata-card d-flex flex-column h-100">
-            <img src="{{ asset('assets/images/pantai.jpg') }}" alt="Pantai Parang Dowo">
-            <div class="wisata-card-body">
-              <h5>Pantai Parang Dowo</h5>
-              <p>Pantai Parang Dowo menyuguhkan suasana tenang dengan tebing batu unik dan pasir putih. 
+        <!-- CARD 3 -->
+        <div class="col-lg-3 col-md-4 col-sm-6">
+          <div class="card-wrapper">
+            <div class="card-back"></div>
+            <div class="wisata-card d-flex flex-column h-100">
+              <img src="{{ asset('assets/images/pantai.jpg') }}" alt="Pantai Parang Dowo">
+              <div class="wisata-card-body">
+                <h5>Pantai Parang Dowo</h5>
+                <p>Pantai Parang Dowo menyuguhkan suasana tenang dengan tebing batu unik dan pasir putih. 
                 Lokasinya yang tersembunyi membuat pantai ini cocok untuk menikmati keindahan alam tanpa keramaian.</p>
-              <p class="lokasi">
-                <i class="fa-solid fa-location-dot"></i>
-                <a href="https://maps.app.goo.gl/2pUFpahCgtk7pWFc9" target="_blank">
-                  Desa Gajahrejo, Kecamatan Gedangan, Kabupaten Malang, Jawa Timur 65178
-                </a>
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-   </div>
-
-      <!-- CARD 4 -->
-      <div class="col-lg-3 col-md-4 col-sm-6">
-        <div class="card-wrapper">
-          <div class="card-back"></div>
-          <div class="wisata-card d-flex flex-column h-100">
-            <img src="{{ asset('assets/images/coban pelangi.jpg') }}" alt="Pantai Parang Dowo">
-            <div class="wisata-card-body">
-              <h5>Coban Pelangi</h5>
-              <p>Coban Pelangi menawarkan pesona air terjun yang jatuh dari ketinggian di tengah hutan yang sejuk. Pelangi sering muncul di sekitar air terjun karena pantulan sinar matahari, menjadikannya spot favorit untuk berfoto dan menikmati keindahan alam..</p>
-              <p class="lokasi">
-                <i class="fa-solid fa-location-dot"></i>
-                <a href="https://maps.app.goo.gl/YYmWe4ptdFZMENBw8" target="_blank">
-                  Desa Gajahrejo, Kecamatan Gedangan, Kabupaten Malang, Jawa Timur 65178
-                </a>
-              </p>
+                <p class="lokasi">
+                  <i class="fa-solid fa-location-dot"></i>
+                  <a href="https://maps.app.goo.gl/2pUFpahCgtk7pWFc9" target="_blank">
+                    Desa Gajahrejo, Kecamatan Gedangan, Kabupaten Malang, Jawa Timur 65178
+                  </a>
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-   </div>
+    <!-- SLIDE 2 -->
+    <div class="carousel-item">
+      <div class="row justify-content-center g-4">
+        <!-- CARD 4 -->
+        <div class="col-lg-3 col-md-4 col-sm-6">
+          <div class="card-wrapper">
+            <div class="card-back"></div>
+            <div class="wisata-card d-flex flex-column h-100">
+              <img src="{{ asset('assets/images/coban pelangi.jpg') }}" alt="Coban Pelangi">
+              <div class="wisata-card-body">
+                <h5>Coban Pelangi</h5>
+                <p>Coban Pelangi menawarkan pesona air terjun yang jatuh dari ketinggian di tengah hutan yang sejuk. Pelangi sering muncul di sekitar air terjun karena pantulan sinar matahari, menjadikannya spot favorit untuk berfoto dan menikmati keindahan alam..</p>
+                <p class="lokasi">
+                  <i class="fa-solid fa-location-dot"></i>
+                  <a href="https://maps.app.goo.gl/YYmWe4ptdFZMENBw8" target="_blank">
+                    Desa Gajahrejo, Kecamatan Gedangan, Kabupaten Malang, Jawa Timur 65178
+                  </a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
 
-      <!-- CARD 5 -->
-      <div class="col-lg-3 col-md-4 col-sm-6">
-        <div class="card-wrapper">
-          <div class="card-back"></div>
-          <div class="wisata-card d-flex flex-column h-100">
-            <img src="{{ asset('assets/images/pantai2.png') }}" alt="Pantai Parang Dowo">
-            <div class="wisata-card-body">
-              <h5>Pantai Balekambang</h5>
-              <p>Pantai Balekambang dikenal dengan pura kecil di atas batu karang yang mirip Tanah Lot di Bali. Pantai ini memiliki pasir putih dan ombak tenang, cocok untuk berlibur bersama keluarga maupun bersantai menikmati matahari terbenam..</p>
-              <p class="lokasi">
-                <i class="fa-solid fa-location-dot"></i>
-                <a href="https://maps.app.goo.gl/jbqvfkb8zSie6a9F7" target="_blank">
-                  Desa Gajahrejo, Kecamatan Gedangan, Kabupaten Malang, Jawa Timur 65178
-                </a>
-              </p>
+        <!-- CARD 5 -->
+        <div class="col-lg-3 col-md-4 col-sm-6">
+          <div class="card-wrapper">
+            <div class="card-back"></div>
+            <div class="wisata-card d-flex flex-column h-100">
+              <img src="{{ asset('assets/images/pantai2.png') }}" alt="Pantai Balekambang">
+              <div class="wisata-card-body">
+                <h5>Pantai Balekambang</h5>
+                <p>Pantai Balekambang dikenal dengan pura kecil di atas batu karang yang mirip Tanah Lot di Bali. Pantai ini memiliki pasir putih dan ombak tenang, cocok untuk berlibur bersama keluarga maupun bersantai menikmati matahari terbenam..</p>
+                <p class="lokasi">
+                  <i class="fa-solid fa-location-dot"></i>
+                  <a href="https://maps.app.goo.gl/jbqvfkb8zSie6a9F7" target="_blank">
+                    Desa Gajahrejo, Kecamatan Gedangan, Kabupaten Malang, Jawa Timur 65178
+                  </a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD 6-->
+        <div class="col-lg-3 col-md-4 col-sm-6">
+          <div class="card-wrapper">
+            <div class="card-back"></div>
+            <div class="wisata-card d-flex flex-column h-100">
+              <img src="{{ asset('assets/images/kampung.jpg') }}" alt="Kampung Warna-Warni">
+              <div class="wisata-card-body">
+                <h5>Kampung Warna-Warni Jodipan</h5>
+                <p>Destinasi unik di tengah kota Malang dengan rumah-rumah penduduk yang dicat warna-warni. Cocok untuk berswafoto dan menikmati seni mural yang menghiasi dinding rumah. Tempat ini juga memberikan pengalaman sosial dan budaya yang menarik.</p>
+                <p class="lokasi">
+                  <i class="fa-solid fa-location-dot"></i>
+                  <a href="https://maps.app.goo.gl/2pUFpahCgtk7pWFc9" target="_blank">
+                    Desa Gajahrejo, Kecamatan Gedangan, Kabupaten Malang, Jawa Timur 65178
+                  </a>
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </div>
-
     </div>
+
   </div>
+<!-- tombol prev & next -->
+<button class="carousel-control-prev" type="button" data-bs-target="#wisataCarousel" data-bs-slide="prev">
+  <span class="carousel-custom-icon">&#10094;</span> <!-- panah kiri -->
+</button>
+<button class="carousel-control-next" type="button" data-bs-target="#wisataCarousel" data-bs-slide="next">
+  <span class="carousel-custom-icon">&#10095;</span> <!-- panah kanan -->
+</button>
 
-   </div>
-
-      <!-- CARD 6-->
-      <div class="col-lg-3 col-md-4 col-sm-6">
-        <div class="card-wrapper">
-          <div class="card-back"></div>
-          <div class="wisata-card d-flex flex-column h-100">
-            <img src="{{ asset('assets/images/kampung.jpg') }}" alt="Pantai Parang Dowo">
-            <div class="wisata-card-body">
-              <h5>Kampung Warna-Warni Jodipan</h5>
-              <p>Destinasi unik di tengah kota Malang dengan rumah-rumah penduduk yang dicat warna-warni. Cocok untuk berswafoto dan menikmati seni mural yang menghiasi dinding rumah. Tempat ini juga memberikan pengalaman sosial dan budaya yang menarik.</p>
-              <p class="lokasi">
-                <i class="fa-solid fa-location-dot"></i>
-                <a href="https://maps.app.goo.gl/2pUFpahCgtk7pWFc9" target="_blank">
-                  Desa Gajahrejo, Kecamatan Gedangan, Kabupaten Malang, Jawa Timur 65178
-                </a>
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-
-</section>
 
 <!-- Testimoni -->
 <section class="testimoni-section">
