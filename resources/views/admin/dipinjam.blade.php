@@ -36,6 +36,7 @@
                         <th>Tanggal Kembali</th>
                         <th>Durasi Sewa</th>
                         <th>Total Biaya</th>
+                        <th>Denda</th>
                         <th>No. Handphone</th>
                         <th>Bukti Jaminan</th>
                         <th>Status</th>
@@ -46,15 +47,39 @@
                     @forelse($peminjaman as $index => $item)
                     <tr data-id="{{ $item->id }}">
                         <td>{{ $peminjaman->firstItem() + $index }}.</td>
-                        <td class="fw-bold">{{ $item->user->nama ?? 'Unknown' }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                @if($item->user && $item->user->profile_photo)
+                                    <img src="{{ asset('storage/' . $item->user->profile_photo) }}" 
+                                         alt="Profile" 
+                                         class="rounded-circle me-2"
+                                         style="width: 35px; height: 35px; object-fit: cover;">
+                                @else
+                                    <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-2" 
+                                         style="width: 35px; height: 35px;">
+                                        <i class="fas fa-user text-primary"></i>
+                                    </div>
+                                @endif
+                                <span class="fw-bold">{{ $item->user->nama ?? 'Unknown' }}</span>
+                            </div>
+                        </td>
                         <td>{{ $item->jenis_motor }}</td>
                         <td>{{ \Carbon\Carbon::parse($item->tanggal_rental)->format('M d, Y') }}</td>
                         <td>{{ \Carbon\Carbon::parse($item->tanggal_kembali)->format('M d, Y') }}</td>
                         <td>{{ $item->durasi_sewa }} Hari</td>
                         <td class="fw-bold">Rp {{ number_format($item->total_harga, 0, ',', '.') }}</td>
                         <td>
-                            <a href="tel:{{ $item->user->phone ?? '' }}" class="text-primary text-decoration-none">
-                                #{{ $item->user->phone ?? '123456789' }}
+                            @if($item->status === 'Belum Kembali' && $item->denda > 0)
+                                <span class="text-danger fw-bold">Rp {{ number_format($item->denda, 0, ',', '.') }}</span>
+                                <br>
+                                <small class="text-muted">{{ $item->overdue_days }} hari terlambat</small>
+                            @else
+                                <span class="text-muted">-</span>
+                            @endif
+                        </td>
+                        <td>
+                            <a href="tel:{{ $item->user->no_handphone ?? '' }}" class="text-primary text-decoration-none">
+                                {{ $item->user->no_handphone ?? '-' }}
                             </a>
                         </td>
                         <td>
@@ -71,7 +96,7 @@
                             @php
                                 $statusColors = [
                                     'Confirmed' => 'info',
-                                    'Disewa' => 'warning',
+                                    'Disewa' => 'primary',
                                     'Belum Kembali' => 'danger'
                                 ];
                                 $statusLabels = [
@@ -87,17 +112,17 @@
                         <td>
                             <div class="btn-group" role="group">
                                 <button type="button" class="btn btn-sm btn-outline-primary" 
-                                        onclick="viewDetails({{ $item->id }})" 
+                                        onclick="viewDetails('{{ $item->id }}')" 
                                         title="Lihat Detail">
                                     <i class="fas fa-eye"></i>
                                 </button>
                                 <button type="button" class="btn btn-sm btn-outline-info" 
-                                        onclick="finishRental({{ $item->id }})" 
+                                        onclick="finishRental('{{ $item->id }}')" 
                                         title="Selesai Rental">
                                     <i class="fas fa-check-double"></i>
                                 </button>
                                 <button type="button" class="btn btn-sm btn-outline-danger" 
-                                        onclick="deletePeminjaman({{ $item->id }})" 
+                                        onclick="deletePeminjaman('{{ $item->id }}')" 
                                         title="Hapus">
                                     <i class="fas fa-trash"></i>
                                 </button>
@@ -106,7 +131,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="11" class="text-center py-4">
+                        <td colspan="12" class="text-center py-4">
                             <i class="fas fa-motorcycle fa-3x text-muted mb-3"></i>
                             <p class="text-muted">Tidak ada data peminjaman yang sedang dipinjam</p>
                         </td>

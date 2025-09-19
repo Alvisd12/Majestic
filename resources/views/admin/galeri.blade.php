@@ -37,8 +37,6 @@
                     <tr>
                         <th>No</th>
                         <th>Gambar</th>
-                        <th>Judul</th>
-                        <th>Deskripsi</th>
                         <th>Penulis</th>
                         <th>Tanggal Sewa</th>
                         <th>Tanggal Upload</th>
@@ -50,26 +48,25 @@
                     <tr>
                         <td>{{ $galeri->firstItem() + $index }}.</td>
                         <td>
-                            @if($item->gambar)
-                                <img src="{{ asset('storage/' . $item->gambar) }}" 
-                                     alt="Galeri Image" 
-                                     class="img-thumbnail" 
-                                     style="width: 80px; height: 60px; object-fit: cover;">
-                            @else
-                                <div class="bg-secondary d-flex align-items-center justify-content-center" 
-                                     style="width: 80px; height: 60px;">
-                                    <i class="fas fa-image text-white"></i>
-                                </div>
-                            @endif
-                        </td>
-                        <td>{{ $item->judul }}</td>
-                        <td>
-                            <div class="text-truncate" style="max-width: 200px;" title="{{ $item->deskripsi }}">
-                                {{ $item->deskripsi ?: 'Lorem Ipsum is simply dummy text' }}
+                            <div class="gallery-image-container">
+                                @if($item->gambar)
+                                    <img src="{{ asset('storage/' . $item->gambar) }}" 
+                                         alt="Galeri Image" 
+                                         class="gallery-thumbnail" 
+                                         style="width: 80px; height: 60px; object-fit: cover;">
+                                    <div class="gallery-overlay">
+                                        <i class="fas fa-eye"></i>
+                                    </div>
+                                @else
+                                    <div class="bg-secondary d-flex align-items-center justify-content-center" 
+                                         style="width: 80px; height: 60px;">
+                                        <i class="fas fa-image text-white"></i>
+                                    </div>
+                                @endif
                             </div>
                         </td>
                         <td>{{ $item->admin->nama ?? 'Admin' }}</td>
-                        <td>{{ \Carbon\Carbon::parse($item->tanggal_sewa)->format('M d, Y') }}</td>
+                        <td>{{ $item->tanggal_sewa ? \Carbon\Carbon::parse($item->tanggal_sewa)->format('M d, Y') : '-' }}</td>
                         <td>{{ \Carbon\Carbon::parse($item->created_at)->format('M d, Y') }}</td>
                         <td>
                             <div class="btn-group" role="group">
@@ -88,7 +85,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="text-center py-4">
+                        <td colspan="5" class="text-center py-4">
                             <i class="fas fa-images fa-3x text-muted mb-3"></i>
                             <p class="text-muted">Tidak ada data galeri</p>
                         </td>
@@ -105,6 +102,66 @@
         </div>
         @endif
     </div>
+@endsection
+
+@section('additional-styles')
+<style>
+/* Gallery Image Container with Hover Effects */
+.gallery-image-container {
+    position: relative;
+    display: inline-block;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.gallery-image-container:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.gallery-thumbnail {
+    transition: all 0.3s ease;
+    border-radius: 8px;
+}
+
+.gallery-image-container:hover .gallery-thumbnail {
+    transform: scale(1.05);
+    opacity: 0.8;
+}
+
+.gallery-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+}
+
+.gallery-overlay i {
+    color: white;
+    font-size: 1.2rem;
+    transform: scale(0.8);
+    transition: transform 0.3s ease;
+}
+
+.gallery-image-container:hover .gallery-overlay {
+    opacity: 1;
+    visibility: visible;
+}
+
+.gallery-image-container:hover .gallery-overlay i {
+    transform: scale(1);
+}
+</style>
 @endsection
 
 @section('additional-scripts')

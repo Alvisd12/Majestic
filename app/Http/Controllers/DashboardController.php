@@ -33,7 +33,7 @@ class DashboardController extends Controller
                 ->whereIn('status', ['Confirmed', 'Disewa'])
                 ->count(),
             'peminjaman_selesai' => Peminjaman::where('user_id', $userId)
-                ->where('status', 'Selesai')
+                ->completed()
                 ->count(),
             'motor_tersedia' => Motor::where('status', 'Tersedia')->count(),
         ];

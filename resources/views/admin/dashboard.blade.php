@@ -164,12 +164,21 @@
                                     <td>{{ ($recentRentals->currentPage() - 1) * $recentRentals->perPage() + $index + 1 }}</td>
                                     <td>
                                         <div class="d-flex align-items-center">
-                                            <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-2">
-                                                <i class="fas fa-user text-primary"></i>
-                                            </div>
+                                            @if($rental->user && $rental->user->profile_photo)
+                                                <img src="{{ asset('storage/' . $rental->user->profile_photo) }}" 
+                                                     alt="Profile" 
+                                                     class="avatar-sm rounded-circle me-2"
+                                                     style="width: 35px; height: 35px; object-fit: cover;">
+                                            @else
+                                                <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-2">
+                                                    <i class="fas fa-user text-primary"></i>
+                                                </div>
+                                            @endif
                                             <div>
                                                 <h6 class="mb-0">{{ $rental->user->nama ?? $rental->nama ?? 'N/A' }}</h6>
-                                                <small class="text-muted">{{ $rental->user->phone ?? $rental->no_handphone ?? 'N/A' }}</small>
+                                                @if($rental->user->no_handphone ?? $rental->no_handphone)
+                                                    <small class="text-muted">{{ $rental->user->no_handphone ?? $rental->no_handphone }}</small>
+                                                @endif
                                             </div>
                                         </div>
                                     </td>
@@ -191,7 +200,7 @@
                                             $badgeClass = match($status) {
                                                 'Pending' => 'bg-warning',
                                                 'Confirmed' => 'bg-info',
-                                                'Disewa' => 'bg-success', 
+                                                'Disewa' => 'bg-primary', 
                                                 'Selesai' => 'bg-success',
                                                 'Cancelled' => 'bg-danger',
                                                 'Belum Kembali' => 'bg-danger',

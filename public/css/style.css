@@ -236,3 +236,93 @@ body {
   font-size: 0.9rem;
   opacity: 0.8;
 }
+
+/* Blog meta styling for wisata cards */
+.blog-meta {
+  border-top: 1px solid #eee;
+  padding-top: 8px;
+  margin-top: auto;
+}
+
+.blog-meta small {
+  font-size: 0.75rem;
+  color: #666;
+}
+
+.blog-meta i {
+  margin-right: 4px;
+  color: #007bff;
+}
+
+/* Ensure consistent card heights for blog cards */
+.wisata-card .wisata-card-body {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.wisata-card .wisata-card-body p:first-of-type {
+  flex-grow: 1;
+}
+
+/* Motor Section Styles */
+.motor-section {
+  padding: 60px 0;
+  background-color: #f8f9fa;
+}
+
+.motor-grid-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.motor-row {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  flex-wrap: wrap;
+  margin-top: 40px;
+}
+
+.motor-card {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  width: 300px;
+  max-width: 100%;
+  cursor: pointer;
+}
+
+.motor-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 35px rgba(0,0,0,0.15);
+}
+
+.motor-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 15px 15px 0 0;
+}
+
+.motor-info {
+  padding: 20px;
+  text-align: center;
+}
+
+.motor-info h5 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+  margin-top: 0;
+}
+
+.motor-info p {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #666;
+  margin: 0;
+}

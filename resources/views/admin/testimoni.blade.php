@@ -44,20 +44,11 @@
                     <tr>
                         <td>{{ $testimoni->firstItem() + $index }}.</td>
                         <td>
-                            <div class="d-flex align-items-center">
-                                <div class="bg-primary d-flex align-items-center justify-content-center rounded-circle me-2" 
-                                     style="width: 35px; height: 35px;">
-                                    <i class="fas fa-user text-white"></i>
-                                </div>
-                                <div>
-                                    <div class="fw-semibold">{{ $item->pengunjung->nama ?? 'Unknown' }}</div>
-                                    <small class="text-muted">{{ $item->pengunjung->username ?? '-' }}</small>
-                                </div>
-                            </div>
+                            <div class="fw-semibold">{{ $item->nama ?? 'Unknown' }}</div>
                         </td>
                         <td>
-                            <div class="text-truncate" style="max-width: 300px;" title="{{ $item->pesan }}">
-                                {{ $item->pesan }}
+                            <div class="text-truncate" style="max-width: 300px;" title="{{ $item->testimoni_text }}">
+                                {{ $item->testimoni_text }}
                             </div>
                         </td>
                         <td>

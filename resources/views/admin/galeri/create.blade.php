@@ -26,46 +26,10 @@
                         </div>
                         
                         <div class="mb-3">
-                            <label for="tanggal_sewa" class="form-label">Tanggal Sewa</label>
+                            <label for="tanggal_sewa" class="form-label">Tanggal Sewa (Opsional)</label>
                             <input type="date" class="form-control @error('tanggal_sewa') is-invalid @enderror" 
-                                   id="tanggal_sewa" name="tanggal_sewa" value="{{ old('tanggal_sewa') }}" required>
+                                   id="tanggal_sewa" name="tanggal_sewa" value="{{ old('tanggal_sewa') }}">
                             @error('tanggal_sewa')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="judul" class="form-label">Judul</label>
-                            <input type="text" class="form-control @error('judul') is-invalid @enderror" 
-                                   id="judul" name="judul" value="{{ old('judul') }}" required>
-                            @error('judul')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label for="deskripsi" class="form-label">Deskripsi</label>
-                            <textarea class="form-control @error('deskripsi') is-invalid @enderror" 
-                                      id="deskripsi" name="deskripsi" rows="4" 
-                                      placeholder="Masukkan deskripsi gambar...">{{ old('deskripsi') }}</textarea>
-                            @error('deskripsi')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="kategori" class="form-label">Kategori</label>
-                            <select class="form-control @error('kategori') is-invalid @enderror" 
-                                    id="kategori" name="kategori">
-                                <option value="">Pilih Kategori</option>
-                                <option value="motor" {{ old('kategori') == 'motor' ? 'selected' : '' }}>Motor</option>
-                                <option value="wisata" {{ old('kategori') == 'wisata' ? 'selected' : '' }}>Wisata</option>
-                                <option value="event" {{ old('kategori') == 'event' ? 'selected' : '' }}>Event</option>
-                                <option value="lainnya" {{ old('kategori') == 'lainnya' ? 'selected' : '' }}>Lainnya</option>
-                            </select>
-                            @error('kategori')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>

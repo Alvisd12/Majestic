@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Motor;
 use App\Models\Testimoni;
-use App\Models\Wisata;
+use App\Models\Blog;
 use App\Models\Galeri;
+use App\Models\Peminjaman;
+use App\Models\General;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -16,14 +18,14 @@ class HomeController extends Controller
         // Data untuk homepage
         $motors = Motor::tersedia()->take(6)->get();
         $testimoni = Testimoni::approved()->with('pengunjung')->take(6)->latest()->get();
-        $blogs = Wisata::published()->take(3)->latest()->get();
+        $blogs = Blog::where('published', true)->take(6)->latest()->get();
         $galeri = Galeri::take(8)->latest()->get();
         
         $stats = [
             'total_motor' => Motor::count(),
             'motor_tersedia' => Motor::tersedia()->count(),
             'total_pengunjung' => \App\Models\Pengunjung::count(),
-            'total_peminjaman' => \App\Models\Peminjaman::where('status', 'Selesai')->count(),
+            'total_peminjaman' => Peminjaman::completed()->count(),
         ];
         
         return view('home.dashboard', compact('motors', 'testimoni', 'blogs', 'galeri', 'stats'));
@@ -76,6 +78,72 @@ class HomeController extends Controller
         $merks = Motor::distinct()->pluck('merk');
         
         return view('motors', compact('motors', 'merks'));
+    }
+    
+    public function motorDetail($id)
+    {
+        $motor = Motor::findOrFail($id);
+        $relatedMotors = Motor::where('id', '!=', $id)
+            ->where('merk', $motor->merk)
+            ->tersedia()
+            ->take(3)
+            ->get();
+        $general = General::getSingle();
+        
+        // Get current rental for this motor if it's not available, or latest completed rental with penalty
+        $currentRental = null;
+        if ($motor->status !== 'Tersedia') {
+            $currentRental = Peminjaman::where('motor_id', $id)
+                ->where(function($q) {
+                    $q->whereIn('status', ['Dikonfirmasi', 'Sedang Disewa'])
+                      ->orWhere('status', 'like', 'Terlambat%')
+                      // Legacy support
+                      ->orWhereIn('status', ['Confirmed', 'Belum Kembali', 'Disewa']);
+                })
+                ->with('user')
+                ->first();
+            
+            // Update penalty if rental exists and is overdue
+            if ($currentRental && ($currentRental->isOverdue || str_starts_with($currentRental->status, 'Terlambat'))) {
+                $currentRental->updateDenda();
+                $currentRental->refresh(); // Refresh to get updated denda value
+            }
+        } else {
+            // Check for recently completed rental with penalty (for display purposes)
+            $currentRental = Peminjaman::where('motor_id', $id)
+                ->where('status', 'like', 'Selesai (Telat%')
+                ->where('denda', '>', 0)
+                ->with('user')
+                ->orderBy('updated_at', 'desc')
+                ->first();
+        }
+            
+        return view('home.motor-detail', compact('motor', 'relatedMotors', 'general', 'currentRental'));
+    }
+    
+    public function hargaSewa()
+    {
+        $motors = Motor::all();
+        return view('home.harga_sewa', compact('motors'));
+    }
+    
+    public function galeri()
+    {
+        $galeri = Galeri::latest()->paginate(12);
+        return view('home.galeri', compact('galeri'));
+    }
+    
+    
+    public function blogDetail($id)
+    {
+        $blog = Blog::with('admin')->findOrFail($id);
+        $relatedBlogs = Blog::where('id', '!=', $id)
+            ->where('published', true)
+            ->latest()
+            ->take(3)
+            ->get();
+            
+        return view('home.blog-detail', compact('blog', 'relatedBlogs'));
     }
     
     public function testimoni()

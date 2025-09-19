@@ -12,10 +12,7 @@ return new class extends Migration
         Schema::create('galeri', function (Blueprint $table) {
             $table->id();
             $table->foreignId('id_admin')->constrained('admin')->onDelete('cascade');
-            $table->string('judul')->nullable();
             $table->string('gambar');
-            $table->text('deskripsi')->nullable();
-            $table->string('kategori')->nullable(); // Tambah kolom kategori
             $table->date('tanggal_sewa')->nullable(); // Tambah kolom tanggal_sewa
             $table->timestamps();
         });

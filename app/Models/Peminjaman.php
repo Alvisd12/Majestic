@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Carbon\Carbon;
 
 class Peminjaman extends Model
 {
@@ -15,11 +16,13 @@ class Peminjaman extends Model
     
     protected $fillable = [
         'user_id',
+        'motor_id',
         'tanggal_rental',
         'jam_sewa',
         'jenis_motor',
         'durasi_sewa',
         'total_harga',
+        'denda',
         'bukti_jaminan',
         'status',
         'tanggal_kembali',
@@ -31,6 +34,7 @@ class Peminjaman extends Model
         'tanggal_kembali' => 'date',
         'jam_sewa' => 'datetime:H:i',
         'total_harga' => 'decimal:2',
+        'denda' => 'decimal:2',
         'durasi_sewa' => 'integer'
     ];
 
@@ -57,15 +61,27 @@ class Peminjaman extends Model
         return $this->belongsTo(Pengunjung::class, 'user_id');
     }
 
+    public function motor(): BelongsTo
+    {
+        return $this->belongsTo(Motor::class, 'motor_id');
+    }
+
     public function getStatusColorAttribute()
     {
-        return match($this->status) {
-            'Pending' => 'warning',
-            'Confirmed' => 'info',
-            'Belum Kembali' => 'danger',
-            'Disewa' => 'primary',
-            'Selesai' => 'success',
-            'Cancelled' => 'dark',
+        return match(true) {
+            $this->status === 'Menunggu Konfirmasi' => 'warning',
+            $this->status === 'Dikonfirmasi' => 'info',
+            str_starts_with($this->status, 'Terlambat') => 'danger',
+            $this->status === 'Sedang Disewa' => 'primary',
+            $this->status === 'Selesai' => 'success',
+            str_starts_with($this->status, 'Selesai (Telat') => 'danger',
+            $this->status === 'Dibatalkan' => 'dark',
+            // Legacy status support
+            $this->status === 'Pending' => 'warning',
+            $this->status === 'Confirmed' => 'info',
+            $this->status === 'Belum Kembali' => 'danger',
+            $this->status === 'Disewa' => 'primary',
+            $this->status === 'Cancelled' => 'dark',
             default => 'secondary'
         };
     }
@@ -77,22 +93,133 @@ class Peminjaman extends Model
 
     public function getIsOverdueAttribute()
     {
-        if (in_array($this->status, ['Selesai', 'Cancelled'])) return false;
-        return now() > $this->tanggal_selesai;
+        if (str_starts_with($this->status, 'Selesai') || $this->status === 'Dibatalkan' || $this->status === 'Cancelled') return false;
+        
+        // Check if current date is past the expected return date
+        $expectedReturnDate = $this->tanggal_rental->addDays($this->durasi_sewa);
+        return now()->startOfDay()->gt($expectedReturnDate->startOfDay());
     }
 
     public function scopePending($query)
     {
-        return $query->where('status', 'Pending');
+        return $query->where(function($q) {
+            $q->where('status', 'Menunggu Konfirmasi')
+              ->orWhere('status', 'Pending'); // Legacy support
+        });
     }
 
     public function scopeActive($query)
     {
-        return $query->whereIn('status', ['Confirmed', 'Belum Kembali', 'Disewa']);
+        return $query->where(function($q) {
+            $q->whereIn('status', ['Dikonfirmasi', 'Sedang Disewa'])
+              ->orWhere('status', 'like', 'Terlambat%')
+              // Legacy support
+              ->orWhereIn('status', ['Confirmed', 'Belum Kembali', 'Disewa']);
+        });
     }
 
     public function scopeCompleted($query)
     {
-        return $query->where('status', 'Selesai');
+        return $query->where(function($q) {
+            $q->where('status', 'Selesai')
+              ->orWhere('status', 'like', 'Selesai (Telat%');
+        });
+    }
+
+    /**
+     * Calculate penalty for overdue rental
+     */
+    public function calculateDenda()
+    {
+        // Only calculate penalty for overdue rentals
+        if (!$this->isOverdue || str_starts_with($this->status, 'Selesai') || $this->status === 'Dibatalkan' || $this->status === 'Cancelled') {
+            return 0;
+        }
+
+        $expectedReturnDate = $this->tanggal_rental->addDays($this->durasi_sewa)->startOfDay();
+        $currentDate = now()->startOfDay();
+        
+        // Calculate overdue days from expected return date
+        $overdueDays = $expectedReturnDate->diffInDays($currentDate);
+        
+        if ($overdueDays <= 0) {
+            return 0;
+        }
+
+        // Get daily rental price from motor or calculate from total price
+        $dailyPrice = $this->motor ? $this->motor->harga_per_hari : ($this->total_harga / $this->durasi_sewa);
+        
+        return $overdueDays * $dailyPrice;
+    }
+
+    /**
+     * Update penalty amount in database
+     */
+    public function updateDenda()
+    {
+        $calculatedDenda = $this->calculateDenda();
+        
+        if ($this->denda != $calculatedDenda) {
+            $this->update(['denda' => $calculatedDenda]);
+        }
+        
+        return $calculatedDenda;
+    }
+
+    /**
+     * Get overdue days count
+     */
+    public function getOverdueDaysAttribute()
+    {
+        if (!$this->isOverdue || str_starts_with($this->status, 'Selesai') || $this->status === 'Dibatalkan' || $this->status === 'Cancelled') {
+            return 0;
+        }
+
+        $expectedReturnDate = $this->tanggal_rental->addDays($this->durasi_sewa)->startOfDay();
+        $currentDate = now()->startOfDay();
+        
+        return max(0, $expectedReturnDate->diffInDays($currentDate));
+    }
+
+    /**
+     * Get total amount including penalty
+     */
+    public function getTotalWithDendaAttribute()
+    {
+        return $this->total_harga + $this->denda;
+    }
+
+    /**
+     * Get status in Indonesian
+     */
+    public function getStatusIndonesiaAttribute()
+    {
+        return match(true) {
+            $this->status === 'Pending' => 'Menunggu Konfirmasi',
+            $this->status === 'Confirmed' => 'Dikonfirmasi',
+            $this->status === 'Disewa' => 'Sedang Disewa',
+            $this->status === 'Belum Kembali' => 'Terlambat',
+            $this->status === 'Cancelled' => 'Dibatalkan',
+            str_starts_with($this->status, 'Terlambat') => $this->status,
+            str_starts_with($this->status, 'Selesai') => $this->status,
+            default => $this->status
+        };
+    }
+
+    /**
+     * Get overdue days for completed rentals
+     */
+    public function getCompletedOverdueDaysAttribute()
+    {
+        if (!$this->tanggal_kembali) return 0;
+        
+        $expectedReturnDate = $this->tanggal_rental->addDays($this->durasi_sewa)->startOfDay();
+        $actualReturnDate = Carbon::parse($this->tanggal_kembali)->startOfDay();
+        
+        if ($actualReturnDate->gt($expectedReturnDate)) {
+            return $expectedReturnDate->diffInDays($actualReturnDate);
+        }
+        
+        return 0;
     }
 }

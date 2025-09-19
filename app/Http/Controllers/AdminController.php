@@ -126,7 +126,7 @@ class AdminController extends Controller
         AuthController::requireAdmin(); // Cek admin access
         
         $validated = $request->validate([
-            'status' => 'required|in:Pending,Confirmed,Belum Kembali,Disewa,Selesai,Cancelled'
+            'status' => 'required|string'
         ]);
         
         $peminjaman = Peminjaman::findOrFail($id);
@@ -136,8 +136,16 @@ class AdminController extends Controller
         $this->handleMotorStatus($peminjaman, $oldStatus, $validated['status']);
         
         // Set tanggal kembali jika status menjadi Selesai
-        if ($validated['status'] === 'Selesai' && !$peminjaman->tanggal_kembali) {
+        if ($validated['status'] === 'Selesai') {
             $validated['tanggal_kembali'] = now()->toDateString();
+            
+            // Jika motor terlambat dikembalikan, update status dengan informasi keterlambatan
+            if ($peminjaman->isOverdue || str_starts_with($peminjaman->status, 'Terlambat')) {
+                $overdueDays = $peminjaman->overdue_days;
+                if ($overdueDays > 0) {
+                    $validated['status'] = "Selesai (Telat {$overdueDays} hari)";
+                }
+            }
         }
         
         $peminjaman->update($validated);
@@ -225,6 +233,64 @@ class AdminController extends Controller
         ]);
     }
 
+    public function updateLateRentals()
+    {
+        AuthController::requireAdmin(); // Cek admin access
+        
+        $updated = 0;
+        
+        // Update completed rentals that were returned late
+        $completedRentals = Peminjaman::whereIn('status', ['Selesai', 'Dikembalikan'])
+            ->whereNotNull('tanggal_kembali')
+            ->get();
+            
+        foreach ($completedRentals as $rental) {
+            $expectedReturnDate = $rental->tanggal_rental->addDays($rental->durasi_sewa);
+            $actualReturnDate = \Carbon\Carbon::parse($rental->tanggal_kembali);
+            
+            if ($actualReturnDate->gt($expectedReturnDate)) {
+                $lateDays = $expectedReturnDate->diffInDays($actualReturnDate);
+                $newStatus = "Selesai (Telat {$lateDays} hari)";
+                
+                // Calculate penalty
+                $dailyPrice = $rental->motor ? $rental->motor->harga_per_hari : ($rental->total_harga / $rental->durasi_sewa);
+                $penalty = $lateDays * $dailyPrice;
+                
+                $rental->update([
+                    'status' => $newStatus,
+                    'denda' => $penalty
+                ]);
+                
+                $updated++;
+            }
+        }
+        
+        // Update currently overdue rentals
+        $overdueRentals = Peminjaman::whereIn('status', ['Dikonfirmasi', 'Sedang Disewa', 'Confirmed', 'Disewa'])
+            ->get()
+            ->filter(function($rental) {
+                $expectedReturnDate = $rental->tanggal_rental->addDays($rental->durasi_sewa);
+                return now()->gt($expectedReturnDate);
+            });
+            
+        foreach ($overdueRentals as $rental) {
+            $expectedReturnDate = $rental->tanggal_rental->addDays($rental->durasi_sewa);
+            $lateDays = $expectedReturnDate->diffInDays(now());
+            
+            if ($lateDays > 0) {
+                $newStatus = "Terlambat {$lateDays} hari";
+                $rental->update(['status' => $newStatus]);
+                $rental->updateDenda();
+                $updated++;
+            }
+        }
+        
+        return response()->json([
+            'success' => true,
+            'message' => "Berhasil mengupdate {$updated} data peminjaman dengan status dan denda yang benar."
+        ]);
+    }
+
     public function dipinjam(Request $request)
     {
         AuthController::requireAdmin(); // Cek admin access
@@ -232,7 +298,7 @@ class AdminController extends Controller
         // Update status otomatis berdasarkan tanggal
         $updateResult = PeminjamanStatusService::updateStatuses();
         
-        $query = Peminjaman::with('user')->whereIn('status', ['Confirmed', 'Disewa', 'Belum Kembali']);
+        $query = Peminjaman::with('user')->active();
         
         // Search functionality
         if ($request->has('search') && $request->search) {
@@ -242,12 +308,19 @@ class AdminController extends Controller
                   ->orWhereHas('user', function($userQuery) use ($search) {
                       $userQuery->where('nama', 'like', "%{$search}%")
                                ->orWhere('username', 'like', "%{$search}%")
-                               ->orWhere('phone', 'like', "%{$search}%");
+                               ->orWhere('no_handphone', 'like', "%{$search}%");
                   });
             });
         }
         
         $peminjaman = $query->orderBy('created_at', 'desc')->paginate(10);
+        
+        // Update penalty amounts for overdue rentals
+        foreach ($peminjaman as $item) {
+            if (str_starts_with($item->status, 'Terlambat') || $item->status === 'Belum Kembali') {
+                $item->updateDenda();
+            }
+        }
         
         // Set notification message if there were updates
         if ($updateResult['total_updated'] > 0) {
@@ -310,7 +383,7 @@ class AdminController extends Controller
         // Update status otomatis berdasarkan tanggal
         PeminjamanStatusService::updateStatuses();
         
-        $query = Peminjaman::with('user')->where('status', 'Selesai');
+        $query = Peminjaman::with('user')->completed();
         
         // Search functionality
         if ($request->has('search') && $request->search) {
@@ -385,9 +458,8 @@ class AdminController extends Controller
         // Search functionality
         if ($request->has('search') && $request->search) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('deskripsi', 'like', "%{$search}%")
-                  ->orWhere('kategori', 'like', "%{$search}%");
+            $query->whereHas('admin', function($q) use ($search) {
+                $q->where('nama', 'like', "%{$search}%");
             });
         }
         
@@ -409,19 +481,12 @@ class AdminController extends Controller
 
         $validated = $request->validate([
             'gambar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'judul' => 'required|string|max:255',
-            'deskripsi' => 'nullable|string|max:500',
-            'tanggal_sewa' => 'required|date',
-            'kategori' => 'nullable|string|max:50'
+            'tanggal_sewa' => 'nullable|date'
         ], [
             'gambar.required' => 'Gambar wajib diupload.',
             'gambar.image' => 'File harus berupa gambar.',
             'gambar.mimes' => 'Format gambar harus JPG, PNG, atau GIF.',
             'gambar.max' => 'Ukuran gambar maksimal 2MB.',
-            'judul.required' => 'Judul wajib diisi.',
-            'judul.string' => 'Judul harus berupa teks.',
-            'judul.max' => 'Judul maksimal 255 karakter.',
-            'tanggal_sewa.required' => 'Tanggal sewa wajib diisi.',
             'tanggal_sewa.date' => 'Format tanggal tidak valid.'
         ]);
 
@@ -438,11 +503,6 @@ class AdminController extends Controller
 
         // Create galeri entry
         $galeri = \App\Models\Galeri::create($validated);
-
-        // If category is wisata, also create blog entry
-        if ($request->kategori === 'wisata') {
-            $this->createBlogFromGaleri($galeri);
-        }
 
         return redirect()->route('admin.galeri')
             ->with('success', 'Item galeri berhasil ditambahkan!');
@@ -465,23 +525,13 @@ class AdminController extends Controller
         
         $validated = $request->validate([
             'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'judul' => 'required|string|max:255',
-            'deskripsi' => 'nullable|string|max:500',
-            'tanggal_sewa' => 'required|date',
-            'kategori' => 'nullable|string|max:50'
+            'tanggal_sewa' => 'nullable|date'
         ], [
             'gambar.image' => 'File harus berupa gambar.',
             'gambar.mimes' => 'Format gambar harus JPG, PNG, atau GIF.',
             'gambar.max' => 'Ukuran gambar maksimal 2MB.',
-            'judul.required' => 'Judul wajib diisi.',
-            'judul.string' => 'Judul harus berupa teks.',
-            'judul.max' => 'Judul maksimal 255 karakter.',
-            'tanggal_sewa.required' => 'Tanggal sewa wajib diisi.',
             'tanggal_sewa.date' => 'Format tanggal tidak valid.'
         ]);
-        
-        // Store old category for comparison
-        $oldCategory = $galeri->kategori;
         
         // Handle file upload if new image is provided
         if ($request->hasFile('gambar')) {
@@ -497,18 +547,6 @@ class AdminController extends Controller
         }
         
         $galeri->update($validated);
-        
-        // Handle blog table updates based on category changes
-        if ($request->kategori === 'wisata' && $oldCategory !== 'wisata') {
-            // Category changed to wisata - create blog entry
-            $this->createBlogFromGaleri($galeri);
-        } elseif ($request->kategori !== 'wisata' && $oldCategory === 'wisata') {
-            // Category changed from wisata - remove blog entry
-            $this->deleteBlogFromGaleri($galeri);
-        } elseif ($request->kategori === 'wisata' && $oldCategory === 'wisata') {
-            // Category remains wisata - update blog entry
-            $this->updateBlogFromGaleri($galeri);
-        }
         
         return redirect()->route('admin.galeri')
             ->with('success', 'Item galeri berhasil diupdate!');
@@ -826,8 +864,8 @@ class AdminController extends Controller
         
         // Statistics
         $totalPeminjaman = $peminjaman->count();
-        $totalPendapatan = $peminjaman->where('status', 'Selesai')->sum('total_harga');
-        $peminjamanSelesai = $peminjaman->where('status', 'Selesai')->count();
+        $totalPendapatan = $peminjaman->completed()->sum('total_harga');
+        $peminjamanSelesai = $peminjaman->completed()->count();
         $peminjamanBatal = $peminjaman->where('status', 'Cancelled')->count();
         
         // Motor paling populer
@@ -905,16 +943,16 @@ class AdminController extends Controller
         if (!$motor) return;
         
         // Handle motor status based on peminjaman status changes
-        if ($newStatus === 'Confirmed' && $oldStatus !== 'Confirmed') {
+        if (in_array($newStatus, ['Confirmed', 'Dikonfirmasi']) && !in_array($oldStatus, ['Confirmed', 'Dikonfirmasi'])) {
             // Motor reserved when booking confirmed
             $motor->update(['status' => 'Disewa']);
-        } elseif ($newStatus === 'Disewa' && $oldStatus !== 'Disewa') {
+        } elseif (in_array($newStatus, ['Disewa', 'Sedang Disewa']) && !in_array($oldStatus, ['Disewa', 'Sedang Disewa'])) {
             // Motor actively rented
             $motor->update(['status' => 'Disewa']);
-        } elseif ($newStatus === 'Selesai' && $oldStatus !== 'Selesai') {
-            // Motor returned and available again
+        } elseif (str_starts_with($newStatus, 'Selesai') && !str_starts_with($oldStatus, 'Selesai')) {
+            // Motor returned and available again (including late returns)
             $motor->update(['status' => 'Tersedia']);
-        } elseif ($newStatus === 'Cancelled' && in_array($oldStatus, ['Confirmed', 'Disewa'])) {
+        } elseif (in_array($newStatus, ['Cancelled', 'Dibatalkan']) && in_array($oldStatus, ['Confirmed', 'Dikonfirmasi', 'Disewa', 'Sedang Disewa'])) {
             // Booking cancelled, motor becomes available
             $motor->update(['status' => 'Tersedia']);
         }
@@ -942,5 +980,134 @@ class AdminController extends Controller
     {
         // Blog functionality removed - wisata model no longer exists
         // This method is kept for backward compatibility
+    }
+
+    // Blog Management
+    public function blogIndex(Request $request)
+    {
+        AuthController::requireAdmin();
+        
+        $query = \App\Models\Blog::query();
+        
+        // Search functionality
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('judul', 'like', '%' . $search . '%')
+                  ->orWhere('isi', 'like', '%' . $search . '%')
+                  ->orWhere('penulis', 'like', '%' . $search . '%')
+                  ->orWhere('lokasi', 'like', '%' . $search . '%');
+            });
+        }
+        
+        $blogs = $query->orderBy('created_at', 'desc')->paginate(10);
+        
+        return view('admin.blog', compact('blogs'));
+    }
+
+    public function blogCreate()
+    {
+        AuthController::requireAdmin();
+        
+        return view('admin.blog.create');
+    }
+
+    public function blogStore(Request $request)
+    {
+        AuthController::requireAdmin();
+
+        $validated = $request->validate([
+            'judul' => 'required|string|max:255',
+            'isi' => 'required|string',
+            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'penulis' => 'nullable|string|max:255',
+            'lokasi' => 'nullable|string|max:255',
+            'published' => 'boolean'
+        ]);
+
+        // Handle file upload
+        if ($request->hasFile('gambar')) {
+            $gambar = $request->file('gambar');
+            $gambarName = time() . '_' . $gambar->getClientOriginalName();
+            $gambarPath = $gambar->storeAs('blog', $gambarName, 'public');
+            $validated['gambar'] = $gambarPath;
+        }
+
+        // Add admin ID
+        $validated['id_admin'] = AuthController::getCurrentUser()->id;
+        
+        // Set default penulis if not provided
+        if (empty($validated['penulis'])) {
+            $validated['penulis'] = AuthController::getCurrentUser()->nama;
+        }
+
+        \App\Models\Blog::create($validated);
+
+        return redirect()->route('admin.blog')
+            ->with('success', 'Blog berhasil ditambahkan!');
+    }
+
+    public function blogEdit($id)
+    {
+        AuthController::requireAdmin();
+        
+        $blog = \App\Models\Blog::findOrFail($id);
+        
+        return view('admin.blog.edit', compact('blog'));
+    }
+
+    public function blogUpdate(Request $request, $id)
+    {
+        AuthController::requireAdmin();
+        
+        $blog = \App\Models\Blog::findOrFail($id);
+        
+        $validated = $request->validate([
+            'judul' => 'required|string|max:255',
+            'isi' => 'required|string',
+            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'penulis' => 'nullable|string|max:255',
+            'lokasi' => 'nullable|string|max:255',
+            'published' => 'boolean'
+        ]);
+        
+        // Handle file upload if new image is provided
+        if ($request->hasFile('gambar')) {
+            // Delete old image
+            if ($blog->gambar && Storage::disk('public')->exists($blog->gambar)) {
+                Storage::disk('public')->delete($blog->gambar);
+            }
+            
+            $gambar = $request->file('gambar');
+            $gambarName = time() . '_' . $gambar->getClientOriginalName();
+            $gambarPath = $gambar->storeAs('blog', $gambarName, 'public');
+            $validated['gambar'] = $gambarPath;
+        }
+        
+        // Set default penulis if not provided
+        if (empty($validated['penulis'])) {
+            $validated['penulis'] = AuthController::getCurrentUser()->nama;
+        }
+        
+        $blog->update($validated);
+        
+        return redirect()->route('admin.blog')
+            ->with('success', 'Blog berhasil diupdate!');
+    }
+
+    public function blogDestroy($id)
+    {
+        AuthController::requireAdmin();
+        
+        $blog = \App\Models\Blog::findOrFail($id);
+        
+        // Delete image file
+        if ($blog->gambar && Storage::disk('public')->exists($blog->gambar)) {
+            Storage::disk('public')->delete($blog->gambar);
+        }
+        
+        $blog->delete();
+        
+        return response()->json(['success' => true, 'message' => 'Blog berhasil dihapus!']);
     }
 }

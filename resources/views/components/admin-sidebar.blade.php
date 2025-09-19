@@ -1,7 +1,7 @@
 <!-- Sidebar -->
 <div class="sidebar">
     <div class="sidebar-brand">
-        <image src="{{ asset('assets/images/logo.png') }}" alt="Logo" class="logo">
+        <image src="{{ asset('assets/images/logoputih.png') }}" alt="Logo" class="logo">
     </div>
     
     <nav class="sidebar-nav">
@@ -60,9 +60,21 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.blog*') ? 'active' : '' }}" href="{{ route('admin.blog') }}">
+                    <i class="fas fa-blog"></i>
+                    <span>Blog</span>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('admin.testimoni*') ? 'active' : '' }}" href="{{ route('admin.testimoni') }}">
                     <i class="fas fa-star"></i>
                     <span>Testimoni</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.general*') ? 'active' : '' }}" href="{{ route('admin.general.index') }}">
+                    <i class="fas fa-cogs"></i>
+                    <span>Pengaturan Umum</span>
                 </a>
             </li>
             <li class="nav-item">

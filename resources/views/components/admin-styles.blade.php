@@ -1,7 +1,7 @@
 <style>
     :root {
         --primary-blue: #2563eb;
-        --sidebar-bg:rgb(66, 69, 235);
+        --sidebar-bg:black;
         --sidebar-active: #fbbf24;
         --text-muted: #6b7280;
     }
@@ -12,7 +12,7 @@
     }
 
     .sidebar {
-        background: linear-gradient(180deg, var(--sidebar-bg) 0%,rgb(46, 84, 255) 100%);
+        background: linear-gradient(180deg, var(--sidebar-bg) 0%,black 100%);
         min-height: 100vh;
         width: 250px;
         position: fixed;
@@ -29,8 +29,8 @@
     }
 
     .sidebar-brand img {
-        width: 180px;
-        height: 60px;
+        width: 210px;
+        height: 70px;
         margin-right: 10px;
     }
 

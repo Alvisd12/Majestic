@@ -15,20 +15,20 @@ class Testimoni extends Model
 
     protected $fillable = [
         'id_pengunjung',
+        'peminjaman_id',
+        'nama',
+        'testimoni',
         'pesan',
         'rating',
+        'is_approved',
         'approved'
     ];
 
     protected $casts = [
-        'rating' => 'integer',
-        'approved' => 'boolean'
+        'is_approved' => 'boolean',
+        'approved' => 'boolean',
+        'rating' => 'integer'
     ];
-
-    public function pengunjung(): BelongsTo
-    {
-        return $this->belongsTo(Pengunjung::class, 'id_pengunjung');
-    }
 
     public function getRatingStarsAttribute()
     {
@@ -37,6 +37,24 @@ class Testimoni extends Model
 
     public function scopeApproved($query)
     {
-        return $query->where('approved', true);
+        return $query->where('is_approved', true)->orWhere('approved', true);
+    }
+
+    // Accessor to get testimoni content from either column
+    public function getTestimoniTextAttribute()
+    {
+        return $this->testimoni ?: $this->pesan;
+    }
+
+    // Optional relationship to pengunjung (for backward compatibility)
+    public function pengunjung(): BelongsTo
+    {
+        return $this->belongsTo(Pengunjung::class, 'id_pengunjung');
+    }
+
+    // Relationship to peminjaman
+    public function peminjaman(): BelongsTo
+    {
+        return $this->belongsTo(Peminjaman::class, 'peminjaman_id');
     }
 }

@@ -45,14 +45,29 @@
                     @forelse($peminjaman as $index => $item)
                     <tr data-id="{{ $item->id }}">
                         <td>{{ $peminjaman->firstItem() + $index }}.</td>
-                        <td class="fw-bold">{{ $item->user->nama ?? 'Unknown' }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                @if($item->user && $item->user->profile_photo)
+                                    <img src="{{ asset('storage/' . $item->user->profile_photo) }}" 
+                                         alt="Profile" 
+                                         class="rounded-circle me-2"
+                                         style="width: 35px; height: 35px; object-fit: cover;">
+                                @else
+                                    <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-2" 
+                                         style="width: 35px; height: 35px;">
+                                        <i class="fas fa-user text-primary"></i>
+                                    </div>
+                                @endif
+                                <span class="fw-bold">{{ $item->user->nama ?? 'Unknown' }}</span>
+                            </div>
+                        </td>
                         <td>{{ $item->jenis_motor }}</td>
                         <td>{{ \Carbon\Carbon::parse($item->tanggal_rental)->format('M d, Y') }}</td>
                         <td>{{ $item->durasi_sewa }} Hari</td>
                         <td class="fw-bold">Rp {{ number_format($item->total_harga, 0, ',', '.') }}</td>
                         <td>
-                            <a href="tel:{{ $item->user->phone ?? '' }}" class="text-primary text-decoration-none">
-                                #{{ $item->user->phone ?? '123456789' }}
+                            <a href="tel:{{ $item->user->no_handphone ?? '' }}" class="text-primary text-decoration-none">
+                                {{ $item->user->no_handphone ?? '-' }}
                             </a>
                         </td>
                         <td>
@@ -71,12 +86,12 @@
                         <td>
                             <div class="btn-group" role="group">
                                 <button type="button" class="btn btn-sm btn-success" 
-                                        onclick="approvePeminjaman({{ $item->id }})" 
+                                        onclick="approvePeminjaman('{{ $item->id }}')" 
                                         title="Setujui">
                                     <i class="fas fa-check"></i>
                                 </button>
                                 <button type="button" class="btn btn-sm btn-danger" 
-                                        onclick="rejectPeminjaman({{ $item->id }})" 
+                                        onclick="rejectPeminjaman('{{ $item->id }}')" 
                                         title="Tolak">
                                     <i class="fas fa-times"></i>
                                 </button>

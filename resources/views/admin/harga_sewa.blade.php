@@ -87,10 +87,10 @@
                                     </span></td>
                                 <td>
                                     <div class="btn-group" role="group">
-                                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="editMotor({{ $motor->id ?? 0 }})">
+                                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="editMotor('{{ $motor->id ?? 0 }}')">
                                             <i class="fas fa-edit"></i>
                                         </button>
-                                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteMotor({{ $motor->id ?? 0 }})">
+                                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteMotor('{{ $motor->id ?? 0 }}')">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </div>
@@ -110,8 +110,45 @@
                 
                     <!-- Pagination -->
                     @if($motors->hasPages())
-                    <div class="d-flex justify-content-center mt-4">
-                        {{ $motors->appends(request()->query())->links() }}
+                    <div class="pagination-container">
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination">
+                                {{-- Previous Page Link --}}
+                                @if ($motors->onFirstPage())
+                                    <li class="page-item disabled">
+                                        <span class="page-link">‹ Previous</span>
+                                    </li>
+                                @else
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ $motors->appends(request()->query())->previousPageUrl() }}">‹ Previous</a>
+                                    </li>
+                                @endif
+
+                                {{-- Pagination Elements --}}
+                                @foreach ($motors->appends(request()->query())->getUrlRange(1, $motors->lastPage()) as $page => $url)
+                                    @if ($page == $motors->currentPage())
+                                        <li class="page-item active">
+                                            <span class="page-link">{{ $page }}</span>
+                                        </li>
+                                    @else
+                                        <li class="page-item">
+                                            <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                                        </li>
+                                    @endif
+                                @endforeach
+
+                                {{-- Next Page Link --}}
+                                @if ($motors->hasMorePages())
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ $motors->appends(request()->query())->nextPageUrl() }}">Next ›</a>
+                                    </li>
+                                @else
+                                    <li class="page-item disabled">
+                                        <span class="page-link">Next ›</span>
+                                    </li>
+                                @endif
+                            </ul>
+                        </nav>
                     </div>
                     @endif
                 </div>
@@ -220,6 +257,147 @@
 
 .btn-group .btn {
     margin: 0 2px;
+}
+
+/* Pagination Styling */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1.5rem;
+    padding: 0.5rem 0;
+}
+
+.pagination-container nav {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.pagination-container .pagination {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    flex-wrap: nowrap;
+    background: #fff;
+    border-radius: 12px;
+    padding: 0.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border: 1px solid #e9ecef;
+}
+
+.pagination-container .page-item {
+    margin: 0;
+}
+
+.pagination-container .page-link {
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 0.4rem 0.6rem;
+    color: #495057;
+    background-color: #fff;
+    text-decoration: none;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    font-weight: 500;
+    font-size: 0.875rem;
+    line-height: 1;
+}
+
+.pagination-container .page-link:hover {
+    background-color: #f8f9fa;
+    border-color: #adb5bd;
+    color: #495057;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.pagination-container .page-item.active .page-link {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    border-color: #007bff;
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(0,123,255,0.25);
+}
+
+.pagination-container .page-item.disabled .page-link {
+    color: #6c757d;
+    background-color: #fff;
+    border-color: #dee2e6;
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination-container .page-item.disabled .page-link:hover {
+    transform: none;
+    box-shadow: none;
+    background-color: #fff;
+}
+
+/* Previous/Next button styling */
+.pagination-container .page-item:first-child .page-link,
+.pagination-container .page-item:last-child .page-link {
+    font-weight: 600;
+    padding: 0.4rem 0.8rem;
+    min-width: auto;
+    font-size: 0.8rem;
+}
+
+/* Compact design for better horizontal layout */
+.pagination-container .pagination .page-item + .page-item {
+    margin-left: 2px;
+}
+
+/* Force horizontal layout */
+.pagination-container .pagination {
+    flex-direction: row !important;
+    align-items: center !important;
+}
+
+.pagination-container .page-item {
+    display: inline-block !important;
+    float: none !important;
+}
+
+/* Responsive pagination */
+@media (max-width: 768px) {
+    .pagination-container .pagination {
+        gap: 0.15rem;
+        padding: 0.4rem;
+    }
+    
+    .pagination-container .page-link {
+        padding: 0.35rem 0.5rem;
+        min-width: 32px;
+        height: 32px;
+        font-size: 0.8rem;
+    }
+    
+    .pagination-container .page-item:first-child .page-link,
+    .pagination-container .page-item:last-child .page-link {
+        padding: 0.35rem 0.6rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .pagination-container .pagination {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.1rem;
+    }
+    
+    .pagination-container .page-link {
+        padding: 0.3rem 0.45rem;
+        min-width: 30px;
+        height: 30px;
+        font-size: 0.75rem;
+    }
 }
 </style>
 @endsection

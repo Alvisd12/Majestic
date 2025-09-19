@@ -1,31 +1,38 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PeminjamanController;
 use App\Http\Controllers\AdminAccountController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\TestimoniController;
 
 // Halaman utama (home)
-Route::get('/', function () {
-    return view('home.dashboard');
-})->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
-Route::get('/harga-sewa', function () {
-    return view('home.harga_sewa');
-})->name('harga_sewa');
+Route::get('/harga-sewa', [HomeController::class, 'hargaSewa'])->name('harga_sewa');
 
 Route::get('/layanan', function () {
     return view('home.layanan');
 })->name('layanan');
 
-Route::get('/galeri', function () {
-    return view('home.galeri');
-})->name('galeri');
+Route::get('/galeri', [HomeController::class, 'galeri'])->name('galeri');
+Route::get('/blog/{id}', [HomeController::class, 'blogDetail'])->name('blog.detail');
 
 Route::get('/kontak', function () {
     return view('home.kontak');
 })->name('kontak');
+
+// Testimoni routes
+Route::post('/testimoni', [\App\Http\Controllers\TestimoniController::class, 'store'])->name('testimoni.store');
+Route::post('/testimoni/public', [\App\Http\Controllers\TestimoniController::class, 'storePublic'])->name('testimoni.public.store');
+Route::get('/testimoni/approved', [\App\Http\Controllers\TestimoniController::class, 'getApproved'])->name('testimoni.approved');
+Route::get('/testimoni/check-eligibility', [\App\Http\Controllers\TestimoniController::class, 'checkEligibility'])->name('testimoni.check-eligibility');
+
+// Motor detail page
+Route::get('/motor/{id}', [HomeController::class, 'motorDetail'])->name('motor.detail');
 
 // Guest routes (untuk user yang belum login)
 Route::middleware('check.guest')->group(function () {
@@ -39,6 +46,9 @@ Route::middleware('check.guest')->group(function () {
     Route::get('/admin/register', [AuthController::class, 'showAdminRegister'])->name('admin.register');
     Route::post('/admin/register', [AuthController::class, 'adminRegister']);
 });
+
+// Update late rentals route (temporary for data migration)
+Route::get('/update-late-rentals', [AdminController::class, 'updateLateRentals']);
 
 // Authenticated routes (untuk user dan admin yang sudah login)
 Route::middleware('check.login')->group(function () {
@@ -103,10 +113,11 @@ Route::middleware('check.login')->group(function () {
     
     // Peminjaman routes (untuk user biasa dan admin)
     Route::resource('peminjaman', PeminjamanController::class);
-    
-    // Booking routes for pengunjung
-    Route::get('/booking', [PeminjamanController::class, 'create'])->name('booking.create');
-    Route::post('/booking', [PeminjamanController::class, 'store'])->name('booking.store');
+    // Print receipt route
+    Route::get('/peminjaman/{id}/print', [PeminjamanController::class, 'print'])->name('peminjaman.print');
+
+    // Motor booking route (from motor detail page)
+    Route::post('/motor/{id}/book', [PeminjamanController::class, 'bookMotor'])->name('motor.book');
     Route::get('/my-bookings', [PeminjamanController::class, 'userBookings'])->name('user.bookings');
     Route::get('/profile', [AuthController::class, 'showProfile'])->name('user.profile');
     Route::put('/profile', [AuthController::class, 'updateProfile'])->name('user.profile.update');
@@ -158,6 +169,14 @@ Route::middleware('check.login')->group(function () {
         Route::put('/galeri/{id}', [AdminController::class, 'galeriUpdate'])->name('admin.galeri.update');
         Route::delete('/galeri/{id}', [AdminController::class, 'galeriDestroy'])->name('admin.galeri.destroy');
 
+        // Blog routes
+        Route::get('/blog', [AdminController::class, 'blogIndex'])->name('admin.blog');
+        Route::get('/blog/create', [AdminController::class, 'blogCreate'])->name('admin.blog.create');
+        Route::post('/blog', [AdminController::class, 'blogStore'])->name('admin.blog.store');
+        Route::get('/blog/{id}/edit', [AdminController::class, 'blogEdit'])->name('admin.blog.edit');
+        Route::put('/blog/{id}', [AdminController::class, 'blogUpdate'])->name('admin.blog.update');
+        Route::delete('/blog/{id}', [AdminController::class, 'blogDestroy'])->name('admin.blog.destroy');
+
         // Admin Account Management routes
         Route::get('/admin-accounts', [AdminAccountController::class, 'index'])->name('admin.admin_accounts');
         Route::get('/admin-accounts/create', [AdminAccountController::class, 'create'])->name('admin.admin_accounts.create');
@@ -172,7 +191,16 @@ Route::middleware('check.login')->group(function () {
         Route::post('/profile/upload-photo', [\App\Http\Controllers\AdminProfileController::class, 'uploadPhoto'])->name('admin.profile.upload-photo');
         Route::delete('/profile/delete-photo', [\App\Http\Controllers\AdminProfileController::class, 'deletePhoto'])->name('admin.profile.delete-photo');
         
+        // General Settings routes
+        Route::get('/general', [\App\Http\Controllers\Admin\GeneralController::class, 'index'])->name('admin.general.index');
+        Route::get('/general/edit', [\App\Http\Controllers\Admin\GeneralController::class, 'edit'])->name('admin.general.edit');
+        Route::put('/general', [\App\Http\Controllers\Admin\GeneralController::class, 'update'])->name('admin.general.update');
+        
         Route::get('/export', [AdminController::class, 'export'])->name('admin.export');
         Route::get('/statistics', [AdminController::class, 'getStatistics'])->name('admin.statistics');
     });
 });
+
+// Testimoni routes (outside middleware groups)
+Route::get('/testimoni/create/{booking_id}', [TestimoniController::class, 'create'])->name('testimoni.create');
+Route::post('/testimoni', [TestimoniController::class, 'store'])->name('testimoni.store');

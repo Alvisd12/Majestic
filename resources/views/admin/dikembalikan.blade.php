@@ -53,8 +53,8 @@
                         <td>{{ $item->durasi_sewa }} Hari</td>
                         <td class="fw-bold">Rp {{ number_format($item->total_harga, 0, ',', '.') }}</td>
                         <td>
-                            <a href="tel:{{ $item->user->phone ?? '' }}" class="text-primary text-decoration-none">
-                                #{{ $item->user->phone ?? '123456789' }}
+                            <a href="tel:{{ $item->user->no_handphone ?? '' }}" class="text-primary text-decoration-none">
+                                {{ $item->user->no_handphone ?? '-' }}
                             </a>
                         </td>
                         <td>
@@ -73,12 +73,12 @@
                         <td>
                             <div class="btn-group" role="group">
                                 <button type="button" class="btn btn-sm btn-outline-primary" 
-                                        onclick="viewDetails({{ $item->id }})" 
+                                        onclick="viewDetails('{{ $item->id }}')" 
                                         title="Lihat Detail">
                                     <i class="fas fa-eye"></i>
                                 </button>
                                 <button type="button" class="btn btn-sm btn-outline-danger" 
-                                        onclick="deletePeminjaman({{ $item->id }})" 
+                                        onclick="deletePeminjaman('{{ $item->id }}')" 
                                         title="Hapus">
                                     <i class="fas fa-trash"></i>
                                 </button>

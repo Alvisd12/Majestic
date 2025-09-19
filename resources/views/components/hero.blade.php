@@ -1,3 +1,3 @@
 <section class="hero text-center">
-  <img src="{{ asset('assets/images/hero.jpg') }}" alt="Hero" class="img-fluid w-100" style="max-height: 600px; object-fit: cover;">
+  <img src="{{ asset('assets/images/headerr.png') }}" alt="Hero" class="img-fluid w-400" style="min-height: 100vh; object-fit: cover;">
 </section>

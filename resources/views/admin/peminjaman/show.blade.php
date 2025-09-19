@@ -19,7 +19,7 @@
                         </tr>
                         <tr>
                             <td><strong>No. Handphone:</strong></td>
-                            <td>{{ $peminjaman->user->phone ?? '-' }}</td>
+                            <td>{{ $peminjaman->user->no_handphone ?? '-' }}</td>
                         </tr>
                         <tr>
                             <td><strong>Jenis Motor:</strong></td>
