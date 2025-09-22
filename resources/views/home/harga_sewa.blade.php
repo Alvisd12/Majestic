@@ -200,8 +200,7 @@
 <section class="harga-sewa py-5">
   <div class="container">
     <div class="judul-sewa">
-      <h2>Harga Dan</h2>
-      <h3>Jenis Motor</h3>
+      <h2>Harga Sewa</h2>
     </div>
     <div class="grid-motor">
       @foreach ($motors as $index => $motor)

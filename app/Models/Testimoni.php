@@ -15,7 +15,6 @@ class Testimoni extends Model
 
     protected $fillable = [
         'id_pengunjung',
-        'peminjaman_id',
         'nama',
         'testimoni',
         'pesan',
@@ -50,11 +49,5 @@ class Testimoni extends Model
     public function pengunjung(): BelongsTo
     {
         return $this->belongsTo(Pengunjung::class, 'id_pengunjung');
-    }
-
-    // Relationship to peminjaman
-    public function peminjaman(): BelongsTo
-    {
-        return $this->belongsTo(Peminjaman::class, 'peminjaman_id');
     }
 }

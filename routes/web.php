@@ -19,11 +19,8 @@ Route::get('/layanan', function () {
 })->name('layanan');
 
 Route::get('/galeri', [HomeController::class, 'galeri'])->name('galeri');
-Route::get('/blog/{id}', [HomeController::class, 'blogDetail'])->name('blog.detail');
 
-Route::get('/kontak', function () {
-    return view('home.kontak');
-})->name('kontak');
+Route::get('/kontak', [HomeController::class, 'kontak'])->name('kontak');
 
 // Testimoni routes
 Route::post('/testimoni', [\App\Http\Controllers\TestimoniController::class, 'store'])->name('testimoni.store');
@@ -33,6 +30,11 @@ Route::get('/testimoni/check-eligibility', [\App\Http\Controllers\TestimoniContr
 
 // Motor detail page
 Route::get('/motor/{id}', [HomeController::class, 'motorDetail'])->name('motor.detail');
+
+// Session expired route (accessible without login)
+Route::get('/session-expired', function () {
+    return view('auth.session-expired');
+})->name('session.expired');
 
 // Guest routes (untuk user yang belum login)
 Route::middleware('check.guest')->group(function () {
@@ -51,7 +53,7 @@ Route::middleware('check.guest')->group(function () {
 Route::get('/update-late-rentals', [AdminController::class, 'updateLateRentals']);
 
 // Authenticated routes (untuk user dan admin yang sudah login)
-Route::middleware('check.login')->group(function () {
+Route::middleware(['check.login', 'prevent.back'])->group(function () {
     // User dashboard
     Route::get('/dashboard', function () {
         return view('auth.dashboard');
@@ -136,6 +138,8 @@ Route::middleware('check.login')->group(function () {
         // Testimoni routes
         Route::get('/testimoni', [AdminController::class, 'testimoniIndex'])->name('admin.testimoni');
         Route::get('/testimoni/{id}', [AdminController::class, 'testimoniShow'])->name('admin.testimoni.show');
+        Route::post('/testimoni/{id}/approve', [AdminController::class, 'testimoniApprove'])->name('admin.testimoni.approve');
+        Route::post('/testimoni/{id}/reject', [AdminController::class, 'testimoniReject'])->name('admin.testimoni.reject');
         Route::delete('/testimoni/{id}', [AdminController::class, 'testimoniDestroy'])->name('admin.testimoni.destroy');
         
         Route::put('/peminjaman/{id}/status', [AdminController::class, 'updateStatus'])->name('admin.peminjaman.status');

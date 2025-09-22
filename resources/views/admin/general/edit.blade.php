@@ -52,11 +52,6 @@
                                     <div class="form-text">Masukkan alamat lengkap rental</div>
                                 </div>
 
-                                <div class="mb-3">
-                                    <label for="syarat_ketentuan" class="form-label">Syarat & Ketentuan <span class="text-danger">*</span></label>
-                                    <textarea class="form-control" id="syarat_ketentuan" name="syarat_ketentuan" rows="8" required>{{ old('syarat_ketentuan', $general->syarat_ketentuan) }}</textarea>
-                                    <div class="form-text">Masukkan syarat dan ketentuan penyewaan</div>
-                                </div>
                             </div>
                         </div>
 

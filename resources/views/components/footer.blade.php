@@ -157,12 +157,6 @@
       100% { transform: rotate(-45deg) translate(-50%, -50%) scale(1); }
     }
 
-    .follow-section {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 20px 20px 20px;
-      border-top: 1px solid #333;
-    }
 
     .social-icons {
       display: flex;
@@ -233,52 +227,34 @@
         </div>
       </div>
 
-      <div class="footer-section">
-        <h3>Sewa Motor</h3>
-        <ul>
-          <li><a href="#">Beat Deluxe</a></li>
-          <li><a href="#">Genio</a></li>
-          <li><a href="#">Scoopy</a></li>
-          <li><a href="#">Vario</a></li>
-          <li><a href="#">Fazio</a></li>
-          <li><a href="#">CRF</a></li>
-        </ul>
-      </div>
 
       <div class="footer-section">
         <h3>Quick Link</h3>
         <ul>
           <li><a href="#">Harga Sewa</a></li>
-          <li><a href="#">Layanan</a></li>
           <li><a href="#">Galeri</a></li>
           <li><a href="#">Kontak Kami</a></li>
         </ul>
       </div>
 
       <div class="footer-section">
-  <div class="footer-section">
-  <h3>Lokasi Kami</h3>
-  <div class="map-container" style="position: relative; width: 100%; max-width: 400px;">
-    <!-- Gambar lokal dari folder assets -->
-    <img src="{{ asset('assets/images/maps.jpg') }}" 
-         alt="Peta Lokasi Rental Motor Majestic"
-         style="width: 100%; border-radius: 10px;">
-    
-    <!-- Ikon pin bisa diklik -->
-    <a href="https://maps.app.goo.gl/6XwyE5pd6KzfGyxx8" target="_blank"
-       style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-              background: white; border-radius: 50%; padding: 8px;
-              box-shadow: 0 2px 6px rgba(0,0,0,0.3);">
-      <iconify-icon icon="mdi:map-marker" style="color: red; font-size: 32px;"></iconify-icon>
-    </a>
-  </div>
-</div>
+        <h3>Lokasi Kami</h3>
+        <div class="map-container" style="position: relative; width: 100%; max-width: 400px;">
+          <!-- Gambar lokal dari folder assets -->
+          <img src="{{ asset('assets/images/maps.jpg') }}" 
+               alt="Peta Lokasi Rental Motor Majestic"
+               style="width: 100%; border-radius: 10px;">
+          
+          <!-- Ikon pin bisa diklik -->
+          <a href="https://maps.app.goo.gl/6XwyE5pd6KzfGyxx8" target="_blank"
+             style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                    background: white; border-radius: 50%; padding: 8px;
+                    box-shadow: 0 2px 6px rgba(0,0,0,0.3);">
+            <iconify-icon icon="mdi:map-marker" style="color: red; font-size: 32px;"></iconify-icon>
+          </a>
+        </div>
+      </div>
 
-<!-- Iconify -->
-<script src="https://code.iconify.design/iconify-icon/1.0.8/iconify-icon.min.js"></script>
-
-
-    <div class="follow-section">
       <div class="footer-section">
         <h3>Follow Us</h3>
         <div class="social-icons">
@@ -290,7 +266,6 @@
           </a>
         </div>
       </div>
-    </div>
   </footer>
 
   <div class="copyright">

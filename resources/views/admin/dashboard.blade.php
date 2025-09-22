@@ -37,14 +37,11 @@
             Menampilkan pesanan dengan status: 
             <strong>
                 @switch(request('status'))
-                    @case('Pending')
-                        Menunggu Konfirmasi
-                        @break
                     @case('Disewa')
-                        Disewa
+                        Disewa (Aktif & Terlambat)
                         @break
                     @case('Selesai')
-                        Dikembalikan
+                        Selesai (Normal & Telat)
                         @break
                     @default
                         {{ request('status') }}
@@ -57,258 +54,317 @@
     @endif
 
     <!-- Statistics Cards -->
-    <div class="row mb-4">
-        <div class="col-md-3 mb-3">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="bg-primary bg-opacity-10 p-3 rounded">
-                                <i class="fas fa-clipboard-list text-primary fa-2x"></i>
-                            </div>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="card-title text-muted mb-1">Total Peminjaman</h6>
-                            <h4 class="mb-0 fw-bold">{{ $totalPeminjaman ?? 0 }}</h4>
+    <div class="row mb-5">
+        <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+            <div class="stats-card stats-card-primary">
+                <div class="stats-card-body">
+                    <div class="stats-icon">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <div class="stats-content">
+                        <div class="stats-number">{{ $totalPeminjaman ?? 0 }}</div>
+                        <div class="stats-label">Total Peminjaman</div>
+                        <div class="stats-trend">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>+12%</span>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="col-md-3 mb-3">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="bg-success bg-opacity-10 p-3 rounded">
-                                <i class="fas fa-motorcycle text-success fa-2x"></i>
-                            </div>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="card-title text-muted mb-1">Motor Tersedia</h6>
-                            <h4 class="mb-0 fw-bold">{{ $motorTersedia ?? 0 }}</h4>
-                        </div>
-                    </div>
+                <div class="stats-card-footer">
+                    <small class="text-white-50">Dari bulan lalu</small>
                 </div>
             </div>
         </div>
-        <div class="col-md-3 mb-3">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="bg-warning bg-opacity-10 p-3 rounded">
-                                <i class="fas fa-clock text-warning fa-2x"></i>
-                            </div>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="card-title text-muted mb-1">Peminjaman Aktif</h6>
-                            <h4 class="mb-0 fw-bold">{{ $peminjamanAktif ?? 0 }}</h4>
+        <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+            <div class="stats-card stats-card-success">
+                <div class="stats-card-body">
+                    <div class="stats-icon">
+                        <i class="fas fa-motorcycle"></i>
+                    </div>
+                    <div class="stats-content">
+                        <div class="stats-number">{{ $motorTersedia ?? 0 }}</div>
+                        <div class="stats-label">Motor Tersedia</div>
+                        <div class="stats-trend">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>+5%</span>
                         </div>
                     </div>
                 </div>
+                <div class="stats-card-footer">
+                    <small class="text-white-50">Siap disewakan</small>
+                </div>
             </div>
         </div>
-        <div class="col-md-3 mb-3">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="bg-info bg-opacity-10 p-3 rounded">
-                                <i class="fas fa-users text-info fa-2x"></i>
-                            </div>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="card-title text-muted mb-1">Total Pengunjung</h6>
-                            <h4 class="mb-0 fw-bold">{{ $totalPengunjung ?? 0 }}</h4>
+        <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+            <div class="stats-card stats-card-warning">
+                <div class="stats-card-body">
+                    <div class="stats-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stats-content">
+                        <div class="stats-number">{{ $peminjamanAktif ?? 0 }}</div>
+                        <div class="stats-label">Peminjaman Aktif</div>
+                        <div class="stats-trend">
+                            <i class="fas fa-arrow-down"></i>
+                            <span>-3%</span>
                         </div>
                     </div>
+                </div>
+                <div class="stats-card-footer">
+                    <small class="text-white-50">Sedang berlangsung</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+            <div class="stats-card stats-card-info">
+                <div class="stats-card-body">
+                    <div class="stats-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stats-content">
+                        <div class="stats-number">{{ $totalPengunjung ?? 0 }}</div>
+                        <div class="stats-label">Total Pengunjung</div>
+                        <div class="stats-trend">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>+8%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="stats-card-footer">
+                    <small class="text-white-50">Pengguna terdaftar</small>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Search Box -->
-    <form method="GET" action="{{ route('admin.dashboard') }}">
-        <div class="search-box">
-            <input type="text" class="form-control" name="search" 
-                   placeholder="Search here..." value="{{ request('search') }}">
-            <i class="fas fa-search"></i>
+    <div class="row mb-4">
+        <div class="col-lg-8 col-md-6">
+            <form method="GET" action="{{ route('admin.dashboard') }}">
+                <div class="modern-search-box">
+                    <div class="search-input-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" class="form-control search-input" name="search" 
+                               placeholder="Cari peminjaman, nama penyewa, atau jenis motor..." 
+                               value="{{ request('search') }}">
+                        @if(request('search'))
+                            <button type="button" class="clear-search" onclick="window.location.href='{{ route(';admin.dashboard;') }}'">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        @endif
+                    </div>
+                </div>
+            </form>
         </div>
-    </form>
+        <div class="col-lg-4 col-md-6">
+            <div class="d-flex justify-content-end gap-2">
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-filter me-2"></i>Filter Status
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ route('admin.dashboard') }}">Semua Status</a></li>
+                        <li><a class="dropdown-item" href="{{ route('admin.dashboard', ['status' => 'Menunggu Konfirmasi']) }}">Menunggu Konfirmasi</a></li>
+                        <li><a class="dropdown-item" href="{{ route('admin.dashboard', ['status' => 'Dikonfirmasi']) }}">Dikonfirmasi</a></li>
+                        <li><a class="dropdown-item" href="{{ route('admin.dashboard', ['status' => 'Disewa']) }}">Disewa (Aktif & Terlambat)</a></li>
+                        <li><a class="dropdown-item" href="{{ route('admin.dashboard', ['status' => 'Selesai']) }}">Selesai (Normal & Telat)</a></li>
+                        <li><a class="dropdown-item" href="{{ route('admin.dashboard', ['status' => 'Dibatalkan']) }}">Dibatalkan</a></li>
+                    </ul>
+                </div>
+                <button class="btn btn-primary" onclick="window.location.reload()">
+                    <i class="fas fa-sync-alt me-2"></i>Refresh
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Data Peminjaman Terbaru -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold"><i class="fas fa-list me-2"></i>Data Peminjaman Terbaru</h5>
-                    <small class="text-muted">{{ now()->format('d M Y, H:i') }}</small>
+            <div class="modern-table-card">
+                <div class="table-card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <div class="table-icon">
+                                <i class="fas fa-list"></i>
+                            </div>
+                            <div>
+                                <h5 class="table-title mb-0">Data Peminjaman Terbaru</h5>
+                                <small class="table-subtitle">Kelola dan pantau semua peminjaman</small>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="table-stats">
+                                <span class="stats-badge">{{ $recentRentals->total() ?? 0 }} Total</span>
+                            </div>
+                            <small class="text-muted">{{ now()->format('d M Y, H:i') }}</small>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead class="table-light">
+                <div class="table-card-body">
+                    <div class="modern-table-responsive">
+                        <table class="modern-table">
+                            <thead>
                                 <tr>
-                                    <th>No</th>
-                                    <th>Nama Penyewa</th>
-                                    <th>Motor</th>
-                                    <th>Tanggal Sewa</th>
-                                    <th>Status</th>
-                                    <th>Total</th>
+                                    <th class="table-header-cell">
+                                        <div class="header-content">
+                                            <span>#</span>
+                                        </div>
+                                    </th>
+                                    <th class="table-header-cell">
+                                        <div class="header-content">
+                                            <i class="fas fa-user me-2"></i>
+                                            <span>Penyewa</span>
+                                        </div>
+                                    </th>
+                                    <th class="table-header-cell">
+                                        <div class="header-content">
+                                            <i class="fas fa-motorcycle me-2"></i>
+                                            <span>Motor & Durasi</span>
+                                        </div>
+                                    </th>
+                                    <th class="table-header-cell">
+                                        <div class="header-content">
+                                            <i class="fas fa-calendar me-2"></i>
+                                            <span>Tanggal Sewa</span>
+                                        </div>
+                                    </th>
+                                    <th class="table-header-cell">
+                                        <div class="header-content">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            <span>Status</span>
+                                        </div>
+                                    </th>
+                                    <th class="table-header-cell">
+                                        <div class="header-content">
+                                            <i class="fas fa-money-bill me-2"></i>
+                                            <span>Total Harga</span>
+                                        </div>
+                                    </th>
+                                    <th class="table-header-cell">
+                                        <div class="header-content">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>
+                                            <span>Denda</span>
+                                        </div>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse($recentRentals as $index => $rental)
-                                <tr>
-                                    <td>{{ ($recentRentals->currentPage() - 1) * $recentRentals->perPage() + $index + 1 }}</td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            @if($rental->user && $rental->user->profile_photo)
-                                                <img src="{{ asset('storage/' . $rental->user->profile_photo) }}" 
-                                                     alt="Profile" 
-                                                     class="avatar-sm rounded-circle me-2"
-                                                     style="width: 35px; height: 35px; object-fit: cover;">
-                                            @else
-                                                <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-2">
-                                                    <i class="fas fa-user text-primary"></i>
-                                                </div>
-                                            @endif
-                                            <div>
-                                                <h6 class="mb-0">{{ $rental->user->nama ?? $rental->nama ?? 'N/A' }}</h6>
+                                <tr class="table-row">
+                                    <td class="table-cell">
+                                        <div class="row-number">
+                                            {{ ($recentRentals->currentPage() - 1) * $recentRentals->perPage() + $index + 1 }}
+                                        </div>
+                                    </td>
+                                    <td class="table-cell">
+                                        <div class="user-info">
+                                            <div class="user-avatar-wrapper">
+                                                @if($rental->user && $rental->user->profile_photo)
+                                                    <img src="{{ asset('storage/' . $rental->user->profile_photo) }}" 
+                                                         alt="Profile" 
+                                                         class="user-avatar-img">
+                                                @else
+                                                    <div class="user-avatar-placeholder">
+                                                        <i class="fas fa-user"></i>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                            <div class="user-details">
+                                                <div class="user-name">{{ $rental->user->nama ?? $rental->nama ?? 'N/A' }}</div>
                                                 @if($rental->user->no_handphone ?? $rental->no_handphone)
-                                                    <small class="text-muted">{{ $rental->user->no_handphone ?? $rental->no_handphone }}</small>
+                                                    <div class="user-phone">{{ $rental->user->no_handphone ?? $rental->no_handphone }}</div>
                                                 @endif
                                             </div>
                                         </div>
                                     </td>
-                                    <td>
-                                        <div>
-                                            <span class="fw-bold">{{ $rental->jenis_motor ?? 'N/A' }}</span>
-                                            <br>
-                                            <small class="text-muted">{{ $rental->durasi_sewa ?? 1 }} hari</small>
+                                    <td class="table-cell">
+                                        <div class="motor-info">
+                                            <div class="motor-name">{{ $rental->jenis_motor ?? 'N/A' }}</div>
+                                            <div class="motor-duration">
+                                                <i class="fas fa-clock me-1"></i>
+                                                {{ $rental->durasi_sewa ?? 1 }} hari
+                                            </div>
                                         </div>
                                     </td>
-                                    <td>
-                                        <span class="text-muted">{{ $rental->tanggal_rental ? $rental->tanggal_rental->format('d M Y') : 'N/A' }}</span>
-                                        <br>
-                                        <small class="text-muted">{{ $rental->created_at ? $rental->created_at->diffForHumans() : 'N/A' }}</small>
+                                    <td class="table-cell">
+                                        <div class="date-info">
+                                            <div class="rental-date">{{ $rental->tanggal_rental ? $rental->tanggal_rental->format('d M Y') : 'N/A' }}</div>
+                                            <div class="relative-time">{{ $rental->created_at ? $rental->created_at->diffForHumans() : 'N/A' }}</div>
+                                        </div>
                                     </td>
-                                    <td>
+                                    <td class="table-cell">
                                         @php
-                                            $status = $rental->status ?? 'Pending';
-                                            $badgeClass = match($status) {
-                                                'Pending' => 'bg-warning',
-                                                'Confirmed' => 'bg-info',
-                                                'Disewa' => 'bg-primary', 
-                                                'Selesai' => 'bg-success',
-                                                'Cancelled' => 'bg-danger',
-                                                'Belum Kembali' => 'bg-danger',
-                                                default => 'bg-secondary'
+                                            $status = $rental->status ?? 'Menunggu Konfirmasi';
+                                            $statusConfig = match(true) {
+                                                $status === 'Menunggu Konfirmasi' => ['class' => 'status-warning', 'icon' => 'fas fa-clock', 'text' => 'Menunggu Konfirmasi'],
+                                                $status === 'Dikonfirmasi' => ['class' => 'status-info', 'icon' => 'fas fa-check', 'text' => 'Dikonfirmasi'],
+                                                $status === 'Selesai' => ['class' => 'status-success', 'icon' => 'fas fa-check-circle', 'text' => 'Selesai'],
+                                                str_starts_with($status, 'Selesai (Telat') => ['class' => 'status-warning', 'icon' => 'fas fa-clock', 'text' => $status],
+                                                $status === 'Dibatalkan' => ['class' => 'status-danger', 'icon' => 'fas fa-times', 'text' => 'Dibatalkan'],
+                                                str_starts_with($status, 'Terlambat') => ['class' => 'status-danger', 'icon' => 'fas fa-exclamation-triangle', 'text' => $status],
+                                                default => ['class' => 'status-secondary', 'icon' => 'fas fa-question', 'text' => $status]
                                             };
                                         @endphp
-                                        <span class="badge {{ $badgeClass }}">{{ $status }}</span>
+                                        <div class="status-badge {{ $statusConfig['class'] }}">
+                                            <i class="{{ $statusConfig['icon'] }}"></i>
+                                            <span>{{ $statusConfig['text'] }}</span>
+                                        </div>
                                     </td>
-                                    <td>
-                                        <span class="fw-bold text-success">Rp {{ number_format($rental->total_harga ?? 0, 0, ',', '.') }}</span>
+                                    <td class="table-cell">
+                                        <div class="price-info">
+                                            <div class="price-amount">Rp {{ number_format($rental->total_harga ?? 0, 0, ',', '.') }}</div>
+                                        </div>
+                                    </td>
+                                    <td class="table-cell">
+                                        <div class="penalty-info">
+                                            @if(str_starts_with($rental->status, 'Terlambat') || str_starts_with($rental->status, 'Selesai (Telat'))
+                                                @if($rental->denda > 0)
+                                                    <div class="penalty-amount text-danger fw-bold">
+                                                        Rp {{ number_format($rental->denda, 0, ',', '.') }}
+                                                    </div>
+                                                    @php
+                                                        $lateDays = 0;
+                                                        if(str_starts_with($rental->status, 'Terlambat') && preg_match('/Terlambat (\d+) hari/', $rental->status, $matches)) {
+                                                            $lateDays = $matches[1];
+                                                        } elseif(str_starts_with($rental->status, 'Selesai (Telat') && preg_match('/Telat (\d+) hari/', $rental->status, $matches)) {
+                                                            $lateDays = $matches[1];
+                                                        }
+                                                    @endphp
+                                                    @if($lateDays > 0)
+                                                        <div class="penalty-days text-muted small">
+                                                            {{ $lateDays }} hari terlambat
+                                                        </div>
+                                                    @endif
+                                                @else
+                                                    <span class="text-muted">-</span>
+                                                @endif
+                                            @else
+                                                <span class="text-muted">-</span>
+                                            @endif
+                                        </div>
                                     </td>
                                 </tr>
                                 @empty
-                                <!-- Sample Data when no rentals exist -->
-                                <tr>
-                                    <td>1</td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-2">
-                                                <i class="fas fa-user text-primary"></i>
-                                            </div>
-                                            <div>
-                                                <h6 class="mb-0">Ahmad Rizki</h6>
-                                                <small class="text-muted">081234567890</small>
-                                            </div>
+                                <tr class="empty-row">
+                                    <td colspan="7" class="text-center py-5">
+                                        <div class="empty-state">
+                                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                                            <h5 class="text-muted">Tidak ada data peminjaman</h5>
+                                            <p class="text-muted">
+                                                @if(request('search') || request('status') || request('tanggal_mulai') || request('tanggal_akhir'))
+                                                    Tidak ada data yang sesuai dengan filter yang dipilih.
+                                                @else
+                                                    Belum ada data peminjaman yang tersedia.
+                                                @endif
+                                            </p>
+                                            @if(request('search') || request('status') || request('tanggal_mulai') || request('tanggal_akhir'))
+                                                <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-primary btn-sm">
+                                                    <i class="fas fa-times me-1"></i>
+                                                    Hapus Filter
+                                                </a>
+                                            @endif
                                         </div>
-                                    </td>
-                                    <td>
-                                        <div>
-                                            <span class="fw-bold">Honda Beat</span>
-                                            <br>
-                                            <small class="text-muted">B 1234 ABC</small>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="text-muted">{{ now()->format('d M Y') }}</span>
-                                        <br>
-                                        <small class="text-muted">2 jam yang lalu</small>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-success">Disewa</span>
-                                    </td>
-                                    <td>
-                                        <span class="fw-bold text-success">Rp 150.000</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>2</td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-2">
-                                                <i class="fas fa-user text-primary"></i>
-                                            </div>
-                                            <div>
-                                                <h6 class="mb-0">Siti Nurhaliza</h6>
-                                                <small class="text-muted">081987654321</small>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div>
-                                            <span class="fw-bold">Yamaha Mio</span>
-                                            <br>
-                                            <small class="text-muted">B 5678 DEF</small>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="text-muted">{{ now()->subHours(5)->format('d M Y') }}</span>
-                                        <br>
-                                        <small class="text-muted">5 jam yang lalu</small>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-warning">Pending</span>
-                                    </td>
-                                    <td>
-                                        <span class="fw-bold text-success">Rp 120.000</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>3</td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-2">
-                                                <i class="fas fa-user text-primary"></i>
-                                            </div>
-                                            <div>
-                                                <h6 class="mb-0">Budi Santoso</h6>
-                                                <small class="text-muted">081555666777</small>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div>
-                                            <span class="fw-bold">Honda Vario</span>
-                                            <br>
-                                            <small class="text-muted">B 9012 GHI</small>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="text-muted">{{ now()->subDay()->format('d M Y') }}</span>
-                                        <br>
-                                        <small class="text-muted">1 hari yang lalu</small>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-info">Selesai</span>
-                                    </td>
-                                    <td>
-                                        <span class="fw-bold text-success">Rp 200.000</span>
                                     </td>
                                 </tr>
                                 @endforelse
@@ -334,118 +390,539 @@
 <script src="{{ asset('js/dashboard.js') }}"></script>
 
 <style>
-.avatar-sm {
+/* Modern Dashboard Styles */
+:root {
+    --gradient-primary: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); /* Blue */
+    --gradient-success: linear-gradient(135deg, #f59e0b 0%, #f59e0b 100%); /* Cyan to Blue */
+    --gradient-warning: linear-gradient(135deg, #1d4ed8 0%, #1d4ed8 100%); /* Yellow */
+    --gradient-info: linear-gradient(135deg, #f59e0b 0%, #f59e0b  100%); /* Light Blue */
+    --shadow-soft: 0 10px 25px rgba(0, 0, 0, 0.1);
+    --shadow-hover: 0 15px 35px rgba(0, 0, 0, 0.15);
+    --border-radius: 16px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Statistics Cards */
+.stats-card {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-soft);
+    overflow: hidden;
+    transition: var(--transition);
+    position: relative;
+    border: none;
+}
+
+.stats-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-hover);
+}
+
+.stats-card-primary {
+    background: var(--gradient-primary);
+    color: white;
+}
+
+.stats-card-success {
+    background: var(--gradient-success);
+    color: white;
+}
+
+.stats-card-warning {
+    background: var(--gradient-warning);
+    color: white;
+}
+
+.stats-card-info {
+    background: var(--gradient-info);
+    color: white;
+}
+
+.stats-card-body {
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.stats-icon {
+    width: 70px;
+    height: 70px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    backdrop-filter: blur(10px);
+}
+
+.stats-content {
+    text-align: right;
+    flex: 1;
+    margin-left: 1.5rem;
+}
+
+.stats-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+}
+
+.stats-label {
+    font-size: 0.95rem;
+    opacity: 0.9;
+    margin-bottom: 0.75rem;
+}
+
+.stats-trend {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    opacity: 0.8;
+}
+
+.stats-card-footer {
+    padding: 1rem 2rem;
+    background: rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+/* Modern Search Box */
+.modern-search-box {
+    margin-bottom: 2rem;
+}
+
+.search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-icon {
+    position: absolute;
+    left: 1.25rem;
+    color: #6b7280;
+    z-index: 2;
+    font-size: 1.1rem;
+}
+
+.search-input {
+    padding: 1rem 1rem 1rem 3.5rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: var(--transition);
+    background: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.search-input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    outline: none;
+}
+
+.clear-search {
+    position: absolute;
+    right: 1rem;
+    background: #ef4444;
+    color: white;
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    transition: var(--transition);
+}
+
+.clear-search:hover {
+    background: #dc2626;
+    transform: scale(1.1);
+}
+
+/* Modern Table Card */
+.modern-table-card {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-soft);
+    overflow: hidden;
+    border: none;
+}
+
+.table-card-header {
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); /* Light blue */
+    padding: 2rem;
+    border-bottom: 1px solid #bfdbfe;
+}
+
+.table-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #2563eb 0%, #fbbf24 100%); /* Blue to Yellow */
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.25rem;
+    margin-right: 1rem;
+}
+
+.table-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0;
+}
+
+.table-subtitle {
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
+.stats-badge {
+    background: linear-gradient(135deg, #2563eb 0%, #fbbf24 100%); /* Blue to Yellow */
+    color: #0b1324;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.table-card-body {
+    padding: 0;
+}
+
+/* Modern Table */
+.modern-table-responsive {
+    overflow-x: auto;
+}
+
+.modern-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.table-header-cell {
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    padding: 1.5rem 1.25rem;
+    border-bottom: 2px solid #bfdbfe;
+    font-weight: 700;
+    color: #0b1324;
+    font-size: 0.9rem;
+    text-align: left;
+}
+
+/* Sticky table header */
+.modern-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.modern-table thead th:first-child {
+    border-top-left-radius: 12px;
+}
+
+.modern-table thead th:last-child {
+    border-top-right-radius: 12px;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+}
+
+.table-row {
+    transition: var(--transition);
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.table-row:hover {
+    background: linear-gradient(135deg, #fffbea 0%, #fef3c7 100%); /* Light yellow */
+    transform: scale(1.01);
+}
+
+.table-cell {
+    padding: 1.5rem 1.25rem;
+    vertical-align: middle;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.row-number {
     width: 35px;
     height: 35px;
-    font-size: 14px;
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); /* Light blue */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: #1e3a8a;
+    font-size: 0.9rem;
 }
 
-.table-hover tbody tr:hover {
-    background-color: rgba(0,0,0,0.02);
+/* User Info */
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
-.badge {
-    font-size: 0.75em;
-    padding: 0.4em 0.6em;
-    border-radius: 0.375rem;
+.user-avatar-wrapper {
+    position: relative;
 }
 
-.table th {
+.user-avatar-img {
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    object-fit: cover;
+    border: 2px solid #e2e8f0;
+}
+
+.user-avatar-placeholder {
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.1rem;
+}
+
+.user-name {
     font-weight: 600;
-    font-size: 0.875rem;
-    color: #6c757d;
-    border-bottom: 2px solid #dee2e6;
+    color: #1f2937;
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
 }
 
-.table td {
-    vertical-align: middle;
-    padding: 1rem 0.75rem;
+.user-phone {
+    color: #6b7280;
+    font-size: 0.8rem;
 }
 
-.card {
-    border: none;
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+/* Motor Info */
+.motor-name {
+    font-weight: 600;
+    color: #1f2937;
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
 }
 
-.card-header {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
-    padding: 1rem 1.25rem;
+.motor-duration {
+    color: #6b7280;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
 }
 
-.text-success {
-    color: #198754 !important;
+/* Date Info */
+.rental-date {
+    font-weight: 600;
+    color: #1f2937;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
 }
 
-.border-top {
-    border-top: 1px solid #dee2e6 !important;
+.relative-time {
+    color: #6b7280;
+    font-size: 0.8rem;
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-primary {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+}
+
+.status-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+
+.status-warning {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+}
+
+.status-info {
+    background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+    color: white;
+}
+
+.status-danger {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+}
+
+.status-secondary {
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    color: white;
+}
+
+/* Price Info */
+.price-amount {
+    font-weight: 700;
+    color: #059669;
+    font-size: 1rem;
 }
 
 /* Pagination Styling */
 .pagination {
     margin: 0;
-    padding: 0;
+    padding: 2rem;
+    border-top: 1px solid #f1f5f9;
+    background: #f8fafc;
 }
 
 .pagination .page-item {
-    margin: 0 2px;
+    margin: 0 3px;
 }
 
 .pagination .page-link {
-    border-radius: 8px;
-    border: 1px solid #dee2e6;
-    color: #6c757d;
-    padding: 0.5rem 0.75rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    transition: all 0.2s ease;
+    border-radius: 10px;
+    border: 2px solid #e2e8f0;
+    color: #6b7280;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: var(--transition);
     text-decoration: none;
+    background: white;
 }
 
 .pagination .page-link:hover {
-    background-color: #f8f9fa;
-    border-color: #adb5bd;
-    color: #495057;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    background: linear-gradient(135deg, #2563eb 0%, #fbbf24 100%); /* Blue to Yellow */
+    border-color: #2563eb;
+    color: #0b1324;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(37, 99, 235, 0.25);
 }
 
 .pagination .page-item.active .page-link {
-    background-color: #007bff;
-    border-color: #007bff;
-    color: white;
-    box-shadow: 0 2px 4px rgba(0,123,255,0.3);
+    background: linear-gradient(135deg, #2563eb 0%, #fbbf24 100%);
+    border-color: #2563eb;
+    color: #0b1324;
+    box-shadow: 0 8px 15px rgba(37, 99, 235, 0.25);
 }
 
 .pagination .page-item.disabled .page-link {
-    color: #adb5bd;
-    background-color: #fff;
-    border-color: #dee2e6;
+    color: #cbd5e1;
+    background-color: #f8fafc;
+    border-color: #e2e8f0;
     cursor: not-allowed;
 }
 
 .pagination .page-item.disabled .page-link:hover {
     transform: none;
     box-shadow: none;
+    background: #f8fafc;
+    color: #cbd5e1;
 }
 
-/* Pagination container */
-.d-flex.justify-content-center {
-    padding: 1rem 0;
-    border-top: 1px solid #f1f3f4;
-    margin-top: 1.5rem;
-}
-
-/* Responsive pagination */
-@media (max-width: 576px) {
+/* Responsive Design */
+@media (max-width: 768px) {
+    .stats-card-body {
+        padding: 1.5rem;
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .stats-content {
+        text-align: center;
+        margin-left: 0;
+    }
+    
+    .stats-number {
+        font-size: 2rem;
+    }
+    
+    .table-card-header {
+        padding: 1.5rem;
+    }
+    
+    .table-title {
+        font-size: 1.25rem;
+    }
+    
+    .modern-table-responsive {
+        font-size: 0.85rem;
+    }
+    
+    .table-cell {
+        padding: 1rem 0.75rem;
+    }
+    
+    .user-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
     .pagination .page-link {
-        padding: 0.375rem 0.5rem;
-        font-size: 0.75rem;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .stats-number {
+        font-size: 1.75rem;
+    }
+    
+    .table-card-header .d-flex {
+        flex-direction: column;
+        gap: 1rem;
     }
     
     .pagination .page-item {
         margin: 0 1px;
     }
+}
+
+/* Animation Keyframes */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.stats-card {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.modern-table-card {
+    animation: fadeInUp 0.8s ease-out;
 }
 </style>
 @endsection

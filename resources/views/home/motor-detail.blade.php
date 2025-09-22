@@ -66,6 +66,18 @@
     box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
   }
 
+  .product-badge.maintenance {
+    background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 152, 0, 0.4);
+  }
+
+  .product-badge.unavailable {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(108, 117, 125, 0.4);
+  }
+
   .product-title {
     color: #2c5aa0;
     font-weight: 700;
@@ -201,6 +213,14 @@
     box-shadow: 0 0 0 0.3rem rgba(44, 90, 160, 0.15);
     background: white;
     transform: translateY(-1px);
+  }
+
+  .form-control:disabled, .form-select:disabled {
+    background-color: #f8f9fa;
+    border-color: #e9ecef;
+    color: #6c757d;
+    opacity: 0.65;
+    cursor: not-allowed;
   }
 
   .btn-order {
@@ -464,106 +484,6 @@
     color: #ffc107 !important;
   }
 
-  /* Penalty Alert Styles */
-  .penalty-alert {
-    background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
-    border: 2px solid #f44336;
-    border-radius: 15px;
-    padding: 25px;
-    margin-bottom: 30px;
-    box-shadow: 0 8px 25px rgba(244, 67, 54, 0.2);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .penalty-alert::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #f44336 0%, #ff5722 100%);
-  }
-
-  .penalty-alert .penalty-icon {
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 24px;
-    margin: 0 auto 20px;
-    box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
-    animation: pulse 2s infinite;
-  }
-
-  .penalty-title {
-    color: #b71c1c;
-    font-weight: 700;
-    font-size: 1.4rem;
-    text-align: center;
-    margin-bottom: 20px;
-  }
-
-  .penalty-details {
-    background: rgba(255, 255, 255, 0.7);
-    border-radius: 10px;
-    padding: 20px;
-    margin-top: 15px;
-  }
-
-  .penalty-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid rgba(183, 28, 28, 0.1);
-  }
-
-  .penalty-row:last-child {
-    border-bottom: none;
-    font-weight: 700;
-    font-size: 1.1rem;
-    color: #b71c1c;
-  }
-
-  .penalty-label {
-    color: #666;
-    font-weight: 600;
-  }
-
-  .penalty-value {
-    color: #b71c1c;
-    font-weight: 700;
-  }
-
-  .overdue-badge {
-    background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
-    color: white;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: bold;
-    display: inline-block;
-    margin-left: 10px;
-    animation: blink 1.5s infinite;
-  }
-
-  @keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-  }
-
-  @keyframes blink {
-    0%, 50% { opacity: 1; }
-    51%, 100% { opacity: 0.7; }
-  }
-
   @keyframes slideInDown {
     from {
       opacity: 0;
@@ -572,6 +492,214 @@
     to {
       opacity: 1;
       transform: translateY(0);
+    }
+  }
+
+  /* Recommendation Cards Styling */
+  .recommendation-card {
+    background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+    border-radius: 20px;
+    padding: 0;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(44, 90, 160, 0.1);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .recommendation-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+  }
+
+  .recommendation-image {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+  }
+
+  .recommendation-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .recommendation-card:hover .recommendation-image img {
+    transform: scale(1.05);
+  }
+
+  .recommendation-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+  }
+
+  .recommendation-content {
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .recommendation-title {
+    color: #2c5aa0;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+  }
+
+  .recommendation-subtitle {
+    color: #666;
+    font-size: 0.85rem;
+    margin-bottom: 15px;
+    line-height: 1.4;
+  }
+
+  .recommendation-specs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+
+  .spec-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(44, 90, 160, 0.1);
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    color: #2c5aa0;
+    font-weight: 600;
+  }
+
+  .spec-item i {
+    font-size: 0.7rem;
+  }
+
+  .recommendation-price {
+    margin-bottom: 15px;
+    text-align: center;
+    padding: 12px;
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    border-radius: 12px;
+    border: 1px solid rgba(44, 90, 160, 0.2);
+  }
+
+  .price-label {
+    display: block;
+    font-size: 0.75rem;
+    color: #666;
+    margin-bottom: 4px;
+  }
+
+  .price-amount {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #2c5aa0;
+  }
+
+  .price-period {
+    font-size: 0.8rem;
+    color: #666;
+  }
+
+  .recommendation-actions {
+    margin-top: auto;
+  }
+
+  .btn-recommendation {
+    background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    width: 100%;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+  }
+
+  .btn-recommendation:hover {
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(44, 90, 160, 0.3);
+  }
+
+  .empty-recommendations {
+    text-align: center;
+    padding: 60px 20px;
+    background: rgba(44, 90, 160, 0.05);
+    border-radius: 15px;
+    border: 2px dashed rgba(44, 90, 160, 0.2);
+  }
+
+  .empty-recommendations i {
+    color: #bbb;
+  }
+
+  .empty-recommendations h5 {
+    margin-bottom: 10px;
+  }
+
+  .empty-recommendations p {
+    margin-bottom: 20px;
+  }
+
+  /* Responsive Design for Recommendations */
+  @media (max-width: 768px) {
+    .recommendation-card {
+      margin-bottom: 20px;
+    }
+    
+    .recommendation-image {
+      height: 180px;
+    }
+    
+    .recommendation-content {
+      padding: 15px;
+    }
+    
+    .recommendation-title {
+      font-size: 1rem;
+    }
+    
+    .recommendation-specs {
+      gap: 8px;
+    }
+    
+    .spec-item {
+      font-size: 0.7rem;
+      padding: 3px 6px;
+    }
+    
+    .price-amount {
+      font-size: 1.1rem;
+    }
+    
+    .btn-recommendation {
+      padding: 8px 16px;
+      font-size: 0.85rem;
+    }
+    
+    .empty-recommendations {
+      padding: 40px 15px;
     }
   }
 </style>
@@ -612,6 +740,10 @@
           <div class="image-container">
             @if($motor->status === 'Tersedia')
             <div class="product-badge">TERSEDIA</div>
+            @elseif($motor->status === 'Maintenance')
+            <div class="product-badge maintenance">MAINTENANCE</div>
+            @elseif($motor->status === 'Disewa')
+            <div class="product-badge unavailable">DISEWA</div>
             @endif
             <img src="{{ $motor->foto ? asset('storage/' . $motor->foto) : asset('assets/images/default-motor.jpg') }}" alt="{{ $motor->full_name }}" class="img-fluid">
           </div>
@@ -673,6 +805,20 @@
             <small class="d-block text-muted mt-2">per 24 jam</small>
           </div>
 
+          @if($motor->status === 'Maintenance')
+            <div class="alert alert-warning mt-3" role="alert">
+              <i class="fas fa-wrench me-2"></i>
+              <strong>Motor Sedang Maintenance</strong><br>
+              <small>Motor ini sedang dalam perbaikan dan tidak tersedia untuk disewa sementara waktu.</small>
+            </div>
+          @elseif($motor->status === 'Disewa')
+            <div class="alert alert-info mt-3" role="alert">
+              <i class="fas fa-info-circle me-2"></i>
+              <strong>Motor Sedang Disewa</strong><br>
+              <small>Motor ini sedang disewa oleh customer lain.</small>
+            </div>
+          @endif
+
           <form action="{{ route('motor.book', $motor->id) }}" method="POST" id="bookingForm">
             @csrf
             <input type="hidden" name="motor_id" value="{{ $motor->id }}">
@@ -680,14 +826,14 @@
               <label class="form-label">
                 <i class="fas fa-calendar me-1"></i>Pilih Tanggal Sewa
               </label>
-              <input type="date" name="tanggal_rental" class="form-control" required>
+              <input type="date" name="tanggal_rental" class="form-control" {{ $motor->status !== 'Tersedia' ? 'disabled' : '' }} required>
             </div>
 
             <div class="form-group">
               <label class="form-label">
                 <i class="fas fa-clock me-1"></i>Waktu Pengambilan
               </label>
-              <select name="jam_sewa" class="form-select" required>
+              <select name="jam_sewa" class="form-select" {{ $motor->status !== 'Tersedia' ? 'disabled' : '' }} required>
                 <option value="">Pilih Waktu</option>
                 <option value="07:00">07:00 WIB</option>
                 <option value="08:00">08:00 WIB</option>
@@ -711,7 +857,7 @@
               <label class="form-label">
                 <i class="fas fa-hourglass-half me-1"></i>Durasi Sewa
               </label>
-              <select name="durasi_sewa" class="form-select" required>
+              <select name="durasi_sewa" class="form-select" {{ $motor->status !== 'Tersedia' ? 'disabled' : '' }} required>
                 <option value="">Pilih Durasi</option>
                 <option value="1">1 Hari (24 jam)</option>
                 <option value="2">2 Hari (48 jam)</option>
@@ -731,6 +877,10 @@
                   @if($motor->status === 'Tersedia')
                     <button type="submit" class="btn btn-order w-100">
                       <i class="fas fa-motorcycle me-1"></i>Pesan Sekarang
+                    </button>
+                  @elseif($motor->status === 'Maintenance')
+                    <button type="button" class="btn btn-warning w-100" disabled>
+                      <i class="fas fa-wrench me-1"></i>Sedang Maintenance
                     </button>
                   @else
                     <button type="button" class="btn btn-secondary w-100" disabled>
@@ -788,162 +938,81 @@
       </div>
     </div>
 
-    <!-- Penalty Information (if motor is overdue or was returned late) -->
-    @if($currentRental && ($currentRental->isOverdue || str_starts_with($currentRental->status, 'Terlambat') || (str_starts_with($currentRental->status, 'Selesai (Telat') && $currentRental->denda > 0)))
-    <div class="row">
-      <div class="col-12 fade-in">
-        <div class="penalty-alert">
-          <div class="penalty-icon">
-            <i class="fas fa-exclamation-triangle"></i>
-          </div>
-          <h4 class="penalty-title">
-            <i class="fas fa-clock me-2"></i>Motor Terlambat Dikembalikan
-            @if(str_starts_with($currentRental->status, 'Selesai (Telat'))
-              @php
-                preg_match('/Telat (\d+) hari/', $currentRental->status, $matches);
-                $lateDays = $matches[1] ?? 0;
-              @endphp
-              <span class="overdue-badge">Telat {{ $lateDays }} Hari</span>
-            @else
-              <span class="overdue-badge">Terlambat {{ $currentRental->overdue_days }} Hari</span>
-            @endif
-          </h4>
-          
-          <div class="text-center mb-3">
-            <p class="mb-0" style="color: #b71c1c; font-weight: 600;">
-              @if(str_starts_with($currentRental->status, 'Selesai (Telat'))
-                Motor ini telah dikembalikan terlambat oleh <strong>{{ $currentRental->user->nama ?? 'Penyewa' }}</strong> 
-                dengan denda keterlambatan yang sudah dihitung.
-              @else
-                Motor ini sedang disewa oleh <strong>{{ $currentRental->user->nama ?? 'Penyewa' }}</strong> 
-                dan sudah melewati batas waktu pengembalian.
-              @endif
-            </p>
-          </div>
-
-          <div class="penalty-details">
-            <div class="penalty-row">
-              <span class="penalty-label">
-                <i class="fas fa-calendar-alt me-2"></i>Tanggal Sewa
-              </span>
-              <span class="penalty-value">{{ $currentRental->tanggal_rental->format('d/m/Y') }}</span>
-            </div>
-            
-            <div class="penalty-row">
-              <span class="penalty-label">
-                <i class="fas fa-calendar-check me-2"></i>Seharusnya Kembali
-              </span>
-              <span class="penalty-value">{{ $currentRental->tanggal_kembali->format('d/m/Y') }}</span>
-            </div>
-            
-            <div class="penalty-row">
-              <span class="penalty-label">
-                <i class="fas fa-hourglass-end me-2"></i>Durasi Sewa
-              </span>
-              <span class="penalty-value">{{ $currentRental->durasi_sewa }} Hari</span>
-            </div>
-            
-            <div class="penalty-row">
-              <span class="penalty-label">
-                <i class="fas fa-clock me-2"></i>Hari Terlambat
-              </span>
-              <span class="penalty-value">{{ $currentRental->overdue_days }} Hari</span>
-            </div>
-            
-            <div class="penalty-row">
-              <span class="penalty-label">
-                <i class="fas fa-money-bill-wave me-2"></i>Harga Sewa per Hari
-              </span>
-              <span class="penalty-value">Rp. {{ number_format($motor->harga_per_hari, 0, ',', '.') }}</span>
-            </div>
-            
-            <div class="penalty-row">
-              <span class="penalty-label">
-                <i class="fas fa-exclamation-circle me-2"></i>Total Denda Keterlambatan
-              </span>
-              <span class="penalty-value">Rp. {{ number_format($currentRental->denda, 0, ',', '.') }}</span>
-            </div>
-            
-            <div class="penalty-row">
-              <span class="penalty-label">
-                <i class="fas fa-calculator me-2"></i>Total yang Harus Dibayar
-              </span>
-              <span class="penalty-value">Rp. {{ number_format($currentRental->total_with_denda, 0, ',', '.') }}</span>
-            </div>
-          </div>
-
-          <div class="text-center mt-3">
-            <small style="color: #b71c1c; font-style: italic;">
-              <i class="fas fa-info-circle me-1"></i>
-              Denda dihitung mulai dari tanggal kembali yang seharusnya ({{ $currentRental->tanggal_kembali->format('d/m/Y') }}) 
-              berdasarkan harga sewa per hari (Rp. {{ number_format($motor->harga_per_hari, 0, ',', '.') }}) 
-              × {{ $currentRental->overdue_days }} hari keterlambatan
-            </small>
-          </div>
-        </div>
-      </div>
-    </div>
-    @endif
-
-    <!-- Current Rental Status (if motor is rented but not overdue) -->
-    @if($currentRental && !$currentRental->isOverdue && !str_starts_with($currentRental->status, 'Terlambat'))
-    <div class="row">
-      <div class="col-12 fade-in">
-        <div class="info-card" style="border-left: 5px solid #2196f3;">
-          <h4 style="color: #2196f3;">
-            <i class="fas fa-info-circle me-2"></i>Status Penyewaan
-          </h4>
-          <div class="row">
-            <div class="col-md-6">
-              <dl class="row info-list">
-                <dt class="col-sm-6"><i class="fas fa-user me-2"></i>Penyewa</dt>
-                <dd class="col-sm-6">{{ $currentRental->user->nama ?? 'Penyewa' }}</dd>
-                
-                <dt class="col-sm-6"><i class="fas fa-calendar-alt me-2"></i>Tanggal Sewa</dt>
-                <dd class="col-sm-6">{{ $currentRental->tanggal_rental->format('d/m/Y') }}</dd>
-                
-                <dt class="col-sm-6"><i class="fas fa-calendar-check me-2"></i>Tanggal Kembali</dt>
-                <dd class="col-sm-6">{{ $currentRental->tanggal_kembali->format('d/m/Y') }}</dd>
-              </dl>
-            </div>
-            <div class="col-md-6">
-              <dl class="row info-list">
-                <dt class="col-sm-6"><i class="fas fa-hourglass-half me-2"></i>Durasi</dt>
-                <dd class="col-sm-6">{{ $currentRental->durasi_sewa }} Hari</dd>
-                
-                <dt class="col-sm-6"><i class="fas fa-tag me-2"></i>Status</dt>
-                <dd class="col-sm-6">
-                  <span class="badge bg-{{ $currentRental->status_color }}">{{ $currentRental->status_indonesia }}</span>
-                </dd>
-                
-                <dt class="col-sm-6"><i class="fas fa-money-bill-wave me-2"></i>Total Harga</dt>
-                <dd class="col-sm-6">Rp. {{ number_format($currentRental->total_harga, 0, ',', '.') }}</dd>
-              </dl>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    @endif
-
-    <!-- General Information -->
-    @if($general && $general->syarat_ketentuan)
-    <div class="row">
+    <!-- Rekomendasi Motor Lainnya -->
+    <div class="row mt-5">
       <div class="col-12 fade-in">
         <div class="info-card">
-          <h4><i class="fas fa-clipboard-list me-2"></i>Syarat & Ketentuan</h4>
-          <div class="terms-content">
-            {!! nl2br(e($general->syarat_ketentuan)) !!}
-          </div>
+          <h4><i class="fas fa-star me-2"></i>Rekomendasi Kendaraan Lainnya</h4>
+          <p class="text-muted mb-4">Pilihan motor terbaik yang mungkin Anda suka</p>
           
-          <div class="highlight-text">
-            <i class="fas fa-exclamation-triangle me-2"></i>
-            <strong>Penting:</strong> Dengan melakukan pemesanan motor di layanan kami, penyewa dianggap telah membaca, memahami, dan menyetujui seluruh syarat dan ketentuan yang berlaku.
+          <div class="row">
+            @php
+              // Get other available motors (excluding current motor)
+              $recommendedMotors = \App\Models\Motor::where('id', '!=', $motor->id)
+                                                  ->where('status', 'Tersedia')
+                                                  ->take(3)
+                                                  ->get();
+            @endphp
+            
+            @forelse($recommendedMotors as $recommendedMotor)
+            <div class="col-lg-4 col-md-6 mb-4">
+              <div class="recommendation-card">
+                <div class="recommendation-image">
+                  <img src="{{ $recommendedMotor->foto ? asset('storage/' . $recommendedMotor->foto) : asset('assets/images/default-motor.jpg') }}" 
+                       alt="{{ $recommendedMotor->full_name }}" class="img-fluid">
+                  <div class="recommendation-badge">TERSEDIA</div>
+                </div>
+                
+                <div class="recommendation-content">
+                  <h5 class="recommendation-title">{{ $recommendedMotor->full_name }}</h5>
+                  <p class="recommendation-subtitle">{{ $recommendedMotor->deskripsi ?? 'Motor berkualitas untuk perjalanan Anda' }}</p>
+                  
+                  <div class="recommendation-specs">
+                    <div class="spec-item">
+                      <i class="fas fa-palette"></i>
+                      <span>{{ $recommendedMotor->warna }}</span>
+                    </div>
+                    <div class="spec-item">
+                      <i class="fas fa-calendar"></i>
+                      <span>{{ $recommendedMotor->tahun }}</span>
+                    </div>
+                    <div class="spec-item">
+                      <i class="fas fa-tag"></i>
+                      <span>{{ $recommendedMotor->merk }}</span>
+                    </div>
+                  </div>
+                  
+                  <div class="recommendation-price">
+                    <span class="price-label">Mulai dari</span>
+                    <span class="price-amount">Rp. {{ number_format($recommendedMotor->harga_per_hari, 0, ',', '.') }}</span>
+                    <span class="price-period">/ hari</span>
+                  </div>
+                  
+                  <div class="recommendation-actions">
+                    <a href="{{ route('motor.detail', $recommendedMotor->id) }}" class="btn btn-recommendation">
+                      <i class="fas fa-eye me-2"></i>Lihat Detail
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            @empty
+            <div class="col-12">
+              <div class="empty-recommendations">
+                <i class="fas fa-motorcycle fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">Tidak ada rekomendasi motor lainnya saat ini</h5>
+                <p class="text-muted">Semua motor sedang tidak tersedia atau ini adalah satu-satunya motor yang tersedia.</p>
+                <a href="{{ route('harga_sewa') }}" class="btn btn-outline-primary">
+                  <i class="fas fa-list me-2"></i>Lihat Semua Motor
+                </a>
+              </div>
+            </div>
+            @endforelse
           </div>
         </div>
       </div>
     </div>
-    @endif
+
   </div>
 </section>
 
@@ -966,7 +1035,7 @@
       });
     });
 
-    document.querySelectorAll('.info-card').forEach(el => {
+    document.querySelectorAll('.info-card, .recommendation-card').forEach(el => {
       observer.observe(el);
     });
   });
@@ -1002,5 +1071,21 @@
       }
     });
   }
+
+  // Recommendation cards interaction
+  document.querySelectorAll('.recommendation-card').forEach(card => {
+    card.addEventListener('mouseenter', function() {
+      this.style.transform = 'translateY(-8px) scale(1.02)';
+    });
+    
+    card.addEventListener('mouseleave', function() {
+      this.style.transform = 'translateY(0) scale(1)';
+    });
+  });
+
+  // Add staggered animation for recommendation cards
+  document.querySelectorAll('.recommendation-card').forEach((card, index) => {
+    card.style.animationDelay = `${index * 0.1}s`;
+  });
 </script>
 @endsection

@@ -114,6 +114,14 @@
                 const dropdownToggle = pesananSubmenu.previousElementSibling;
                 dropdownToggle.setAttribute('aria-expanded', 'true');
             }
+            
+            // Prevent back button after logout - only for authenticated pages
+            if (window.history && window.history.pushState) {
+                window.history.pushState(null, null, window.location.href);
+                window.addEventListener('popstate', function() {
+                    window.history.pushState(null, null, window.location.href);
+                });
+            }
         });
     </script>
 </body>

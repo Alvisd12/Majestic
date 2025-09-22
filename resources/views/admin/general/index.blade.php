@@ -58,16 +58,6 @@
                                 </div>
                             </div>
 
-                            <div class="mb-4">
-                                <h5 class="text-primary">Syarat & Ketentuan</h5>
-                                <div class="border p-3 rounded bg-light" style="max-height: 200px; overflow-y: auto;">
-                                    @if($general->syarat_ketentuan)
-                                        {!! nl2br(e($general->syarat_ketentuan)) !!}
-                                    @else
-                                        <em class="text-muted">Belum diatur</em>
-                                    @endif
-                                </div>
-                            </div>
                         </div>
                     </div>
 

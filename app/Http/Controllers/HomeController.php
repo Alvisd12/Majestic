@@ -133,24 +133,19 @@ class HomeController extends Controller
         return view('home.galeri', compact('galeri'));
     }
     
-    
-    public function blogDetail($id)
-    {
-        $blog = Blog::with('admin')->findOrFail($id);
-        $relatedBlogs = Blog::where('id', '!=', $id)
-            ->where('published', true)
-            ->latest()
-            ->take(3)
-            ->get();
-            
-        return view('home.blog-detail', compact('blog', 'relatedBlogs'));
-    }
-    
     public function testimoni()
     {
         $testimoni = Testimoni::approved()->with('pengunjung')->latest()->paginate(10);
         
         return view('testimoni', compact('testimoni'));
+    }
+    
+    public function kontak()
+    {
+        // Get approved testimonials for display
+        $testimoni = Testimoni::approved()->latest()->take(6)->get();
+        
+        return view('home.kontak', compact('testimoni'));
     }
     
     public function contact()

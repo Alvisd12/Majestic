@@ -15,7 +15,7 @@
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('admin.admin_accounts*') ? 'active' : '' }}" href="{{ route('admin.admin_accounts') }}">
                     <i class="fas fa-users-cog"></i>
-                    Admin Accounts
+                    Daftar Admin
                 </a>
             </li>
             <li class="nav-item">
@@ -80,7 +80,7 @@
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('admin.profile.show') ? 'active' : '' }}" href="{{ route('admin.profile.show') }}">
                     <i class="fas fa-user-cog"></i>
-                    <span>Profile Settings</span>
+                    <span>Edit Profil</span>
                 </a>
             </li>
             <li class="nav-item">

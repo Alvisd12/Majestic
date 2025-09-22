@@ -75,37 +75,25 @@ class TestimoniController extends Controller
 
         $request->validate([
             'testimoni' => 'required|string|min:10',
-            'rating' => 'required|integer|min:1|max:5',
-            'peminjaman_id' => 'required|exists:peminjaman,id'
+            'rating' => 'required|integer|min:1|max:5'
         ]);
 
-        // Verify that the peminjaman belongs to the user and is completed
-        $peminjaman = \App\Models\Peminjaman::where('id', $request->peminjaman_id)
-            ->where('user_id', $userId)
+        // Check if user has completed at least one rental
+        $hasCompletedRental = \App\Models\Peminjaman::where('user_id', $userId)
             ->where(function($q) {
                 $q->where('status', 'Selesai')
                   ->orWhere('status', 'like', 'Selesai (Telat%');
             })
-            ->first();
+            ->exists();
 
-        if (!$peminjaman) {
+        if (!$hasCompletedRental) {
             return response()->json([
                 'success' => false,
-                'message' => 'Peminjaman tidak ditemukan atau belum selesai.'
-            ], 404);
+                'message' => 'Anda hanya dapat memberikan testimoni setelah menyelesaikan penyewaan motor.'
+            ], 403);
         }
 
-        // Check if user already submitted testimonial for this rental
-        $existingTestimoni = Testimoni::where('id_pengunjung', $userId)
-            ->where('peminjaman_id', $request->peminjaman_id)
-            ->first();
-        
-        if ($existingTestimoni) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Anda sudah memberikan testimoni untuk peminjaman ini.'
-            ], 409);
-        }
+        // Allow multiple testimonials - no duplicate check needed
 
         // Get user name from pengunjung table
         $pengunjung = \App\Models\Pengunjung::find($userId);
@@ -118,7 +106,6 @@ class TestimoniController extends Controller
 
         $testimoni = Testimoni::create([
             'id_pengunjung' => $userId,
-            'peminjaman_id' => $request->peminjaman_id,
             'nama' => $pengunjung->nama,
             'testimoni' => $request->testimoni,
             'pesan' => $request->testimoni, // For backward compatibility
@@ -129,7 +116,7 @@ class TestimoniController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Testimoni berhasil dikirim dan akan ditinjau oleh admin.',
+            'message' => 'Testimoni berhasil dikirim dan akan ditinjau oleh admin. Anda dapat memberikan testimoni lagi kapan saja!',
             'data' => $testimoni
         ]);
     }
@@ -152,16 +139,15 @@ class TestimoniController extends Controller
 
         $userId = session('user_id');
 
-        // Get all completed rentals for the user
-        $completedRentals = \App\Models\Peminjaman::where('user_id', $userId)
+        // Check if user has completed at least one rental
+        $hasCompletedRental = \App\Models\Peminjaman::where('user_id', $userId)
             ->where(function($q) {
                 $q->where('status', 'Selesai')
                   ->orWhere('status', 'like', 'Selesai (Telat%');
             })
-            ->with('motor')
-            ->get();
+            ->exists();
 
-        if ($completedRentals->isEmpty()) {
+        if (!$hasCompletedRental) {
             return response()->json([
                 'eligible' => false,
                 'is_logged_in' => true,
@@ -170,48 +156,18 @@ class TestimoniController extends Controller
             ]);
         }
 
-        // Get existing testimonials for this user
-        $existingTestimoniIds = Testimoni::where('id_pengunjung', $userId)
-            ->pluck('peminjaman_id')
-            ->toArray();
-
-        // Filter rentals that don't have testimonials yet
-        $availableRentals = $completedRentals->filter(function($rental) use ($existingTestimoniIds) {
-            return !in_array($rental->id, $existingTestimoniIds);
-        });
-
-        if ($availableRentals->isEmpty()) {
-            $totalTestimoni = count($existingTestimoniIds);
-            return response()->json([
-                'eligible' => false,
-                'is_logged_in' => true,
-                'has_completed_rental' => true,
-                'message' => "Anda sudah memberikan testimoni untuk semua peminjaman yang telah selesai ($totalTestimoni testimoni)."
-            ]);
-        }
+        // Count existing testimonials for display purposes
+        $testimoniCount = Testimoni::where('id_pengunjung', $userId)->count();
 
         // Get user name
         $pengunjung = \App\Models\Pengunjung::find($userId);
-        
-        // Format available rentals for frontend
-        $availableRentalsData = $availableRentals->map(function($rental) {
-            return [
-                'id' => $rental->id,
-                'motor_name' => $rental->motor->full_name ?? 'Motor',
-                'tanggal_sewa' => $rental->tanggal_sewa,
-                'tanggal_kembali' => $rental->tanggal_kembali,
-                'formatted_date' => date('d F Y', strtotime($rental->tanggal_sewa))
-            ];
-        })->values();
         
         return response()->json([
             'eligible' => true,
             'is_logged_in' => true,
             'has_completed_rental' => true,
             'user_name' => $pengunjung ? $pengunjung->nama : 'Pengguna',
-            'available_rentals' => $availableRentalsData,
-            'total_available' => $availableRentals->count(),
-            'total_completed' => count($existingTestimoniIds)
+            'testimonial_count' => $testimoniCount
         ]);
     }
 }

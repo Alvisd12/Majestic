@@ -14,8 +14,7 @@ class General extends Model
     protected $fillable = [
         'persyaratan',
         'jam_operasional',
-        'lokasi',
-        'syarat_ketentuan'
+        'lokasi'
     ];
     
     // Ensure only one record can exist

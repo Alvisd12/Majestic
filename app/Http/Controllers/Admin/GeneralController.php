@@ -25,8 +25,7 @@ class GeneralController extends Controller
         $request->validate([
             'persyaratan' => 'required|string',
             'jam_operasional' => 'required|string|max:255',
-            'lokasi' => 'required|string',
-            'syarat_ketentuan' => 'required|string'
+            'lokasi' => 'required|string'
         ]);
 
         General::updateOrCreateSingle($request->all());

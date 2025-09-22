@@ -28,8 +28,11 @@ class AdminController extends Controller
         $totalPengunjung = Pengunjung::count();
         $motorTersedia = Motor::where('status', 'Tersedia')->count();
         $motorDisewa = Motor::where('status', 'Disewa')->count();
-        $peminjamanPending = Peminjaman::where('status', 'Pending')->count();
-        $peminjamanAktif = Peminjaman::whereIn('status', ['Confirmed', 'Disewa', 'Belum Kembali'])->count();
+        $peminjamanPending = Peminjaman::where('status', 'Menunggu Konfirmasi')->count();
+        $peminjamanAktif = Peminjaman::where(function($query) {
+            $query->where('status', 'Dikonfirmasi')
+                  ->orWhere('status', 'like', 'Terlambat%');
+        })->count();
         
         // Monthly statistics comparison
         $currentMonth = now()->startOfMonth();
@@ -57,14 +60,31 @@ class AdminController extends Controller
                   ->orWhereHas('user', function($userQuery) use ($search) {
                       $userQuery->where('nama', 'like', "%{$search}%")
                                ->orWhere('username', 'like', "%{$search}%")
-                               ->orWhere('phone', 'like', "%{$search}%");
+                               ->orWhere('no_handphone', 'like', "%{$search}%");
                   });
             });
         }
 
         // Filter by status
         if ($request->has('status') && $request->status) {
-            $query->where('status', $request->status);
+            $status = $request->status;
+            
+            if ($status === 'Selesai') {
+                // Include both "Selesai" and "Selesai (Telat X hari)"
+                $query->where(function($q) {
+                    $q->where('status', 'Selesai')
+                      ->orWhere('status', 'like', 'Selesai (Telat%');
+                });
+            } elseif ($status === 'Disewa') {
+                // Include "Dikonfirmasi" and "Terlambat X hari" (active rentals)
+                $query->where(function($q) {
+                    $q->where('status', 'Dikonfirmasi')
+                      ->orWhere('status', 'like', 'Terlambat%');
+                });
+            } else {
+                // Exact match for other statuses
+                $query->where('status', $status);
+            }
         }
 
         // Filter by date range
@@ -76,7 +96,8 @@ class AdminController extends Controller
             $query->whereDate('tanggal_rental', '<=', $request->tanggal_akhir);
         }
         
-        $peminjaman = $query->orderBy('created_at', 'desc')->paginate(10);
+        // Use the filtered query for recent rentals display
+        $recentRentals = $query->orderBy('created_at', 'desc')->paginate(10);
         
         // Data untuk chart (contoh: peminjaman per bulan)
         $peminjamanPerBulan = Peminjaman::selectRaw('MONTH(created_at) as bulan, COUNT(*) as total')
@@ -98,13 +119,7 @@ class AdminController extends Controller
             session()->flash('status_updated', $message);
         }
         
-        // Recent rentals for dashboard with pagination (5 per page)
-        $recentRentals = Peminjaman::with('user')
-            ->orderBy('created_at', 'desc')
-            ->paginate(5, ['*'], 'rentals_page');
-        
         return view('admin.dashboard', compact(
-            'peminjaman', 
             'currentUser',
             'totalPeminjaman',
             'totalMotor',
@@ -164,7 +179,7 @@ class AdminController extends Controller
         // Update status otomatis berdasarkan tanggal
         $updateResult = PeminjamanStatusService::updateStatuses();
         
-        $query = Peminjaman::with('user')->where('status', 'Pending');
+        $query = Peminjaman::with('user')->where('status', 'Menunggu Konfirmasi');
         
         // Search functionality
         if ($request->has('search') && $request->search) {
@@ -174,7 +189,7 @@ class AdminController extends Controller
                   ->orWhereHas('user', function($userQuery) use ($search) {
                       $userQuery->where('nama', 'like', "%{$search}%")
                                ->orWhere('username', 'like', "%{$search}%")
-                               ->orWhere('phone', 'like', "%{$search}%");
+                               ->orWhere('no_handphone', 'like', "%{$search}%");
                   });
             });
         }
@@ -249,7 +264,7 @@ class AdminController extends Controller
             $actualReturnDate = \Carbon\Carbon::parse($rental->tanggal_kembali);
             
             if ($actualReturnDate->gt($expectedReturnDate)) {
-                $lateDays = $expectedReturnDate->diffInDays($actualReturnDate);
+                $lateDays = ceil($expectedReturnDate->diffInDays($actualReturnDate, false));
                 $newStatus = "Selesai (Telat {$lateDays} hari)";
                 
                 // Calculate penalty
@@ -266,7 +281,7 @@ class AdminController extends Controller
         }
         
         // Update currently overdue rentals
-        $overdueRentals = Peminjaman::whereIn('status', ['Dikonfirmasi', 'Sedang Disewa', 'Confirmed', 'Disewa'])
+        $overdueRentals = Peminjaman::where('status', 'Dikonfirmasi')
             ->get()
             ->filter(function($rental) {
                 $expectedReturnDate = $rental->tanggal_rental->addDays($rental->durasi_sewa);
@@ -275,7 +290,7 @@ class AdminController extends Controller
             
         foreach ($overdueRentals as $rental) {
             $expectedReturnDate = $rental->tanggal_rental->addDays($rental->durasi_sewa);
-            $lateDays = $expectedReturnDate->diffInDays(now());
+            $lateDays = ceil($expectedReturnDate->diffInDays(now(), false));
             
             if ($lateDays > 0) {
                 $newStatus = "Terlambat {$lateDays} hari";
@@ -317,7 +332,7 @@ class AdminController extends Controller
         
         // Update penalty amounts for overdue rentals
         foreach ($peminjaman as $item) {
-            if (str_starts_with($item->status, 'Terlambat') || $item->status === 'Belum Kembali') {
+            if (str_starts_with($item->status, 'Terlambat')) {
                 $item->updateDenda();
             }
         }
@@ -393,7 +408,7 @@ class AdminController extends Controller
                   ->orWhereHas('user', function($userQuery) use ($search) {
                       $userQuery->where('nama', 'like', "%{$search}%")
                                ->orWhere('username', 'like', "%{$search}%")
-                               ->orWhere('phone', 'like', "%{$search}%");
+                               ->orWhere('no_handphone', 'like', "%{$search}%");
                   });
             });
         }
@@ -725,7 +740,10 @@ class AdminController extends Controller
         if ($request->has('search') && $request->search) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
-                $q->where('pesan', 'like', "%{$search}%")
+                $q->where('testimoni', 'like', "%{$search}%")
+                  ->orWhere('pesan', 'like', "%{$search}%")
+                  ->orWhere('nama', 'like', "%{$search}%")
+                  ->orWhere('rating', 'like', "%{$search}%")
                   ->orWhereHas('pengunjung', function($userQuery) use ($search) {
                       $userQuery->where('nama', 'like', "%{$search}%")
                                ->orWhere('username', 'like', "%{$search}%");

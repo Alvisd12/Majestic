@@ -37,21 +37,25 @@ class PeminjamanStatusService
         $overdueRentals = Peminjaman::whereIn('status', ['Confirmed', 'Dikonfirmasi', 'Disewa', 'Sedang Disewa'])
             ->get()
             ->filter(function($peminjaman) use ($today) {
-                $expectedReturnDate = $peminjaman->tanggal_rental->addDays($peminjaman->durasi_sewa);
+                $expectedReturnDate = Carbon::parse($peminjaman->tanggal_rental)->addDays($peminjaman->durasi_sewa);
                 return $today->gt($expectedReturnDate);
             });
             
         foreach ($overdueRentals as $peminjaman) {
-            $expectedReturnDate = $peminjaman->tanggal_rental->addDays($peminjaman->durasi_sewa);
-            $overdueDays = $expectedReturnDate->diffInDays($today);
-            $newStatus = "Terlambat {$overdueDays} hari";
+            $expectedReturnDate = Carbon::parse($peminjaman->tanggal_rental)->addDays($peminjaman->durasi_sewa);
+            $overdueDays = $expectedReturnDate->diffInDays($today, false);
+            $overdueDays = ceil($overdueDays); // Round up to nearest whole day
             
-            $peminjaman->update(['status' => $newStatus]);
-            
-            // Update penalty
-            $peminjaman->updateDenda();
-            
-            $updatedCount++;
+            if ($overdueDays > 0) {
+                $newStatus = "Terlambat {$overdueDays} hari";
+                
+                $peminjaman->update(['status' => $newStatus]);
+                
+                // Update penalty
+                $peminjaman->updateDenda();
+                
+                $updatedCount++;
+            }
         }
         
         return [

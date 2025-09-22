@@ -90,6 +90,7 @@
       justify-content: center;
       gap: 40px;
       padding: 10px;
+      padding-bottom: 50px;
       box-sizing: border-box;
     }
 
@@ -155,7 +156,9 @@
       display: flex;
       justify-content: center;
       gap: 10px;
-      margin-top: 30px;
+      margin-top: 120px;
+      padding-top: 30px;
+      border-top: 1px solid rgba(0, 0, 0, 0.1);
     }
 
     .carousel-indicator {
@@ -177,6 +180,7 @@
         flex-direction: column;
         align-items: center;
         gap: 25px;
+        padding-bottom: 40px;
       }
 
       .photo-card {
@@ -195,12 +199,26 @@
       .carousel-btn.right {
         right: 10px;
       }
+
+      .carousel-indicators {
+        margin-top: 90px;
+        padding-top: 25px;
+      }
     }
 
     @media (max-width: 576px) {
+      .carousel-slide {
+        padding-bottom: 35px;
+      }
+
       .photo-card img {
         min-height: 250px;
         object-fit: contain;
+      }
+
+      .carousel-indicators {
+        margin-top: 70px;
+        padding-top: 20px;
       }
     }
 
@@ -249,12 +267,11 @@
 
     .layanan-section h2 {
       font-family: 'Poppins', sans-serif;
-      font-weight: 800;
+      font-weight: bold;
       color: #0466C8;
       text-align: center;
-      margin-bottom: 60px;
-      font-size: 2.5rem;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      margin-bottom: 20px;
+      font-size: 2rem;
       position: relative;
       animation: fadeInDown 1s ease-out;
     }
@@ -263,7 +280,7 @@
 
     .layanan-container {
       max-width: 1100px;
-      margin: 0 auto;
+      margin: 30px auto 0;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -492,7 +509,7 @@
 
       .layanan-section h2 {
         font-size: 2rem;
-        margin-bottom: 40px;
+        margin-bottom: 20px;
       }
 
       .layanan-card {
@@ -534,6 +551,7 @@
 
       .layanan-section h2 {
         font-size: 1.8rem;
+        margin-bottom: 20px;
       }
 
       .layanan-card {
@@ -692,11 +710,11 @@
     }
 
     .wisata-card-body h5 {
-      font-weight: bold;
-      font-size: 18px;
+      font-size: 16px;
       /* Sedikit lebih besar */
-      margin-bottom: 12px;
+      margin-bottom: 8px;
       color: #000;
+      font-weight: 600;
       line-height: 1.3;
     }
 
@@ -726,6 +744,19 @@
       color: #000;
       text-decoration: none;
       line-height: 1.4;
+    }
+
+    .blog-meta {
+      font-size: 11px;
+      color: #666;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .blog-meta i {
+      margin-right: 4px;
+      color: #888;
     }
 
     .lokasi a:hover {
@@ -870,6 +901,10 @@
       .subjudul-wisata {
         font-size: 20px;
       }
+
+      .blog-meta {
+        font-size: 10px;
+      }
     }
 
     @media (max-width: 576px) {
@@ -909,6 +944,10 @@
 
       .subjudul-wisata {
         font-size: 18px;
+      }
+
+      .blog-meta {
+        font-size: 9px;
       }
     }
 
@@ -1192,18 +1231,16 @@
     }
 
     .motor-section .section-title {
-      font-weight: 700;
+      font-weight: bold;
       font-size: 2rem;
-      /* Further reduced from 2.2rem */
-      color: #0074e0;
-      margin-bottom: 30px;
-      /* Further reduced from 40px */
+      color: #0466C8;
+      margin-bottom: 20px;
     }
 
     .motor-grid-container {
       max-width: 1000px;
       /* Further reduced from 1200px */
-      margin: 0 auto;
+      margin: 30px auto 0;
       padding: 0 15px;
       /* Reduced padding */
     }
@@ -1244,6 +1281,29 @@
       background: #f8f9fa;
       min-height: 220px;
       /* Further reduced from 280px */
+    }
+
+    .motor-info {
+      padding: 15px;
+      text-align: center;
+      background: white;
+      border-bottom-left-radius: 14px;
+      border-bottom-right-radius: 14px;
+    }
+
+    .motor-info h5 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
+      margin-top: 0;
+    }
+
+    .motor-info p {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #0466C8;
+      margin-bottom: 0;
     }
 
     .motor-price {
@@ -1332,6 +1392,18 @@
         /* Reduced from 280px */
       }
 
+      .motor-info {
+        padding: 12px;
+      }
+
+      .motor-info h5 {
+        font-size: 1rem;
+      }
+
+      .motor-info p {
+        font-size: 0.9rem;
+      }
+
       .btn-sewa {
         padding: 10px 28px;
         /* Further reduced for mobile */
@@ -1357,6 +1429,18 @@
         height: auto;
         min-height: 220px;
         /* Reduced from 260px */
+      }
+
+      .motor-info {
+        padding: 10px;
+      }
+
+      .motor-info h5 {
+        font-size: 0.95rem;
+      }
+
+      .motor-info p {
+        font-size: 0.85rem;
       }
 
       .motor-price {
@@ -1445,26 +1529,26 @@
           <!-- Slide 1 -->
           <div class="carousel-slide">
             <div class="photo-card">
-              <img src="{{ asset('assets/images/foto1.jpg') }}" alt="Motor 1">
+              <img src="{{ asset('assets/images/g1.jpg') }}" alt="Motor 1">
             </div>
             <div class="photo-card">
-              <img src="{{ asset('assets/images/foto2.jpg') }}" alt="Motor 2">
+              <img src="{{ asset('assets/images/g2.jpg') }}" alt="Motor 2">
             </div>
             <div class="photo-card">
-              <img src="{{ asset('assets/images/foto3.jpg') }}" alt="Motor 3">
+              <img src="{{ asset('assets/images/g3.jpg') }}" alt="Motor 3">
             </div>
           </div>
 
           <!-- Slide 2 -->
           <div class="carousel-slide">
             <div class="photo-card">
-              <img src="{{ asset('assets/images/foto4.png') }}" alt="Motor 4">
+              <img src="{{ asset('assets/images/g4.jpg') }}" alt="Motor 4">
             </div>
             <div class="photo-card">
-              <img src="{{ asset('assets/images/foto5.png') }}" alt="Motor 5">
+              <img src="{{ asset('assets/images/g5.jpg') }}" alt="Motor 5">
             </div>
             <div class="photo-card">
-              <img src="{{ asset('assets/images/foto6.png') }}" alt="Motor 6">
+              <img src="{{ asset('assets/images/g6.png') }}" alt="Motor 6">
             </div>
           </div>
         </div>
@@ -1568,6 +1652,9 @@
   <!-- Section layanan -->
   <section class="layanan-section">
     <h2>Fasilitas Layanan Kami</h2>
+    <div class="decorative-line">
+      <div class="dot"></div>
+    </div>
     <div class="layanan-container">
       <div class="layanan-row">
         <div class="layanan-card">
@@ -1616,6 +1703,9 @@
   <section class="motor-section">
     <div class="container">
       <h2 class="section-title text-center">Sewa Motor Sekarang</h2>
+      <div class="decorative-line">
+        <div class="dot"></div>
+      </div>
       <div class="motor-grid-container">
         <!-- Top row - 3 motorcycles -->
         <div class="motor-row motor-row-top">
@@ -1649,7 +1739,7 @@
 
       </div>
       <div class="text-center mt-5">
-        <a href="{{ route('harga_sewa') }}" class="btn btn-sewa btn-lg">NEXT</a>
+        <button class="btn btn-sewa btn-lg" onclick="window.location.href='/harga_sewa'">NEXT</button>
       </div>
     </div>
   </section>
@@ -1671,231 +1761,74 @@
       <div id="wisataCarousel" class="carousel slide" data-bs-ride="carousel">
         <div class="carousel-inner">
 
-          <!-- SLIDE 1 -->
-          <div class="carousel-item active">
-            <div class="row justify-content-center g-4">
-              <!-- CARD 1 -->
-              <div class="col-lg-3 col-md-4 col-sm-6">
-                <div class="card-wrapper">
-                  <div class="card-back"></div>
-                  <div class="wisata-card d-flex flex-column h-100">
-                    <img src="{{ asset('assets/images/bukit nirwana.jpg') }}" alt="Bukit Nirwana">
-                    <div class="wisata-card-body">
-                      <h5>Bukit Nirwana</h5>
-                      <p>Bukit Nirwana menawarkan pemandangan pegunungan yang memesona, taman bunga warna-warni,
-                        dan udara sejuk <br> yang cocok untuk healing maupun berfoto. Tempat ini ideal untuk kamu
-                        yang ingin melepas penat dari hiruk-pikuk kota.<br></p>
-                      <p class="lokasi">
-                        <i class="fa-solid fa-location-dot"></i>
-                        <a href="https://maps.app.goo.gl/CSP26HSj5dpSto9j7" target="_blank">
-                          Tulungrejo, Desa Pujon Kidul, Kecamatan Pujon,
-                          Kabupaten Malang, Jawa Timur 65391
-                        </a>
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <!-- CARD 2 -->
-              <div class="col-lg-3 col-md-4 col-sm-6">
-                <div class="card-wrapper">
-                  <div class="card-back"></div>
-                  <div class="wisata-card d-flex flex-column h-100">
-                    <img src="{{ asset('assets/images/sumber sirah.jpg') }}" alt="Mata Air Sumber Sirah">
-                    <div class="wisata-card-body">
-                      <h5>Mata Air Sumber Sirah</h5>
-                      <p>Sumber Sirah merupakan mata air jernih alami dengan tanaman air yang menawan.
-                        Cocok untuk berenang atau snorkeling ringan, tempat ini memberikan pengalaman menyegarkan di
-                        tengah alam pedesaan.</p>
-                      <p class="lokasi">
-                        <i class="fa-solid fa-location-dot"></i>
-                        <a href="https://maps.app.goo.gl/apYcnzsUH8kRhimu7" target="_blank">
-                          Jl. Sunan Gunungjati, Putukrejo, Kecamatan Gondanglegi, Kabupaten Malang, Jawa Timur 65174
-                        </a>
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <!-- CARD 3 -->
-              <div class="col-lg-3 col-md-4 col-sm-6">
-                <div class="card-wrapper">
-                  <div class="card-back"></div>
-                  <div class="wisata-card d-flex flex-column h-100">
-                    <img src="{{ asset('assets/images/pantai.jpg') }}" alt="Pantai Parang Dowo">
-                    <div class="wisata-card-body">
-                      <h5>Pantai Parang Dowo</h5>
-                      <p>Pantai Parang Dowo menyuguhkan suasana tenang dengan tebing batu unik dan pasir putih.
-                        Lokasinya yang tersembunyi membuat pantai ini cocok untuk menikmati keindahan alam tanpa
-                        keramaian.</p>
-                      <p class="lokasi">
-                        <i class="fa-solid fa-location-dot"></i>
-                        <a href="https://maps.app.goo.gl/2pUFpahCgtk7pWFc9" target="_blank">
-                          Desa Gajahrejo, Kecamatan Gedangan, Kabupaten Malang, Jawa Timur 65178
-                        </a>
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- SLIDE 2 -->
-          <div class="carousel-item">
-            <div class="row justify-content-center g-4">
-              <!-- CARD 4 -->
-              <div class="col-lg-3 col-md-4 col-sm-6">
-                <div class="card-wrapper">
-                  <div class="card-back"></div>
-                  <div class="wisata-card d-flex flex-column h-100">
-                    <img src="{{ asset('assets/images/coban pelangi.jpg') }}" alt="Coban Pelangi">
-                    <div class="wisata-card-body">
-                      <h5>Coban Pelangi</h5>
-                      <p>Coban Pelangi menawarkan pesona air terjun yang jatuh dari ketinggian di tengah hutan yang sejuk.
-                        Pelangi sering muncul di sekitar air terjun karena pantulan sinar matahari, menjadikannya spot
-                        favorit untuk berfoto dan menikmati keindahan alam..</p>
-                      <p class="lokasi">
-                        <i class="fa-solid fa-location-dot"></i>
-                        <a href="https://maps.app.goo.gl/YYmWe4ptdFZMENBw8" target="_blank">
-                          Desa Gajahrejo, Kecamatan Gedangan, Kabupaten Malang, Jawa Timur 65178
-                        </a>
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- CARD 5 -->
-              <div class="col-lg-3 col-md-4 col-sm-6">
-                <div class="card-wrapper">
-                  <div class="card-back"></div>
-                  <div class="wisata-card d-flex flex-column h-100">
-                    <img src="{{ asset('assets/images/pantai2.png') }}" alt="Pantai Balekambang">
-                    <div class="wisata-card-body">
-                      <h5>Pantai Balekambang</h5>
-                      <p>Pantai Balekambang dikenal dengan pura kecil di atas batu karang yang mirip Tanah Lot di Bali.
-                        Pantai ini memiliki pasir putih dan ombak tenang, cocok untuk berlibur bersama keluarga maupun
-                        bersantai menikmati matahari terbenam..</p>
-                      <p class="lokasi">
-                        <i class="fa-solid fa-location-dot"></i>
-                        <a href="https://maps.app.goo.gl/jbqvfkb8zSie6a9F7" target="_blank">
-                          Desa Gajahrejo, Kecamatan Gedangan, Kabupaten Malang, Jawa Timur 65178
-                        </a>
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- CARD 6-->
-              <div class="col-lg-3 col-md-4 col-sm-6">
-                <div class="card-wrapper">
-                  <div class="card-back"></div>
-                  <div class="wisata-card d-flex flex-column h-100">
-                    <img src="{{ asset('assets/images/kampung.jpg') }}" alt="Kampung Warna-Warni">
-                    <div class="wisata-card-body">
-                      <h5>Kampung Warna-Warni Jodipan</h5>
-                      <p>Destinasi unik di tengah kota Malang dengan rumah-rumah penduduk yang dicat warna-warni. Cocok
-                        untuk berswafoto dan menikmati seni mural yang menghiasi dinding rumah. Tempat ini juga memberikan
-                        pengalaman sosial dan budaya yang menarik.</p>
-                      <p class="lokasi">
-                        <i class="fa-solid fa-location-dot"></i>
-                        <a href="https://maps.app.goo.gl/2pUFpahCgtk7pWFc9" target="_blank">
-                          Desa Gajahrejo, Kecamatan Gedangan, Kabupaten Malang, Jawa Timur 65178
-                        </a>
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- SLIDE 3 - Blog Posts -->
           @if($blogs->count() > 0)
-          <div class="carousel-item">
-            <div class="row justify-content-center g-4">
-              @foreach($blogs->take(3) as $blog)
-              <div class="col-lg-3 col-md-4 col-sm-6">
-                <div class="card-wrapper">
-                  <div class="card-back"></div>
-                  <div class="wisata-card d-flex flex-column h-100" style="cursor: pointer;" data-url="{{ route('blog.detail', $blog->id) }}" onclick="window.location.href=this.dataset.url">
-                    @if($blog->gambar)
-                      <img src="{{ asset('storage/' . $blog->gambar) }}" alt="{{ $blog->judul }}">
-                    @else
-                      <img src="{{ asset('assets/images/default-blog.jpg') }}" alt="{{ $blog->judul }}">
-                    @endif
-                    <div class="wisata-card-body">
-                      <h5>{{ $blog->judul }}</h5>
-                      <p>{{ Str::limit(strip_tags($blog->isi), 150) }}</p>
-                      @if($blog->lokasi)
-                      <p class="lokasi">
-                        <i class="fa-solid fa-location-dot"></i>
-                        <span>{{ $blog->lokasi }}</span>
-                      </p>
-                      @endif
-                      <div class="blog-meta mt-2">
-                        <small class="text-muted">
-                          <i class="fas fa-user"></i> {{ $blog->penulis ?? 'Admin' }} | 
-                          <i class="fas fa-calendar"></i> {{ $blog->created_at->format('M d, Y') }}
-                        </small>
+            @php
+              $blogsChunked = $blogs->chunk(3);
+            @endphp
+            
+            @foreach($blogsChunked as $index => $blogChunk)
+              <div class="carousel-item {{ $index == 0 ? 'active' : '' }}">
+                <div class="row justify-content-center g-4">
+                  @foreach($blogChunk as $blog)
+                    <div class="col-lg-3 col-md-4 col-sm-6">
+                      <div class="card-wrapper">
+                        <div class="card-back"></div>
+                        <div class="wisata-card d-flex flex-column h-100">
+                          @if($blog->gambar)
+                            <img src="{{ asset('storage/' . $blog->gambar) }}" alt="{{ $blog->judul }}">
+                          @else
+                            <img src="{{ asset('assets/images/default-blog.jpg') }}" alt="{{ $blog->judul }}">
+                          @endif
+                          <div class="wisata-card-body">
+                            <h5>{{ $blog->judul }}</h5>
+                            <p>{{ Str::limit(strip_tags($blog->isi), 150) }}</p>
+                            @if($blog->lokasi)
+                              <p class="lokasi">
+                                <i class="fa-solid fa-location-dot"></i>
+                                <a href="https://www.google.com/maps/search/?api=1&query={{ urlencode($blog->lokasi) }}" target="_blank">
+                                  {{ $blog->lokasi }}
+                                </a>
+                              </p>
+                            @endif
+                            <div class="blog-meta mt-2">
+                              <small class="text-muted">
+                                <i class="fas fa-user"></i> {{ $blog->penulis ?? 'Admin' }} | 
+                                <i class="fas fa-calendar"></i> {{ $blog->created_at->format('M d, Y') }}
+                              </small>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
+                  @endforeach
+                </div>
+              </div>
+            @endforeach
+          @else
+            <!-- Fallback jika tidak ada blog -->
+            <div class="carousel-item active">
+              <div class="row justify-content-center g-4">
+                <div class="col-lg-6 col-md-8">
+                  <div class="text-center py-5">
+                    <i class="fas fa-blog fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">Belum ada artikel blog</h5>
+                    <p class="text-muted">Artikel blog akan ditampilkan di sini setelah admin menambahkannya.</p>
                   </div>
                 </div>
               </div>
-              @endforeach
             </div>
-          </div>
-          @endif
-
-          @if($blogs->count() > 3)
-          <!-- SLIDE 4 - More Blog Posts -->
-          <div class="carousel-item">
-            <div class="row justify-content-center g-4">
-              @foreach($blogs->skip(3)->take(3) as $blog)
-              <div class="col-lg-3 col-md-4 col-sm-6">
-                <div class="card-wrapper">
-                  <div class="card-back"></div>
-                  <div class="wisata-card d-flex flex-column h-100" style="cursor: pointer;" data-url="{{ route('blog.detail', $blog->id) }}" onclick="window.location.href=this.dataset.url">
-                    @if($blog->gambar)
-                      <img src="{{ asset('storage/' . $blog->gambar) }}" alt="{{ $blog->judul }}">
-                    @else
-                      <img src="{{ asset('assets/images/default-blog.jpg') }}" alt="{{ $blog->judul }}">
-                    @endif
-                    <div class="wisata-card-body">
-                      <h5>{{ $blog->judul }}</h5>
-                      <p>{{ Str::limit(strip_tags($blog->isi), 150) }}</p>
-                      @if($blog->lokasi)
-                      <p class="lokasi">
-                        <i class="fa-solid fa-location-dot"></i>
-                        <span>{{ $blog->lokasi }}</span>
-                      </p>
-                      @endif
-                      <div class="blog-meta mt-2">
-                        <small class="text-muted">
-                          <i class="fas fa-user"></i> {{ $blog->penulis ?? 'Admin' }} | 
-                          <i class="fas fa-calendar"></i> {{ $blog->created_at->format('M d, Y') }}
-                        </small>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              @endforeach
-            </div>
-          </div>
           @endif
 
         </div>
-        <!-- tombol prev & next -->
-        <button class="carousel-control-prev" type="button" data-bs-target="#wisataCarousel" data-bs-slide="prev">
-          <span class="carousel-custom-icon">&#10094;</span> <!-- panah kiri -->
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#wisataCarousel" data-bs-slide="next">
-          <span class="carousel-custom-icon">&#10095;</span> <!-- panah kanan -->
-        </button>
+        <!-- tombol prev & next - hanya tampil jika ada lebih dari 1 slide -->
+        @if($blogs->count() > 3)
+          <button class="carousel-control-prev" type="button" data-bs-target="#wisataCarousel" data-bs-slide="prev">
+            <span class="carousel-custom-icon">&#10094;</span> <!-- panah kiri -->
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#wisataCarousel" data-bs-slide="next">
+            <span class="carousel-custom-icon">&#10095;</span> <!-- panah kanan -->
+          </button>
+        @endif
 
     
         <script>

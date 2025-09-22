@@ -1,14 +1,14 @@
 @extends('index')
 
 @section('content')
-<div class="min-vh-100 bg-gradient-to-br from-blue-50 to-indigo-100 py-5">
+<div class="min-vh-100 bg-white py-5">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-xl-10">
                 <!-- Header Section -->
                 <div class="text-center mb-5">
-                    <h2 class="display-6 fw-bold text-black mb-2">My Profile</h2>
-                    <p class="text-black">Manage your account settings and preferences</p>
+                    <h2 class="display-6 fw-bold text-black mb-2">Profil Saya</h2>
+                    <p class="text-black">Kelola pengaturan akun dan preferensi Anda</p>
                 </div>
 
                 <!-- Main Profile Card -->
@@ -25,7 +25,7 @@
                         @if($errors->any())
                             <div class="alert alert-danger m-4 mb-0 rounded-3 border-0">
                                 <i class="fas fa-exclamation-circle me-2 text-warning"></i>
-                                <strong class="text-black">Please fix the following errors:</strong>
+                                <strong class="text-black">Harap perbaiki kesalahan berikut:</strong>
                                 <ul class="mb-0 mt-2 text-black">
                                     @foreach($errors->all() as $error)
                                         <li>{{ $error }}</li>
@@ -35,7 +35,7 @@
                         @endif
 
                         <!-- Profile Header with Photo -->
-                        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4">
+                        <div class="bg-gradient-to-r from-gray-800 to-black text-white p-4">
                             <div class="row align-items-center">
                                 <div class="col-md-auto">
                                     <div class="position-relative">
@@ -65,12 +65,12 @@
                                     <h3 class="mb-1 fw-bold text-black">{{ $user->nama }}</h3>
                                     <p class="mb-2 text-black">{{ $user->email }}</p>
                                     <div class="d-flex align-items-center">
-                                        <span class="badge bg-white bg-opacity-20 px-3 py-2 rounded-pill me-3 text-white">
-                                            <i class="fas fa-crown me-1 text-warning"></i>{{ ucfirst(session('user_role', 'pengunjung')) }}
+                                        <span class="badge bg-warning px-3 py-2 rounded-pill me-3 text-black fw-bold">
+                                            <i class="fas fa-user me-1"></i>{{ ucfirst(session('user_role', 'pengunjung')) }}
                                         </span>
-                                        <span class="small opacity-75 text-white">
+                                        <span class="small opacity-75 text-black">
                                             <i class="fas fa-calendar-alt me-1 text-warning"></i>
-                                            Member since {{ \Carbon\Carbon::parse($user->created_at)->format('M Y') }}
+                                            Bergabung sejak {{ \Carbon\Carbon::parse($user->created_at)->format('M Y') }}
                                         </span>
                                     </div>
                                 </div>
@@ -86,16 +86,16 @@
                                 <!-- Personal Information Section -->
                                 <div class="mb-5">
                                     <h5 class="fw-bold text-black mb-4">
-                                        <i class="fas fa-user text-warning me-2"></i>Personal Information
+                                        <i class="fas fa-user text-warning me-2"></i>Informasi Pribadi
                                     </h5>
                                     
                                     <div class="row g-4">
                                         <div class="col-md-6">
                                             <div class="form-floating">
                                                 <input type="text" class="form-control border-0 bg-light rounded-3 text-black" 
-                                                       id="nama" name="nama" placeholder="Full Name"
+                                                       id="nama" name="nama" placeholder="Nama Lengkap"
                                                        value="{{ old('nama', $user->nama) }}" required>
-                                                <label for="nama" class="text-black">Full Name <span class="text-danger">*</span></label>
+                                                <label for="nama" class="text-black">Nama Lengkap <span class="text-danger">*</span></label>
                                             </div>
                                         </div>
                                         
@@ -104,7 +104,7 @@
                                                 <input type="email" class="form-control border-0 bg-light rounded-3 text-black" 
                                                        id="email" name="email" placeholder="Email"
                                                        value="{{ old('email', $user->email) }}" required>
-                                                <label for="email" class="text-black">Email Address <span class="text-danger">*</span></label>
+                                                <label for="email" class="text-black">Alamat Email <span class="text-danger">*</span></label>
                                             </div>
                                         </div>
                                     </div>
@@ -113,7 +113,7 @@
                                 <!-- Contact Information Section -->
                                 <div class="mb-5">
                                     <h5 class="fw-bold text-black mb-4">
-                                        <i class="fas fa-phone text-warning me-2"></i>Contact Information
+                                        <i class="fas fa-phone text-warning me-2"></i>Informasi Kontak
                                     </h5>
                                     
                                     <div class="row g-4">
@@ -121,14 +121,14 @@
                                             <div class="form-floating">
                                                 @if(session('user_role') === 'admin')
                                                     <input type="text" class="form-control border-0 bg-light rounded-3 text-black" 
-                                                           id="phone" name="phone" placeholder="Phone Number"
+                                                           id="phone" name="phone" placeholder="Nomor Telepon"
                                                            value="{{ old('phone', $user->phone) }}" required>
-                                                    <label for="phone" class="text-black">Phone Number <span class="text-danger">*</span></label>
+                                                    <label for="phone" class="text-black">Nomor Telepon <span class="text-danger">*</span></label>
                                                 @else
                                                     <input type="text" class="form-control border-0 bg-light rounded-3 text-black" 
-                                                           id="no_handphone" name="no_handphone" placeholder="Phone Number"
+                                                           id="no_handphone" name="no_handphone" placeholder="Nomor Telepon"
                                                            value="{{ old('no_handphone', $user->no_handphone) }}" required>
-                                                    <label for="no_handphone" class="text-black">Phone Number <span class="text-danger">*</span></label>
+                                                    <label for="no_handphone" class="text-black">Nomor Telepon <span class="text-danger">*</span></label>
                                                 @endif
                                             </div>
                                         </div>
@@ -137,9 +137,9 @@
                                         <div class="col-12">
                                             <div class="form-floating">
                                                 <textarea class="form-control border-0 bg-light rounded-3 text-black" 
-                                                          id="alamat" name="alamat" placeholder="Address"
+                                                          id="alamat" name="alamat" placeholder="Alamat"
                                                           style="height: 100px;" required>{{ old('alamat', $user->alamat) }}</textarea>
-                                                <label for="alamat" class="text-black">Address <span class="text-danger">*</span></label>
+                                                <label for="alamat" class="text-black">Alamat <span class="text-danger">*</span></label>
                                             </div>
                                         </div>
                                         @endif
@@ -149,19 +149,19 @@
                                 <!-- Security Section -->
                                 <div class="mb-5">
                                     <h5 class="fw-bold text-black mb-2">
-                                        <i class="fas fa-lock text-warning me-2"></i>Security
+                                        <i class="fas fa-lock text-warning me-2"></i>Keamanan
                                     </h5>
-                                    <p class="text-black small mb-4">Leave password fields blank if you don't want to change your password</p>
+                                    <p class="text-black small mb-4">Biarkan kolom password kosong jika Anda tidak ingin mengubah password</p>
                                     
                                     <div class="row g-4">
                                         <div class="col-md-6">
                                             <div class="form-floating">
                                                 <input type="password" class="form-control border-0 bg-light rounded-3 text-black" 
-                                                       id="password" name="password" placeholder="New Password" minlength="6">
-                                                <label for="password" class="text-black">New Password</label>
+                                                       id="password" name="password" placeholder="Password Baru" minlength="6">
+                                                <label for="password" class="text-black">Password Baru</label>
                                             </div>
                                             <div class="form-text text-black mt-2">
-                                                <i class="fas fa-info-circle me-1 text-warning"></i>Minimum 6 characters
+                                                <i class="fas fa-info-circle me-1 text-warning"></i>Minimal 6 karakter
                                             </div>
                                         </div>
                                         
@@ -169,8 +169,8 @@
                                             <div class="form-floating">
                                                 <input type="password" class="form-control border-0 bg-light rounded-3 text-black" 
                                                        id="password_confirmation" name="password_confirmation" 
-                                                       placeholder="Confirm Password" minlength="6">
-                                                <label for="password_confirmation" class="text-black">Confirm New Password</label>
+                                                       placeholder="Konfirmasi Password" minlength="6">
+                                                <label for="password_confirmation" class="text-black">Konfirmasi Password Baru</label>
                                             </div>
                                         </div>
                                     </div>
@@ -179,10 +179,10 @@
                                 <!-- Action Buttons -->
                                 <div class="d-flex gap-3 justify-content-end">
                                     <a href="{{ route('home') }}" class="btn btn-outline-secondary rounded-pill px-4 py-2 text-black">
-                                        <i class="fas fa-times me-2 text-warning"></i>Cancel
+                                        <i class="fas fa-times me-2 text-warning"></i>Batal
                                     </a>
                                     <button type="submit" class="btn btn-primary rounded-pill px-4 py-2 shadow-sm text-white">
-                                        <i class="fas fa-save me-2 text-warning"></i>Update Profile
+                                        <i class="fas fa-save me-2 text-warning"></i>Perbarui Profil
                                     </button>
                                 </div>
                             </form>
@@ -200,7 +200,7 @@
         <div class="modal-content border-0 rounded-4 shadow-lg">
             <div class="modal-header border-0 pb-0">
                 <h5 class="modal-title fw-bold text-black">
-                    <i class="fas fa-camera text-warning me-2"></i>Profile Photo
+                    <i class="fas fa-camera text-warning me-2"></i>Foto Profil
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
@@ -210,13 +210,13 @@
                     <div class="text-center mb-4">
                         <div class="upload-area border-2 border-dashed border-primary rounded-4 p-4 bg-light bg-opacity-50">
                             <i class="fas fa-cloud-upload-alt text-warning fa-3x mb-3"></i>
-                            <h6 class="text-black fw-bold mb-2">Choose a photo to upload</h6>
-                            <p class="text-black small mb-3">JPG, JPEG, PNG. Max 2MB</p>
+                            <h6 class="text-black fw-bold mb-2">Pilih foto untuk diunggah</h6>
+                            <p class="text-black small mb-3">JPG, JPEG, PNG. Maksimal 2MB</p>
                             <input type="file" id="profile_photo" name="profile_photo" 
                                    accept="image/*" class="form-control" style="display: none;">
                             <button type="button" class="btn btn-outline-primary rounded-pill px-4 text-black" 
                                     onclick="document.getElementById('profile_photo').click()">
-                                <i class="fas fa-folder-open me-2 text-warning"></i>Browse Files
+                                <i class="fas fa-folder-open me-2 text-warning"></i>Pilih File
                             </button>
                         </div>
                     </div>
@@ -229,11 +229,11 @@
                     <div class="d-flex gap-3 justify-content-end">
                         @if($user->profile_photo)
                             <button type="button" class="btn btn-outline-danger rounded-pill px-4 text-black" id="delete-photo-btn">
-                                <i class="fas fa-trash me-2 text-warning"></i>Delete Current
+                                <i class="fas fa-trash me-2 text-warning"></i>Hapus Foto
                             </button>
                         @endif
                         <button type="button" class="btn btn-primary rounded-pill px-4 text-white" id="upload-photo-btn" disabled>
-                            <i class="fas fa-upload me-2 text-warning"></i>Upload Photo
+                            <i class="fas fa-upload me-2 text-warning"></i>Unggah Foto
                         </button>
                     </div>
                 </form>
@@ -378,157 +378,179 @@
 
 @push('scripts')
 <script>
-$(document).ready(function() {
+document.addEventListener('DOMContentLoaded', function() {
     // File selection handling
-    $('#profile_photo').change(function() {
-        const file = this.files[0];
-        if (file) {
-            $('#selected-file').show();
-            $('#file-name').text(file.name);
-            $('#upload-photo-btn').prop('disabled', false);
-            
-            // Preview the selected image
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                $('#profile-photo-preview').html(
-                    '<img src="' + e.target.result + '" alt="Profile Photo Preview" class="rounded-circle border border-4 border-white shadow-lg" style="width: 120px; height: 120px; object-fit: cover;">'
-                );
-            };
-            reader.readAsDataURL(file);
-        } else {
-            $('#selected-file').hide();
-            $('#upload-photo-btn').prop('disabled', true);
-        }
-    });
-
-    // Upload photo functionality
-    $('#upload-photo-btn').click(function() {
-        const fileInput = $('#profile_photo')[0];
-        const file = fileInput.files[0];
-        
-        if (!file) {
-            showNotification('error', 'Please select a photo first.');
-            return;
-        }
-        
-        const formData = new FormData();
-        formData.append('profile_photo', file);
-        formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
-        
-        const uploadBtn = $(this);
-        const originalText = uploadBtn.html();
-        uploadBtn.html('<i class="fas fa-spinner fa-spin me-2 text-warning"></i><span class="text-white">Uploading...</span>').prop('disabled', true);
-        
-        $.ajax({
-            url: '{{ route("user.profile.upload-photo") }}',
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function(response) {
-                if (response.success) {
-                    // Update the preview image
-                    $('#profile-photo-preview').html(
-                        '<img src="' + response.photo_url + '" alt="Profile Photo" class="rounded-circle border border-4 border-white shadow-lg" style="width: 120px; height: 120px; object-fit: cover;">'
-                    );
-                    
-                    // Reset form and hide modal
-                    fileInput.value = '';
-                    $('#selected-file').hide();
-                    $('#photoModal').modal('hide');
-                    
-                    // Show success message
-                    showNotification('success', response.message);
-                    
-                    // Add delete button if it doesn't exist
-                    if ($('#delete-photo-btn').length === 0) {
-                        location.reload(); // Reload to show delete button
+    const profilePhotoInput = document.getElementById('profile_photo');
+    const selectedFileDiv = document.getElementById('selected-file');
+    const fileNameSpan = document.getElementById('file-name');
+    const uploadBtn = document.getElementById('upload-photo-btn');
+    const profilePhotoPreview = document.getElementById('profile-photo-preview');
+    
+    if (profilePhotoInput) {
+        profilePhotoInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                // Show selected file info
+                selectedFileDiv.style.display = 'block';
+                fileNameSpan.textContent = file.name;
+                uploadBtn.disabled = false;
+                
+                // Preview the selected image
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if (profilePhotoPreview) {
+                        profilePhotoPreview.innerHTML = 
+                            '<img src="' + e.target.result + '" alt="Profile Photo Preview" class="rounded-circle border border-4 border-white shadow-lg" style="width: 120px; height: 120px; object-fit: cover;">';
                     }
-                } else {
-                    showNotification('error', 'Upload failed. Please try again.');
-                }
-            },
-            error: function(xhr) {
-                let errorMessage = 'Upload failed. Please try again.';
-                if (xhr.responseJSON && xhr.responseJSON.errors) {
-                    errorMessage = Object.values(xhr.responseJSON.errors)[0][0];
-                }
-                showNotification('error', errorMessage);
-            },
-            complete: function() {
-                uploadBtn.html(originalText).prop('disabled', false);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                selectedFileDiv.style.display = 'none';
+                uploadBtn.disabled = true;
             }
         });
-    });
-    
-    // Delete photo functionality
-    $(document).on('click', '#delete-photo-btn', function() {
-        if (!confirm('Are you sure you want to delete your profile photo?')) {
-            return;
-        }
-        
-        const deleteBtn = $(this);
-        const originalText = deleteBtn.html();
-        deleteBtn.html('<i class="fas fa-spinner fa-spin me-2 text-warning"></i><span class="text-black">Deleting...</span>').prop('disabled', true);
-        
-        $.ajax({
-            url: '{{ route("user.profile.delete-photo") }}',
-            type: 'DELETE',
-            data: {
-                '_token': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(response) {
-                if (response.success) {
-                    // Update the preview to default
-                    $('#profile-photo-preview').html(
-                        '<div class="rounded-circle bg-white bg-opacity-20 d-flex align-items-center justify-content-center border border-4 border-white shadow-lg" style="width: 120px; height: 120px;">' +
-                        '<i class="fas fa-user text-warning fa-3x"></i></div>'
-                    );
-                    
-                    // Hide modal and show success
-                    $('#photoModal').modal('hide');
-                    showNotification('success', response.message);
-                    
-                    // Reload page to update delete button visibility
-                    setTimeout(() => location.reload(), 1500);
-                } else {
-                    showNotification('error', response.message || 'Delete failed. Please try again.');
-                }
-            },
-            error: function() {
-                showNotification('error', 'Delete failed. Please try again.');
-            },
-            complete: function() {
-                deleteBtn.html(originalText).prop('disabled', false);
-            }
-        });
-    });
-    
-    // Modern notification system
-    function showNotification(type, message) {
-        const iconClass = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
-        const bgClass = type === 'success' ? 'alert-success' : 'alert-danger';
-        
-        const alertHtml = `
-            <div class="alert ${bgClass} alert-dismissible fade show rounded-3 border-0 shadow-sm" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
-                <i class="fas ${iconClass} me-2 text-warning"></i><span class="text-black">${message}</span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        `;
-        
-        $('body').append(alertHtml);
-        
-        // Auto dismiss after 5 seconds
-        setTimeout(function() {
-            $('.alert').fadeOut(500, function() {
-                $(this).remove();
-            });
-        }, 5000);
     }
 
+    // Upload photo functionality
+    if (uploadBtn) {
+        uploadBtn.addEventListener('click', function() {
+            const file = profilePhotoInput.files[0];
+            
+            if (!file) {
+                alert('Silakan pilih foto terlebih dahulu.');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('profile_photo', file);
+            formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+            
+            const originalText = uploadBtn.innerHTML;
+            uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2 text-warning"></i><span class="text-white">Mengunggah...</span>';
+            uploadBtn.disabled = true;
+            
+            fetch('{{ route("user.profile.upload-photo") }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update the preview image
+                    if (profilePhotoPreview) {
+                        profilePhotoPreview.innerHTML = 
+                            '<img src="' + data.photo_url + '" alt="Profile Photo" class="rounded-circle border border-4 border-white shadow-lg" style="width: 120px; height: 120px; object-fit: cover;">';
+                    }
+                    
+                    // Reset form and hide modal
+                    profilePhotoInput.value = '';
+                    selectedFileDiv.style.display = 'none';
+                    
+                    // Hide modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('photoModal'));
+                    if (modal) {
+                        modal.hide();
+                    }
+                    
+                    // Show success message
+                    alert(data.message || 'Foto profil berhasil diunggah!');
+                    
+                    // Reload page to show delete button
+                    location.reload();
+                } else {
+                    alert('Upload gagal. Silakan coba lagi.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Upload gagal. Silakan coba lagi.');
+            })
+            .finally(() => {
+                uploadBtn.innerHTML = originalText;
+                uploadBtn.disabled = false;
+            });
+        });
+    }
+    
+    // Delete photo functionality
+    const deleteBtn = document.getElementById('delete-photo-btn');
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', function() {
+            if (!confirm('Apakah Anda yakin ingin menghapus foto profil?')) {
+                return;
+            }
+            
+            const originalText = deleteBtn.innerHTML;
+            deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2 text-warning"></i><span class="text-black">Menghapus...</span>';
+            deleteBtn.disabled = true;
+            
+            const formData = new FormData();
+            formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+            formData.append('_method', 'DELETE');
+            
+            fetch('{{ route("user.profile.delete-photo") }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update the preview to default
+                    if (profilePhotoPreview) {
+                        profilePhotoPreview.innerHTML = 
+                            '<div class="rounded-circle bg-white bg-opacity-20 d-flex align-items-center justify-content-center border border-4 border-white shadow-lg" style="width: 120px; height: 120px;">' +
+                            '<i class="fas fa-user text-warning fa-3x"></i></div>';
+                    }
+                    
+                    // Hide modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('photoModal'));
+                    if (modal) {
+                        modal.hide();
+                    }
+                    
+                    alert(data.message || 'Foto profil berhasil dihapus!');
+                    
+                    // Reload page to update delete button visibility
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    alert(data.message || 'Hapus foto gagal. Silakan coba lagi.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Hapus foto gagal. Silakan coba lagi.');
+            })
+            .finally(() => {
+                deleteBtn.innerHTML = originalText;
+                deleteBtn.disabled = false;
+            });
+        });
+    }
+    
+    // Make upload area clickable
+    const uploadArea = document.querySelector('.upload-area');
+    if (uploadArea) {
+        uploadArea.addEventListener('click', function() {
+            profilePhotoInput.click();
+        });
+    }
+    
     // Form validation enhancements
-    $('form').on('submit', function() {
-        $(this).find('button[type="submit"]').html('<i class="fas fa-spinner fa-spin me-2 text-warning"></i><span class="text-white">Updating...</span>').prop('disabled', true);
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+        form.addEventListener('submit', function() {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2 text-warning"></i><span class="text-white">Memperbarui...</span>';
+                submitBtn.disabled = true;
+            }
+        });
     });
 });
 </script>

@@ -47,7 +47,7 @@ class UpdateLateRentals extends Command
             
             // Check if returned late
             if ($actualReturnDate->gt($expectedReturnDate)) {
-                $lateDays = $expectedReturnDate->diffInDays($actualReturnDate);
+                $lateDays = ceil($expectedReturnDate->diffInDays($actualReturnDate, false));
                 
                 // Update status to show late days
                 $newStatus = "Selesai (Telat {$lateDays} hari)";
@@ -72,10 +72,11 @@ class UpdateLateRentals extends Command
             ->get();
             
         foreach ($overdueRentals as $rental) {
-            $expectedReturnDate = $rental->tanggal_rental->addDays($rental->durasi_sewa);
-            $lateDays = $expectedReturnDate->diffInDays(now());
+            $expectedReturnDate = Carbon::parse($rental->tanggal_rental)->addDays($rental->durasi_sewa);
+            $lateDays = $expectedReturnDate->diffInDays(Carbon::now(), false);
             
             if ($lateDays > 0) {
+                $lateDays = ceil($lateDays); // Round up to nearest whole day
                 $newStatus = "Terlambat {$lateDays} hari";
                 
                 // Calculate and update penalty

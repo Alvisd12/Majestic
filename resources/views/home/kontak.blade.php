@@ -835,10 +835,12 @@
 .kontak-card:nth-child(5) { animation-delay: 0.5s; }
 .kontak-card:nth-child(6) { animation-delay: 0.6s; }
 
-.testimoni-card:nth-child(1) { animation-delay: 0.2s; }
-.testimoni-card:nth-child(2) { animation-delay: 0.4s; }
-.testimoni-card:nth-child(3) { animation-delay: 0.6s; }
-.testimoni-card:nth-child(4) { animation-delay: 0.8s; }
+.testimoni-card-1 { animation-delay: 0.2s; }
+.testimoni-card-2 { animation-delay: 0.4s; }
+.testimoni-card-3 { animation-delay: 0.6s; }
+.testimoni-card-4 { animation-delay: 0.8s; }
+.testimoni-card-5 { animation-delay: 1.0s; }
+.testimoni-card-6 { animation-delay: 1.2s; }
 </style>
 </head>
 <body>
@@ -927,19 +929,13 @@
         <!-- Form Berikan Testimoni -->
         <div class="review-form" id="testimonialFormContainer" style="display: none;">
           <h5><i class="bi bi-chat-heart-fill me-2"></i>Berikan Testimoni Anda</h5>
-          <p class="text-muted mb-4">Halo <span id="userName"></span>, Anda dapat memberikan testimoni untuk <span id="availableCount" class="fw-bold text-primary"></span> peminjaman yang telah selesai!</p>
-          
-          <!-- Rental Selection -->
-          <div class="mb-4" id="rentalSelection">
-            <label class="form-label"><i class="bi bi-motorcycle me-2"></i>Pilih Peminjaman untuk Testimoni</label>
-            <select class="form-control" id="peminjamanSelect" required>
-              <option value="">Pilih peminjaman...</option>
-            </select>
-            <small class="text-muted">Anda sudah memberikan <span id="completedCount" class="fw-bold">0</span> testimoni sebelumnya.</small>
+          <p class="text-muted mb-4">Halo <span id="userName"></span>, ceritakan pengalaman Anda menggunakan layanan kami!</p>
+          <div class="alert alert-info mb-4" id="testimoniInfo" style="display: none; border-radius: 12px; border: none; background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);">
+            <i class="bi bi-info-circle-fill me-2"></i>
+            <span id="testimoniInfoText"></span>
           </div>
           
           <form id="testimonialForm">
-            <input type="hidden" name="peminjaman_id" id="selectedPeminjamanId">
             
             <div class="mb-4">
               <label class="form-label"><i class="bi bi-chat-text-fill me-2"></i>Testimoni</label>
@@ -989,77 +985,51 @@
         <p style="color: #546e7a;">Apa kata mereka yang sudah menggunakan layanan kami</p>
       </div>
       
+      @forelse($testimoni as $item)
       <div class="col-lg-4 col-md-6 mb-4">
-        <!-- Testimoni Card 1 -->
-        <div class="testimoni-card">
+        <!-- Testimoni Card dari Database -->
+        <div class="testimoni-card testimoni-card-{{ $loop->index + 1 }}">
           <i class="fas fa-quote-right quote-icon"></i>
           <div class="user-info">
-            <div class="user-avatar">AN</div>
+            <div class="user-avatar">
+              @php
+                $nameParts = explode(' ', $item->nama);
+                $initials = '';
+                foreach($nameParts as $part) {
+                  $initials .= strtoupper(substr($part, 0, 1));
+                }
+                $initials = substr($initials, 0, 2); // Max 2 characters
+              @endphp
+              {{ $initials }}
+            </div>
             <div class="user-details">
-              <h5>Ahmad Nuryadi</h5>
-              <p class="user-date">15 Agustus 2024</p>
+              <h5>{{ $item->nama }}</h5>
+              <p class="user-date">{{ $item->created_at->format('d F Y') }}</p>
             </div>
           </div>
           <div class="rating-display">
-            <i class="fa fa-star"></i>
-            <i class="fa fa-star"></i>
-            <i class="fa fa-star"></i>
-            <i class="fa fa-star"></i>
-            <i class="fa fa-star"></i>
+            @for($i = 1; $i <= 5; $i++)
+              @if($i <= $item->rating)
+                <i class="fa fa-star"></i>
+              @else
+                <i class="fa fa-star empty"></i>
+              @endif
+            @endfor
           </div>
           <p class="testimoni-text">
-            "Pelayanan sangat memuaskan! Motor dalam kondisi prima dan bersih. Staff ramah dan profesional. Pasti akan sewa lagi di sini untuk liburan berikutnya."
+            "{{ $item->testimoni_text }}"
           </p>
         </div>
       </div>
-      
-      <div class="col-lg-4 col-md-6 mb-4">
-        <!-- Testimoni Card 2 -->
-        <div class="testimoni-card">
-          <i class="fas fa-quote-right quote-icon"></i>
-          <div class="user-info">
-            <div class="user-avatar">SR</div>
-            <div class="user-details">
-              <h5>Sari Rahayu</h5>
-              <p class="user-date">28 Juli 2024</p>
-            </div>
-          </div>
-          <div class="rating-display">
-            <i class="fa fa-star"></i>
-            <i class="fa fa-star"></i>
-            <i class="fa fa-star"></i>
-            <i class="fa fa-star"></i>
-            <i class="fa fa-star"></i>
-          </div>
-          <p class="testimoni-text">
-            "Harga terjangkau dengan kualitas terbaik! Proses sewa mudah dan cepat. Motor terawat dengan baik dan nyaman dikendarai keliling Malang-Batu."
-          </p>
+      @empty
+      <!-- Fallback jika tidak ada testimoni -->
+      <div class="col-12 text-center">
+        <div class="alert alert-info" style="border-radius: 16px; border: none; background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);">
+          <i class="bi bi-info-circle-fill me-2"></i>
+          Belum ada testimoni yang disetujui. Jadilah yang pertama memberikan testimoni!
         </div>
       </div>
-      
-      <div class="col-lg-4 col-md-6 mb-4">
-        <!-- Testimoni Card 3 -->
-        <div class="testimoni-card">
-          <i class="fas fa-quote-right quote-icon"></i>
-          <div class="user-info">
-            <div class="user-avatar">BP</div>
-            <div class="user-details">
-              <h5>Budi Pratama</h5>
-              <p class="user-date">10 Agustus 2024</p>
-            </div>
-          </div>
-          <div class="rating-display">
-            <i class="fa fa-star"></i>
-            <i class="fa fa-star"></i>
-            <i class="fa fa-star"></i>
-            <i class="fa fa-star"></i>
-            <i class="fa fa-star empty"></i>
-          </div>
-          <p class="testimoni-text">
-            "Recommended banget! Lokasi strategis, motor bagus-bagus, dan harga bersahabat. Customer service responsif dan helpful. Top deh!"
-          </p>
-        </div>
-      </div>
+      @endforelse
     </div>
   </div>
 </section>
@@ -1149,52 +1119,13 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // Load testimonials from database
-  function loadTestimonials() {
-    fetch('/testimoni/approved')
-      .then(response => response.json())
-      .then(data => {
-        const testimoniContainer = document.querySelector('.row.mt-5');
-        const testimoniCardsContainer = testimoniContainer.querySelector('.col-12').nextElementSibling?.parentElement || testimoniContainer;
-        
-        // Remove existing testimonial cards (keep the header)
-        const existingCards = testimoniCardsContainer.querySelectorAll('.col-lg-4.col-md-6.mb-4');
-        existingCards.forEach(card => card.remove());
-        
-        // Add new testimonial cards from database
-        data.forEach((testimoni, index) => {
-          const cardHtml = `
-            <div class="col-lg-4 col-md-6 mb-4">
-              <div class="testimoni-card" style="animation-delay: ${(index + 1) * 0.2}s;">
-                <i class="fas fa-quote-right quote-icon"></i>
-                <div class="user-info">
-                  <div class="user-avatar">${testimoni.nama.substring(0, 2).toUpperCase()}</div>
-                  <div class="user-details">
-                    <h5>${testimoni.nama}</h5>
-                    <p class="user-date">${testimoni.created_at}</p>
-                  </div>
-                </div>
-                <div class="rating-display">
-                  ${Array.from({length: 5}, (_, i) => 
-                    `<i class="fa fa-star${i < testimoni.rating ? '' : ' empty'}"></i>`
-                  ).join('')}
-                </div>
-                <p class="testimoni-text">
-                  "${testimoni.testimoni}"
-                </p>
-              </div>
-            </div>
-          `;
-          testimoniCardsContainer.insertAdjacentHTML('beforeend', cardHtml);
-        });
-      })
-      .catch(error => {
-        console.error('Error loading testimonials:', error);
-      });
+  // Refresh page to load updated testimonials after submission
+  function refreshTestimonials() {
+    // Since testimonials are now server-side rendered, we refresh the page
+    setTimeout(() => {
+      window.location.reload();
+    }, 2000);
   }
-
-  // Load testimonials on page load
-  loadTestimonials();
 
   // Check testimonial eligibility on page load
   checkTestimonialEligibility();
@@ -1216,26 +1147,17 @@ document.addEventListener("DOMContentLoaded", function () {
           messageContainer.style.display = 'none';
           userNameSpan.textContent = data.user_name;
           
-          // Update available and completed counts
-          document.getElementById('availableCount').textContent = data.total_available;
-          document.getElementById('completedCount').textContent = data.total_completed;
+          // Show testimonial count info
+          const testimoniInfo = document.getElementById('testimoniInfo');
+          const testimoniInfoText = document.getElementById('testimoniInfoText');
           
-          // Populate rental selection dropdown
-          const peminjamanSelect = document.getElementById('peminjamanSelect');
-          peminjamanSelect.innerHTML = '<option value="">Pilih peminjaman...</option>';
-          
-          data.available_rentals.forEach(rental => {
-            const option = document.createElement('option');
-            option.value = rental.id;
-            option.textContent = `${rental.motor_name} - ${rental.formatted_date}`;
-            peminjamanSelect.appendChild(option);
-          });
-          
-          // Add change event listener to update hidden field
-          peminjamanSelect.addEventListener('change', function() {
-            document.getElementById('selectedPeminjamanId').value = this.value;
-          });
-          
+          if (data.testimonial_count > 0) {
+            testimoniInfo.style.display = 'block';
+            testimoniInfoText.textContent = `Anda sudah memberikan ${data.testimonial_count} testimoni sebelumnya. Anda dapat memberikan testimoni lagi untuk berbagi pengalaman terbaru Anda!`;
+          } else {
+            testimoniInfo.style.display = 'block';
+            testimoniInfoText.textContent = 'Ini akan menjadi testimoni pertama Anda. Terima kasih telah menggunakan layanan kami!';
+          }
         } else {
           // Show message for ineligible users
           formContainer.style.display = 'none';
@@ -1297,21 +1219,10 @@ document.addEventListener("DOMContentLoaded", function () {
     // Add success animation to form
     testimonialForm.classList.add('form-success');
     
-    // Get selected peminjaman ID
-    const peminjamanId = document.getElementById('selectedPeminjamanId').value;
-    if (!peminjamanId) {
-      alert('Mohon pilih peminjaman terlebih dahulu!');
-      submitBtn.innerHTML = originalText;
-      submitBtn.disabled = false;
-      testimonialForm.classList.remove('form-success');
-      return;
-    }
-    
     // Submit to Laravel backend using FormData instead of JSON
     const formData = new FormData();
     formData.append('testimoni', review);
     formData.append('rating', parseInt(rating));
-    formData.append('peminjaman_id', peminjamanId);
     
     // Get CSRF token
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
@@ -1347,10 +1258,10 @@ document.addEventListener("DOMContentLoaded", function () {
         ratingText.textContent = "Pilih rating Anda";
         ratingText.className = "rating-text";
         
-        // Load updated testimonials
-        loadTestimonials();
+        // Refresh page to show updated testimonials
+        refreshTestimonials();
         
-        // Refresh eligibility to update available rentals
+        // Refresh eligibility to update testimonial count
         setTimeout(() => {
           checkTestimonialEligibility();
         }, 1000);

@@ -140,7 +140,7 @@ class Peminjaman extends Model
         $currentDate = now()->startOfDay();
         
         // Calculate overdue days from expected return date
-        $overdueDays = $expectedReturnDate->diffInDays($currentDate);
+        $overdueDays = ceil($expectedReturnDate->diffInDays($currentDate, false));
         
         if ($overdueDays <= 0) {
             return 0;
@@ -178,7 +178,7 @@ class Peminjaman extends Model
         $expectedReturnDate = $this->tanggal_rental->addDays($this->durasi_sewa)->startOfDay();
         $currentDate = now()->startOfDay();
         
-        return max(0, $expectedReturnDate->diffInDays($currentDate));
+        return max(0, ceil($expectedReturnDate->diffInDays($currentDate, false)));
     }
 
     /**
@@ -217,7 +217,7 @@ class Peminjaman extends Model
         $actualReturnDate = Carbon::parse($this->tanggal_kembali)->startOfDay();
         
         if ($actualReturnDate->gt($expectedReturnDate)) {
-            return $expectedReturnDate->diffInDays($actualReturnDate);
+            return ceil($expectedReturnDate->diffInDays($actualReturnDate, false));
         }
         
         return 0;

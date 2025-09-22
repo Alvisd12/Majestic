@@ -104,7 +104,7 @@ class AuthController extends Controller
                 'is_logged_in' => true
             ]);
             
-            return redirect()->route('auth.dashboard')
+            return redirect()->route('admin.dashboard')
                 ->with('success', 'Login admin berhasil!');
         }
 
@@ -144,7 +144,15 @@ class AuthController extends Controller
 
         $message = $userRole === 'admin' ? 'Logout admin berhasil!' : 'Logout berhasil!';
         
-        return redirect()->route('home')->with('success', $message);
+        // Create response with cache prevention headers
+        $response = redirect()->route('home')->with('success', $message);
+        
+        // Add headers to prevent caching and back button access
+        $response->header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate')
+                 ->header('Pragma', 'no-cache')
+                 ->header('Expires', 'Fri, 01 Jan 1990 00:00:00 GMT');
+        
+        return $response;
     }
 
     // =========================
