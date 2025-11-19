@@ -342,6 +342,26 @@
                                     <div class="detail-value">{{ $peminjaman->jam_sewa }}</div>
                                 </div>
                                 @endif
+                                @if($peminjaman->pilihan_pengambilan)
+                                <div class="detail-row">
+                                    <div class="detail-label">Pilihan Pengambilan:</div>
+                                    <div class="detail-value">
+                                        <span class="badge" style="background: #e0e7ff; color: #3730a3; padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600;">
+                                            <i class="fas fa-{{ $peminjaman->pilihan_pengambilan == 'diantar' ? 'truck' : 'map-marker-alt' }} me-1"></i>
+                                            {{ ucfirst($peminjaman->pilihan_pengambilan) }}
+                                        </span>
+                                    </div>
+                                </div>
+                                @endif
+                                @if($peminjaman->pilihan_pengambilan == 'diantar' && $peminjaman->alamat_pengiriman)
+                                <div class="detail-row">
+                                    <div class="detail-label">Alamat Pengiriman:</div>
+                                    <div class="detail-value">
+                                        <i class="fas fa-map-marker-alt me-2 text-primary"></i>
+                                        {{ $peminjaman->alamat_pengiriman }}
+                                    </div>
+                                </div>
+                                @endif
                                 <div class="detail-row">
                                     <div class="detail-label">Durasi:</div>
                                     <div class="detail-value">

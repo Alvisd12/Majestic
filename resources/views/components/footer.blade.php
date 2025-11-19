@@ -231,9 +231,9 @@
       <div class="footer-section">
         <h3>Quick Link</h3>
         <ul>
-          <li><a href="#">Harga Sewa</a></li>
-          <li><a href="#">Galeri</a></li>
-          <li><a href="#">Kontak Kami</a></li>
+          <li><a href="#harga-sewa">Harga Sewa</a></li>
+          <li><a href="galeri">Galeri</a></li>
+          <li><a href="kontak-kami">Kontak Kami</a></li>
         </ul>
       </div>
 

@@ -71,10 +71,21 @@
                     </div>
 
                     <!-- Add Button - Only for Super Admin -->
-                    @if(auth()->guard('admin')->user()->role === 'super_admin')
+                    @php
+                        $currentUser = auth()->guard('admin')->user();
+                        $isLoggedIn = auth()->guard('admin')->check();
+                        $userRole = $currentUser ? $currentUser->role : 'null';
+                        $isSuperAdmin = $isLoggedIn && $userRole === 'super_admin';
+                    @endphp
+                    
+                    @if($isSuperAdmin)
                         <a href="{{ route('admin.admin_accounts.create') }}" class="modern-btn modern-btn-primary">
                             <i class="fas fa-plus me-2"></i>Tambah Admin
                         </a>
+                    @else
+                        <div class="alert alert-info" style="font-size: 12px; padding: 8px;">
+                            Debug Info: Login: {{ $isLoggedIn ? 'Yes' : 'No' }}, Role: {{ $userRole }}
+                        </div>
                     @endif
 
                     <!-- Total Badge -->
@@ -101,7 +112,7 @@
                                 </div>
                             </th>
                             <th class="number-col">#</th>
-                            <th class="avatar-col">Avatar</th>
+                            <th class="avatar-col"></th>
                             <th class="name-col">Nama</th>
                             <th class="username-col">Username</th>
                             <th class="email-col">Email</th>
@@ -126,14 +137,9 @@
                             </td>
                             <td class="avatar-col">
                                 <div class="avatar-container">
-                                    @if($admin->profile_photo)
-                                        <img src="{{ asset('storage/' . $admin->profile_photo) }}" 
-                                             alt="Profile Photo" class="admin-avatar">
-                                    @else
-                                        <div class="avatar-placeholder">
-                                            {{ strtoupper(substr($admin->nama, 0, 1)) }}
-                                        </div>
-                                    @endif
+                                    <div class="avatar-placeholder">
+                                        <i class="fas fa-user"></i>
+                                    </div>
                                     <div class="status-indicator online"></div>
                                 </div>
                             </td>
@@ -173,7 +179,14 @@
                             </td>
                             <td class="action-col">
                                 <div class="action-buttons">
-                                    @if(auth()->guard('admin')->user()->role === 'super_admin')
+                                    @php
+                                        $currentUser = auth()->guard('admin')->user();
+                                        $isLoggedIn = auth()->guard('admin')->check();
+                                        $userRole = $currentUser ? $currentUser->role : 'null';
+                                        $isSuperAdmin = $isLoggedIn && $userRole === 'super_admin';
+                                    @endphp
+                                    
+                                    @if($isSuperAdmin)
                                         <a href="{{ route('admin.admin_accounts.edit', $admin->id) }}" 
                                            class="action-btn edit-btn"
                                            data-bs-toggle="tooltip" title="Edit Admin">
@@ -185,7 +198,12 @@
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     @else
-                                        <span class="text-muted small">Hanya Super Admin</span>
+                                        <span class="text-muted small">
+                                            Hanya Super Admin 
+                                            <small style="display: block; font-size: 10px;">
+                                                (Login: {{ $isLoggedIn ? 'Yes' : 'No' }}, Role: {{ $userRole }})
+                                            </small>
+                                        </span>
                                     @endif
                                 </div>
                             </td>
@@ -199,7 +217,7 @@
                                     </div>
                                     <h5>Tidak Ada Data</h5>
                                     <p>Belum ada administrator yang terdaftar dalam sistem</p>
-                                    @if(auth()->guard('admin')->user()->role === 'super_admin')
+                                    @if(auth()->guard('admin')->check() && auth()->guard('admin')->user()->role === 'super_admin')
                                         <a href="{{ route('admin.admin_accounts.create') }}" class="modern-btn modern-btn-primary">
                                             <i class="fas fa-plus me-2"></i>Tambah Admin Pertama
                                         </a>

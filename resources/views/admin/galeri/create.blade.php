@@ -33,6 +33,20 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+                        
+                        <div class="mb-3">
+                            <label for="jenis_motor" class="form-label">Jenis Motor (Opsional)</label>
+                            <select class="form-control @error('jenis_motor') is-invalid @enderror" 
+                                    id="jenis_motor" name="jenis_motor">
+                                <option value="">Pilih Jenis Motor</option>
+                                <option value="Matic" {{ old('jenis_motor') == 'Matic' ? 'selected' : '' }}>Matic</option>
+                                <option value="Manual" {{ old('jenis_motor') == 'Manual' ? 'selected' : '' }}>Manual</option>
+                                <option value="Sport" {{ old('jenis_motor') == 'Sport' ? 'selected' : '' }}>Sport</option>
+                            </select>
+                            @error('jenis_motor')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
                     </div>
                 </div>
                 

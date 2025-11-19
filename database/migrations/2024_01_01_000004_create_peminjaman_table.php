@@ -18,15 +18,10 @@ return new class extends Migration
             $table->integer('durasi_sewa');
             $table->decimal('total_harga', 10, 2)->nullable();
             $table->string('bukti_jaminan')->nullable();
-            $table->enum('status', ['Pending', 'Confirmed', 'Belum Kembali', 'Disewa', 'Selesai', 'Cancelled'])->default('Pending');
+            $table->enum('status', ['Menunggu Konfirmasi', 'Dikonfirmasi', 'Belum Kembali', 'Disewa', 'Selesai', 'Ditolak'])->default('Menunggu Konfirmasi');
             $table->date('tanggal_kembali')->nullable();
             $table->text('keterangan')->nullable();
             $table->timestamps();
         });
-    }
-
-    public function down(): void
-    {
-        Schema::dropIfExists('peminjaman');
     }
 };

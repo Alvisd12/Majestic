@@ -72,8 +72,9 @@
                     <thead class="modern-thead">
                         <tr>
                             <th class="number-col">No</th>
-                            <th class="image-col">Gambar</th>
+                            <th class="image-col"></th>
                             <th class="user-col">Penulis</th>
+                            <th class="jenis-col">Jenis Motor</th>
                             <th class="rental-date-col">Tanggal Sewa</th>
                             <th class="upload-date-col">Tanggal Upload</th>
                             <th class="action-col">Aksi</th>
@@ -109,23 +110,32 @@
                             </td>
                             <td class="user-col">
                                 <div class="user-info">
-                                    <div class="avatar-container">
-                                        @if($item->admin && $item->admin->profile_photo)
-                                            <img src="{{ asset('storage/' . $item->admin->profile_photo) }}" 
-                                                 alt="Admin Avatar" 
-                                                 class="admin-avatar">
-                                        @else
-                                            <div class="avatar-placeholder">
-                                                <i class="fas fa-user"></i>
-                                            </div>
-                                        @endif
-                                        <div class="status-indicator active"></div>
-                                    </div>
                                     <div class="user-details">
-                                        <div class="user-name">{{ $item->admin->nama ?? 'Admin' }}</div>
-                                        <div class="user-id">#{{ $item->admin->id ?? '001' }}</div>
+                                        <div class="user-name">
+                                            <i class="fas fa-user me-1"></i>
+                                            {{ $item->admin->nama ?? 'Admin' }}
+                                        </div>
                                     </div>
                                 </div>
+                            </td>
+                            <td class="jenis-col">
+                                @if($item->jenis_motor)
+                                    <div class="jenis-badge">
+                                        @php
+                                            $jenisColors = [
+                                                'Matic' => 'badge-primary',
+                                                'Manual' => 'badge-success', 
+                                                'Sport' => 'badge-danger'
+                                            ];
+                                            $colorClass = $jenisColors[$item->jenis_motor] ?? 'badge-secondary';
+                                        @endphp
+                                        <span class="badge {{ $colorClass }}">
+                                            {{ $item->jenis_motor }}
+                                        </span>
+                                    </div>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
                             </td>
                             <td class="rental-date-col">
                                 @if($item->tanggal_sewa)

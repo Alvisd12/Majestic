@@ -72,7 +72,7 @@
                     <thead class="modern-thead">
                         <tr>
                             <th class="number-col">No</th>
-                            <th class="image-col">Gambar</th>
+                            <th class="image-col"></th>
                             <th class="title-col">Judul</th>
                             <th class="content-col">Konten</th>
                             <th class="author-col">Penulis</th>
@@ -105,7 +105,7 @@
                                         </div>
                                     @else
                                         <div class="no-image-placeholder">
-                                            <i class="fas fa-image"></i>
+                                            <i class="fas fa-file-alt"></i>
                                         </div>
                                     @endif
                                 </div>
@@ -138,21 +138,11 @@
                             </td>
                             <td class="author-col">
                                 <div class="author-info">
-                                    <div class="avatar-container">
-                                        @if($blog->admin && $blog->admin->profile_photo)
-                                            <img src="{{ asset('storage/' . $blog->admin->profile_photo) }}" 
-                                                 alt="Admin Avatar" 
-                                                 class="admin-avatar">
-                                        @else
-                                            <div class="avatar-placeholder">
-                                                <i class="fas fa-user"></i>
-                                            </div>
-                                        @endif
-                                        <div class="status-indicator active"></div>
-                                    </div>
                                     <div class="author-details">
-                                        <div class="author-name">{{ $blog->penulis ?? $blog->admin->nama ?? 'Admin' }}</div>
-                                        <div class="author-role">Author</div>
+                                        <div class="author-name">
+                                            <i class="fas fa-user me-1"></i>
+                                            {{ $blog->penulis ?? $blog->admin->nama ?? 'Admin' }}
+                                        </div>
                                     </div>
                                 </div>
                             </td>

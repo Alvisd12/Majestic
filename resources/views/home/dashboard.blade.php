@@ -1729,7 +1729,7 @@
                 <img src="{{ asset("assets/images/motor{$i}.jpg") }}" alt="Motor {{ $i }}">
                 <div class="motor-info">
                   <h5>Motor Sample {{ $i }}</h5>
-                  <p>Rp 75.000/hari</p>
+                  <p>Rp {{ number_format($motor->harga_per_hari, 0, ',', '.') }}/hari</p>
                 </div>
               </div>
             @endfor

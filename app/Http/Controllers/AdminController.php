@@ -496,13 +496,15 @@ class AdminController extends Controller
 
         $validated = $request->validate([
             'gambar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'tanggal_sewa' => 'nullable|date'
+            'tanggal_sewa' => 'nullable|date',
+            'jenis_motor' => 'nullable|string|in:Matic,Manual,Sport'
         ], [
             'gambar.required' => 'Gambar wajib diupload.',
             'gambar.image' => 'File harus berupa gambar.',
             'gambar.mimes' => 'Format gambar harus JPG, PNG, atau GIF.',
             'gambar.max' => 'Ukuran gambar maksimal 2MB.',
-            'tanggal_sewa.date' => 'Format tanggal tidak valid.'
+            'tanggal_sewa.date' => 'Format tanggal tidak valid.',
+            'jenis_motor.in' => 'Jenis motor harus salah satu dari: Matic, Manual, atau Sport.'
         ]);
 
         // Handle file upload
@@ -540,12 +542,14 @@ class AdminController extends Controller
         
         $validated = $request->validate([
             'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'tanggal_sewa' => 'nullable|date'
+            'tanggal_sewa' => 'nullable|date',
+            'jenis_motor' => 'nullable|string|in:Matic,Manual,Sport'
         ], [
             'gambar.image' => 'File harus berupa gambar.',
             'gambar.mimes' => 'Format gambar harus JPG, PNG, atau GIF.',
             'gambar.max' => 'Ukuran gambar maksimal 2MB.',
-            'tanggal_sewa.date' => 'Format tanggal tidak valid.'
+            'tanggal_sewa.date' => 'Format tanggal tidak valid.',
+            'jenis_motor.in' => 'Jenis motor harus salah satu dari: Matic, Manual, atau Sport.'
         ]);
         
         // Handle file upload if new image is provided
@@ -623,9 +627,13 @@ class AdminController extends Controller
             'tahun' => 'required|integer|min:1990|max:' . (date('Y') + 1),
             'plat_nomor' => 'required|string|max:20|unique:motor,plat_nomor',
             'warna' => 'nullable|string|max:50',
+            'jenis_motor' => 'required|string|in:Matic,Manual,Sport',
             'harga_per_hari' => 'required|numeric|min:0',
             'deskripsi' => 'nullable|string',
             'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ], [
+            'jenis_motor.required' => 'Jenis motor wajib dipilih.',
+            'jenis_motor.in' => 'Jenis motor harus salah satu dari: Matic, Manual, atau Sport.'
         ]);
 
         if ($request->hasFile('foto')) {
@@ -659,10 +667,14 @@ class AdminController extends Controller
             'tahun' => 'required|integer|min:1990|max:' . (date('Y') + 1),
             'plat_nomor' => 'required|string|max:20|unique:motor,plat_nomor,' . $id,
             'warna' => 'nullable|string|max:50',
+            'jenis_motor' => 'required|string|in:Matic,Manual,Sport',
             'harga_per_hari' => 'required|numeric|min:0',
             'status' => 'required|in:Tersedia,Disewa,Maintenance',
             'deskripsi' => 'nullable|string',
             'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ], [
+            'jenis_motor.required' => 'Jenis motor wajib dipilih.',
+            'jenis_motor.in' => 'Jenis motor harus salah satu dari: Matic, Manual, atau Sport.'
         ]);
 
         if ($request->hasFile('foto')) {

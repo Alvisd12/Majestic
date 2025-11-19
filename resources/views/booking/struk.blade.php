@@ -264,6 +264,12 @@
                 @if($peminjaman->jam_sewa)
                     <li>Jam Ambil: {{ $peminjaman->jam_sewa }} WIB</li>
                 @endif
+                @if($peminjaman->pilihan_pengambilan)
+                    <li>Pengambilan: {{ ucfirst($peminjaman->pilihan_pengambilan) }}</li>
+                    @if($peminjaman->pilihan_pengambilan == 'diantar' && $peminjaman->alamat_pengiriman)
+                        <li>Alamat Pengiriman: {{ $peminjaman->alamat_pengiriman }}</li>
+                    @endif
+                @endif
                 <li>Durasi Sewa: {{ $peminjaman->durasi_sewa }} Hari</li>
                 @php
                     $tanggalKembali = \Carbon\Carbon::parse($peminjaman->tanggal_rental)->addDays($peminjaman->durasi_sewa);
@@ -306,6 +312,12 @@
                 <li>Tanggal Ambil: {{ \Carbon\Carbon::parse($peminjaman->tanggal_rental)->format('d F Y') }}</li>
                 @if($peminjaman->jam_sewa)
                     <li>Jam Ambil: {{ $peminjaman->jam_sewa }} WIB</li>
+                @endif
+                @if($peminjaman->pilihan_pengambilan)
+                    <li>Pengambilan: {{ ucfirst($peminjaman->pilihan_pengambilan) }}</li>
+                    @if($peminjaman->pilihan_pengambilan == 'diantar' && $peminjaman->alamat_pengiriman)
+                        <li>Alamat Pengiriman: {{ $peminjaman->alamat_pengiriman }}</li>
+                    @endif
                 @endif
                 <li>Status: <strong>{{ $peminjaman->status }}</strong></li>
                 <li>Subtotal: Rp {{ number_format($peminjaman->total_harga, 0, ',', '.') }}</li>

@@ -30,7 +30,32 @@
             </div>
             
             <div class="row">
-                <div class="col-md-4 mb-3">
+                <div class="col-md-6 mb-3">
+                    <label for="jenis_motor" class="form-label">Jenis Motor *</label>
+                    <select class="form-control @error('jenis_motor') is-invalid @enderror" 
+                            id="jenis_motor" name="jenis_motor" required>
+                        <option value="">Pilih Jenis Motor</option>
+                        <option value="Matic" {{ old('jenis_motor') == 'Matic' ? 'selected' : '' }}>Matic</option>
+                        <option value="Manual" {{ old('jenis_motor') == 'Manual' ? 'selected' : '' }}>Manual</option>
+                        <option value="Sport" {{ old('jenis_motor') == 'Sport' ? 'selected' : '' }}>Sport</option>
+                    </select>
+                    @error('jenis_motor')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label for="warna" class="form-label">Warna</label>
+                    <input type="text" class="form-control @error('warna') is-invalid @enderror" 
+                           id="warna" name="warna" value="{{ old('warna') }}">
+                    @error('warna')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
                     <label for="tahun" class="form-label">Tahun *</label>
                     <input type="number" class="form-control @error('tahun') is-invalid @enderror" 
                            id="tahun" name="tahun" value="{{ old('tahun') }}" 
@@ -40,20 +65,11 @@
                     @enderror
                 </div>
                 
-                <div class="col-md-4 mb-3">
+                <div class="col-md-6 mb-3">
                     <label for="plat_nomor" class="form-label">Plat Nomor *</label>
                     <input type="text" class="form-control @error('plat_nomor') is-invalid @enderror" 
                            id="plat_nomor" name="plat_nomor" value="{{ old('plat_nomor') }}" required>
                     @error('plat_nomor')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-                
-                <div class="col-md-4 mb-3">
-                    <label for="warna" class="form-label">Warna</label>
-                    <input type="text" class="form-control @error('warna') is-invalid @enderror" 
-                           id="warna" name="warna" value="{{ old('warna') }}">
-                    @error('warna')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>

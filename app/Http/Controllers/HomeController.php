@@ -121,10 +121,46 @@ class HomeController extends Controller
         return view('home.motor-detail', compact('motor', 'relatedMotors', 'general', 'currentRental'));
     }
     
-    public function hargaSewa()
+    public function hargaSewa(Request $request)
     {
-        $motors = Motor::all();
-        return view('home.harga_sewa', compact('motors'));
+        $query = Motor::query();
+        
+        // Filter berdasarkan pencarian
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('merk', 'like', "%{$search}%")
+                  ->orWhere('model', 'like', "%{$search}%")
+                  ->orWhere('plat_nomor', 'like', "%{$search}%");
+            });
+        }
+        
+        // Filter berdasarkan jenis motor
+        if ($request->filled('jenis_motor')) {
+            $query->where('jenis_motor', $request->jenis_motor);
+        }
+        
+        // Filter berdasarkan ketersediaan
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        
+        // Filter berdasarkan range harga
+        if ($request->filled('harga_min')) {
+            $query->where('harga_per_hari', '>=', $request->harga_min);
+        }
+        
+        if ($request->filled('harga_max')) {
+            $query->where('harga_per_hari', '<=', $request->harga_max);
+        }
+        
+        $motors = $query->paginate(12)->appends($request->query());
+        
+        // Data untuk filter dropdown
+        $jenisMotor = Motor::select('jenis_motor')->distinct()->whereNotNull('jenis_motor')->pluck('jenis_motor');
+        $statusOptions = ['Tersedia', 'Disewa', 'Maintenance'];
+        
+        return view('home.harga_sewa', compact('motors', 'jenisMotor', 'statusOptions'));
     }
     
     public function galeri()

@@ -19,6 +19,8 @@ class Peminjaman extends Model
         'motor_id',
         'tanggal_rental',
         'jam_sewa',
+        'pilihan_pengambilan',
+        'alamat_pengiriman',
         'jenis_motor',
         'durasi_sewa',
         'total_harga',

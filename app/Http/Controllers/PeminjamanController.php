@@ -65,13 +65,13 @@ class PeminjamanController extends Controller
         $user = AuthController::getCurrentUser();
         
         $validated = $request->validate([
-            'tanggal_rental' => 'required|date|after_or_equal:today',
+            'tanggal_rental' => 'required|date|after_or_equal:tomorrow',
             'jam_sewa' => 'nullable|date_format:H:i',
             'jenis_motor' => 'required|string|max:255',
             'durasi_sewa' => 'required|integer|min:1|max:30', // Tambah max 30 hari
         ], [
             'tanggal_rental.required' => 'Tanggal rental wajib diisi.',
-            'tanggal_rental.after_or_equal' => 'Tanggal rental tidak boleh kurang dari hari ini.',
+            'tanggal_rental.after_or_equal' => 'Tanggal rental harus minimal H-1 (besok) dari hari ini.',
             'jam_sewa.date_format' => 'Format jam sewa tidak valid (HH:MM).',
             'jenis_motor.required' => 'Jenis motor wajib diisi.',
             'durasi_sewa.required' => 'Durasi sewa wajib diisi.',
@@ -186,13 +186,13 @@ class PeminjamanController extends Controller
         }
         
         $validated = $request->validate([
-            'tanggal_rental' => 'required|date|after_or_equal:today',
+            'tanggal_rental' => 'required|date|after_or_equal:tomorrow',
             'jam_sewa' => 'nullable|date_format:H:i',
             'jenis_motor' => 'required|string|max:255',
             'durasi_sewa' => 'required|integer|min:1|max:30',
         ], [
             'tanggal_rental.required' => 'Tanggal rental wajib diisi.',
-            'tanggal_rental.after_or_equal' => 'Tanggal rental tidak boleh kurang dari hari ini.',
+            'tanggal_rental.after_or_equal' => 'Tanggal rental harus minimal H-1 (besok) dari hari ini.',
             'jam_sewa.date_format' => 'Format jam sewa tidak valid (HH:MM).',
             'jenis_motor.required' => 'Jenis motor wajib diisi.',
             'durasi_sewa.required' => 'Durasi sewa wajib diisi.',
@@ -428,6 +428,8 @@ class PeminjamanController extends Controller
             'tanggal_rental' => 'required|date|after_or_equal:today',
             'jam_sewa' => 'nullable|date_format:H:i',
             'durasi_sewa' => 'required|integer|min:1|max:30',
+            'pilihan_pengambilan' => 'required|in:ambil di tempat,diantar',
+            'alamat_pengiriman' => 'required_if:pilihan_pengambilan,diantar|nullable|string|max:500',
         ], [
             'tanggal_rental.required' => 'Tanggal rental wajib diisi.',
             'tanggal_rental.after_or_equal' => 'Tanggal rental tidak boleh kurang dari hari ini.',
@@ -435,6 +437,10 @@ class PeminjamanController extends Controller
             'durasi_sewa.required' => 'Durasi sewa wajib diisi.',
             'durasi_sewa.min' => 'Durasi sewa minimal 1 hari.',
             'durasi_sewa.max' => 'Durasi sewa maksimal 30 hari.',
+            'pilihan_pengambilan.required' => 'Pilihan pengambilan wajib diisi.',
+            'pilihan_pengambilan.in' => 'Pilihan pengambilan tidak valid.',
+            'alamat_pengiriman.required_if' => 'Alamat pengiriman wajib diisi jika memilih "Diantar".',
+            'alamat_pengiriman.max' => 'Alamat pengiriman maksimal 500 karakter.',
         ]);
 
         $totalHarga = $motor->harga_per_hari * $validated['durasi_sewa'];
@@ -447,6 +453,8 @@ class PeminjamanController extends Controller
                 'motor_id' => $motor->id,
                 'tanggal_rental' => $validated['tanggal_rental'],
                 'jam_sewa' => $validated['jam_sewa'],
+                'pilihan_pengambilan' => $validated['pilihan_pengambilan'],
+                'alamat_pengiriman' => $validated['pilihan_pengambilan'] === 'diantar' ? $validated['alamat_pengiriman'] : null,
                 'jenis_motor' => $motor->full_name, // Keep for backward compatibility
                 'durasi_sewa' => $validated['durasi_sewa'],
                 'total_harga' => $totalHarga,

@@ -14,6 +14,7 @@ class Motor extends Model
 
     protected $fillable = [
         'merk',
+        'jenis_motor',
         'model',
         'tahun',
         'plat_nomor',

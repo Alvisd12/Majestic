@@ -71,8 +71,9 @@
                     <thead class="modern-thead">
                         <tr>
                             <th class="number-col">No</th>
-                            <th class="image-col">Gambar</th>
-                            <th class="motor-col">Jenis Motor</th>
+                            <th class="image-col"></th>
+                            <th class="motor-col">Motor</th>
+                            <th class="jenis-col">Jenis</th>
                             <th class="plate-col">Plat Motor</th>
                             <th class="color-col">Warna</th>
                             <th class="price-col">Harga</th>
@@ -102,7 +103,7 @@
                                         </div>
                                     @else
                                         <div class="no-motor-image-placeholder">
-                                            <i class="fas fa-motorcycle"></i>
+                                            <span class="text-muted">Tidak ada foto</span>
                                         </div>
                                     @endif
                                 </div>
@@ -111,6 +112,21 @@
                                 <div class="motor-info">
                                     <div class="motor-name">{{ $motor->merk }} {{ $motor->model }}</div>
                                     <div class="motor-year">Tahun {{ $motor->tahun ?: '2020' }}</div>
+                                </div>
+                            </td>
+                            <td class="jenis-col">
+                                <div class="jenis-badge">
+                                    @php
+                                        $jenisColors = [
+                                            'Matic' => 'badge-primary',
+                                            'Manual' => 'badge-success', 
+                                            'Sport' => 'badge-danger'
+                                        ];
+                                        $colorClass = $jenisColors[$motor->jenis_motor] ?? 'badge-secondary';
+                                    @endphp
+                                    <span class="badge {{ $colorClass }}" style="color: black; font-weight: 600;">
+                                        {{ $motor->jenis_motor ?: 'Belum diset' }}
+                                    </span>
                                 </div>
                             </td>
                             <td class="plate-col">
@@ -1119,6 +1135,7 @@ document.head.appendChild(style);
 .number-col { width: 60px; text-align: center; }
 .image-col { width: 100px; text-align: center; }
 .motor-col { width: 160px; }
+.jenis-col { width: 110px; text-align: left; }
 .plate-col { width: 120px; }
 .color-col { width: 120px; }
 .price-col { width: 140px; text-align: right; }
@@ -1932,6 +1949,43 @@ document.head.appendChild(style);
         background: white !important;
         color: black !important;
     }
+}
+
+/* Badge Jenis Motor - Black Text */
+.jenis-badge .badge {
+    color: black !important;
+    font-weight: 600 !important;
+    font-size: 12px !important;
+    display: inline-flex !important;
+    align-items: center;
+    padding: 2px 12px !important;
+    border-radius: 999px !important;
+    min-width: auto !important;
+    width: fit-content !important;
+}
+
+.jenis-badge .badge-primary {
+    background-color: #dbeafe !important;
+    border: 1px solid #3b82f6 !important;
+    color: black !important;
+}
+
+.jenis-badge .badge-success {
+    background-color: #d1fae5 !important;
+    border: 1px solid #10b981 !important;
+    color: black !important;
+}
+
+.jenis-badge .badge-danger {
+    background-color: #fee2e2 !important;
+    border: 1px solid #ef4444 !important;
+    color: black !important;
+}
+
+.jenis-badge .badge-secondary {
+    background-color: #f3f4f6 !important;
+    border: 1px solid #6b7280 !important;
+    color: black !important;
 }
 </style>
 @endsection

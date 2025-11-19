@@ -345,6 +345,7 @@
                                                 <th class="px-3 py-3">Jenis Motor</th>
                                                 <th class="px-3 py-3">Tanggal</th>
                                                 <th class="px-3 py-3">Durasi</th>
+                                                <th class="px-3 py-3">Pengambilan</th>
                                                 <th class="px-3 py-3">Total</th>
                                                 <th class="px-3 py-3">Status</th>
                                                 <th class="px-3 py-3">Aksi</th>
@@ -377,6 +378,24 @@
                                                         <span class="duration-badge">
                                                             {{ $booking->durasi_sewa }} hari
                                                         </span>
+                                                    </td>
+                                                    <td class="px-3 py-3">
+                                                        @if($booking->pilihan_pengambilan)
+                                                            <div>
+                                                                <span class="badge" style="background: #e0e7ff; color: #3730a3; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600;">
+                                                                    <i class="fas fa-{{ $booking->pilihan_pengambilan == 'diantar' ? 'truck' : 'map-marker-alt' }} me-1"></i>
+                                                                    {{ ucfirst($booking->pilihan_pengambilan) }}
+                                                                </span>
+                                                                @if($booking->pilihan_pengambilan == 'diantar' && $booking->alamat_pengiriman)
+                                                                    <br><small class="text-muted mt-1 d-block" style="font-size: 0.7rem; margin-top: 4px;">
+                                                                        <i class="fas fa-map-marker-alt me-1"></i>
+                                                                        {{ Str::limit($booking->alamat_pengiriman, 40) }}
+                                                                    </small>
+                                                                @endif
+                                                            </div>
+                                                        @else
+                                                            <span class="text-muted">-</span>
+                                                        @endif
                                                     </td>
                                                     <td class="px-3 py-3">
                                                         <div class="price-display">Rp {{ number_format($booking->total_harga, 0, ',', '.') }}</div>

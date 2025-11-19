@@ -16,7 +16,8 @@ class Galeri extends Model
     protected $fillable = [
         'id_admin',
         'gambar',
-        'tanggal_sewa'
+        'tanggal_sewa',
+        'jenis_motor'
     ];
 
     public function admin(): BelongsTo

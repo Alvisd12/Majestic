@@ -866,6 +866,25 @@
               </select>
             </div>
 
+            <div class="form-group">
+              <label class="form-label">
+                <i class="fas fa-truck me-1"></i>Pilihan Pengambilan
+              </label>
+              <select name="pilihan_pengambilan" id="pilihan_pengambilan" class="form-select" {{ $motor->status !== 'Tersedia' ? 'disabled' : '' }} required>
+                <option value="">Pilih Pengambilan</option>
+                <option value="ambil di tempat">Ambil di Tempat</option>
+                <option value="diantar">Diantar</option>
+              </select>
+            </div>
+
+            <div class="form-group" id="alamat_pengiriman_group" style="display: none;">
+              <label class="form-label">
+                <i class="fas fa-map-marker-alt me-1"></i>Alamat Pengiriman
+              </label>
+              <textarea name="alamat_pengiriman" id="alamat_pengiriman" class="form-control" rows="3" placeholder="Masukkan alamat lengkap untuk pengiriman motor" {{ $motor->status !== 'Tersedia' ? 'disabled' : '' }}></textarea>
+              <small class="text-muted">Mohon isi alamat lengkap untuk memudahkan proses pengiriman</small>
+            </div>
+
             <div class="row g-3 mt-2">
               <div class="col-6">
                 <a href="{{ route('harga_sewa') }}" class="btn btn-outline-primary w-100">
@@ -1022,8 +1041,28 @@
   document.addEventListener('DOMContentLoaded', function() {
     const dateInput = document.querySelector('input[type="date"]');
     if (dateInput) {
-      const today = new Date().toISOString().split('T')[0];
-      dateInput.min = today;
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const minDate = tomorrow.toISOString().split('T')[0];
+      dateInput.min = minDate;
+    }
+
+    // Toggle alamat pengiriman field based on pilihan pengambilan
+    const pilihanPengambilan = document.getElementById('pilihan_pengambilan');
+    const alamatPengirimanGroup = document.getElementById('alamat_pengiriman_group');
+    const alamatPengiriman = document.getElementById('alamat_pengiriman');
+
+    if (pilihanPengambilan && alamatPengirimanGroup) {
+      pilihanPengambilan.addEventListener('change', function() {
+        if (this.value === 'diantar') {
+          alamatPengirimanGroup.style.display = 'block';
+          alamatPengiriman.setAttribute('required', 'required');
+        } else {
+          alamatPengirimanGroup.style.display = 'none';
+          alamatPengiriman.removeAttribute('required');
+          alamatPengiriman.value = '';
+        }
+      });
     }
 
     // Add fade-in animation to elements
@@ -1044,6 +1083,20 @@
   const bookingForm = document.getElementById('bookingForm');
   if (bookingForm) {
     bookingForm.addEventListener('submit', function(e) {
+      // Check if diantar is selected and alamat is filled
+      const pilihanPengambilan = document.getElementById('pilihan_pengambilan');
+      const alamatPengiriman = document.getElementById('alamat_pengiriman');
+      
+      if (pilihanPengambilan && pilihanPengambilan.value === 'diantar') {
+        if (!alamatPengiriman || !alamatPengiriman.value.trim()) {
+          e.preventDefault();
+          alert('Mohon isi alamat pengiriman untuk pilihan "Diantar".');
+          alamatPengiriman.style.borderColor = '#f44336';
+          alamatPengiriman.focus();
+          return;
+        }
+      }
+
       // Simple validation
       const requiredFields = this.querySelectorAll('[required]');
       let isValid = true;

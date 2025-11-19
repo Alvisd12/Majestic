@@ -213,37 +213,31 @@
                                     </th>
                                     <th class="table-header-cell">
                                         <div class="header-content">
-                                            <i class="fas fa-user me-2"></i>
                                             <span>Penyewa</span>
                                         </div>
                                     </th>
                                     <th class="table-header-cell">
                                         <div class="header-content">
-                                            <i class="fas fa-motorcycle me-2"></i>
                                             <span>Motor & Durasi</span>
                                         </div>
                                     </th>
                                     <th class="table-header-cell">
                                         <div class="header-content">
-                                            <i class="fas fa-calendar me-2"></i>
                                             <span>Tanggal Sewa</span>
                                         </div>
                                     </th>
                                     <th class="table-header-cell">
                                         <div class="header-content">
-                                            <i class="fas fa-info-circle me-2"></i>
                                             <span>Status</span>
                                         </div>
                                     </th>
                                     <th class="table-header-cell">
                                         <div class="header-content">
-                                            <i class="fas fa-money-bill me-2"></i>
                                             <span>Total Harga</span>
                                         </div>
                                     </th>
                                     <th class="table-header-cell">
                                         <div class="header-content">
-                                            <i class="fas fa-exclamation-triangle me-2"></i>
                                             <span>Denda</span>
                                         </div>
                                     </th>
@@ -259,19 +253,11 @@
                                     </td>
                                     <td class="table-cell">
                                         <div class="user-info">
-                                            <div class="user-avatar-wrapper">
-                                                @if($rental->user && $rental->user->profile_photo)
-                                                    <img src="{{ asset('storage/' . $rental->user->profile_photo) }}" 
-                                                         alt="Profile" 
-                                                         class="user-avatar-img">
-                                                @else
-                                                    <div class="user-avatar-placeholder">
-                                                        <i class="fas fa-user"></i>
-                                                    </div>
-                                                @endif
-                                            </div>
                                             <div class="user-details">
-                                                <div class="user-name">{{ $rental->user->nama ?? $rental->nama ?? 'N/A' }}</div>
+                                                <div class="user-name">
+                                                    <i class="fas fa-user me-1"></i>
+                                                    {{ $rental->user->nama ?? $rental->nama ?? 'N/A' }}
+                                                </div>
                                                 @if($rental->user->no_handphone ?? $rental->no_handphone)
                                                     <div class="user-phone">{{ $rental->user->no_handphone ?? $rental->no_handphone }}</div>
                                                 @endif

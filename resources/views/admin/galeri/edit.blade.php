@@ -7,7 +7,7 @@
 @section('content')
     <div class="card">
         <div class="card-header">
-            <h5 class="mb-0">Edit Item Galeri</h5>
+            <h5 class="mb-0" style="color: black; font-size: 1.5rem; font-weight: bold;">Edit Item Galeri</h5>
         </div>
         <div class="card-body">
             <form action="{{ route('admin.galeri.update', $galeri->id) }}" method="POST" enctype="multipart/form-data">
@@ -17,7 +17,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="gambar" class="form-label">Gambar</label>
+                            <label for="gambar" class="form-label" style="color: black; font-size: 1.1rem; font-weight: 600;">Gambar</label>
                             <input type="file" class="form-control @error('gambar') is-invalid @enderror" 
                                    id="gambar" name="gambar" accept="image/*">
                             @error('gambar')
@@ -27,7 +27,7 @@
                             
                             @if($galeri->gambar)
                                 <div class="mt-2">
-                                    <label class="form-label">Gambar Saat Ini:</label>
+                                    <label class="form-label" style="color: black; font-size: 1.1rem; font-weight: 600;">Gambar Saat Ini:</label>
                                     <img src="{{ asset('storage/' . $galeri->gambar) }}" 
                                          alt="Current Image" 
                                          class="img-thumbnail d-block" 
@@ -37,11 +37,25 @@
                         </div>
                         
                         <div class="mb-3">
-                            <label for="tanggal_sewa" class="form-label">Tanggal Sewa (Opsional)</label>
+                            <label for="tanggal_sewa" class="form-label" style="color: black; font-size: 1.1rem; font-weight: 600;">Tanggal Sewa (Opsional)</label>
                             <input type="date" class="form-control @error('tanggal_sewa') is-invalid @enderror" 
                                    id="tanggal_sewa" name="tanggal_sewa" 
                                    value="{{ old('tanggal_sewa', $galeri->tanggal_sewa) }}">
                             @error('tanggal_sewa')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="jenis_motor" class="form-label" style="color: black; font-size: 1.1rem; font-weight: 600;">Jenis Motor (Opsional)</label>
+                            <select class="form-control @error('jenis_motor') is-invalid @enderror" 
+                                    id="jenis_motor" name="jenis_motor">
+                                <option value="">Pilih Jenis Motor</option>
+                                <option value="Matic" {{ old('jenis_motor', $galeri->jenis_motor) == 'Matic' ? 'selected' : '' }}>Matic</option>
+                                <option value="Manual" {{ old('jenis_motor', $galeri->jenis_motor) == 'Manual' ? 'selected' : '' }}>Manual</option>
+                                <option value="Sport" {{ old('jenis_motor', $galeri->jenis_motor) == 'Sport' ? 'selected' : '' }}>Sport</option>
+                            </select>
+                            @error('jenis_motor')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
@@ -82,7 +96,7 @@
                     document.getElementById('gambar').parentNode.appendChild(preview);
                 }
                 preview.innerHTML = `
-                    <label class="form-label">Preview Gambar Baru:</label>
+                    <label class="form-label" style="color: black; font-size: 1.1rem; font-weight: 600;">Preview Gambar Baru:</label>
                     <img src="${e.target.result}" class="img-thumbnail d-block" style="max-width: 200px; max-height: 150px;">
                 `;
             };

@@ -49,6 +49,7 @@
                                         <th>Motorbike</th>
                                         <th>Rental Date</th>
                                         <th>Duration</th>
+                                        <th>Pengambilan</th>
                                         <th>Total Cost</th>
                                         <th>Status</th>
                                         <th>Actions</th>
@@ -66,6 +67,24 @@
                                             </td>
                                             <td>{{ \Carbon\Carbon::parse($booking->tanggal_rental)->format('d M Y') }}</td>
                                             <td>{{ $booking->durasi_sewa }} day(s)</td>
+                                            <td>
+                                                @if($booking->pilihan_pengambilan)
+                                                    <div>
+                                                        <span class="badge bg-info">
+                                                            <i class="fas fa-{{ $booking->pilihan_pengambilan == 'diantar' ? 'truck' : 'map-marker-alt' }} me-1"></i>
+                                                            {{ ucfirst($booking->pilihan_pengambilan) }}
+                                                        </span>
+                                                        @if($booking->pilihan_pengambilan == 'diantar' && $booking->alamat_pengiriman)
+                                                            <br><small class="text-muted mt-1 d-block">
+                                                                <i class="fas fa-map-marker-alt me-1"></i>
+                                                                {{ Str::limit($booking->alamat_pengiriman, 30) }}
+                                                            </small>
+                                                        @endif
+                                                    </div>
+                                                @else
+                                                    <span class="text-muted">-</span>
+                                                @endif
+                                            </td>
                                             <td>Rp {{ number_format($booking->total_harga, 0, ',', '.') }}</td>
                                             <td>
                                                 @php

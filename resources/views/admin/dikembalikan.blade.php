@@ -76,6 +76,7 @@
                             <th class="start-date-col">Tanggal Sewa</th>
                             <th class="end-date-col">Tanggal Kembali</th>
                             <th class="duration-col">Durasi</th>
+                            <th class="pickup-col">Pengambilan</th>
                             <th class="price-col">Total Biaya</th>
                             <th class="penalty-col">Denda</th>
                             <th class="phone-col">Kontak</th>
@@ -92,26 +93,17 @@
                             </td>
                             <td class="user-col">
                                 <div class="user-info">
-                                    <div class="avatar-container">
-                                        @if($item->user && $item->user->profile_photo)
-                                            <img src="{{ asset('storage/' . $item->user->profile_photo) }}" 
-                                                 alt="Profile Photo" class="user-avatar">
-                                        @else
-                                            <div class="avatar-placeholder">
-                                                <i class="fas fa-user"></i>
-                                            </div>
-                                        @endif
-                                        <div class="status-indicator completed"></div>
-                                    </div>
                                     <div class="user-details">
-                                        <span class="user-name">{{ $item->user->nama ?? 'Unknown' }}</span>
+                                        <span class="user-name">
+                                            <i class="fas fa-user me-1"></i>
+                                            {{ $item->user->nama ?? 'Unknown' }}
+                                        </span>
                                         <span class="user-id">ID: {{ $item->user->id ?? '-' }}</span>
                                     </div>
                                 </div>
                             </td>
                             <td class="motor-col">
                                 <div class="motor-info">
-                                    <i class="fas fa-motorcycle me-2 text-primary"></i>
                                     <span class="motor-name">{{ $item->jenis_motor }}</span>
                                 </div>
                             </td>
@@ -132,6 +124,24 @@
                                     <i class="fas fa-calendar-alt me-1"></i>
                                     <span>{{ $item->durasi_sewa }} Hari</span>
                                 </div>
+                            </td>
+                            <td class="pickup-col">
+                                @if($item->pilihan_pengambilan)
+                                    <div>
+                                        <div class="pickup-badge">
+                                            <i class="fas fa-{{ $item->pilihan_pengambilan == 'diantar' ? 'truck' : 'map-marker-alt' }} me-1"></i>
+                                            <span>{{ ucfirst($item->pilihan_pengambilan) }}</span>
+                                        </div>
+                                        @if($item->pilihan_pengambilan == 'diantar' && $item->alamat_pengiriman)
+                                            <div class="alamat-pengiriman mt-2" style="font-size: 0.75rem; color: #666; margin-top: 8px;">
+                                                <i class="fas fa-map-marker-alt me-1 text-primary"></i>
+                                                <span title="{{ $item->alamat_pengiriman }}">{{ Str::limit($item->alamat_pengiriman, 50) }}</span>
+                                            </div>
+                                        @endif
+                                    </div>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
                             </td>
                             <td class="price-col">
                                 <div class="price-info">
