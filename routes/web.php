@@ -208,3 +208,9 @@ Route::middleware(['check.login', 'prevent.back'])->group(function () {
 // Testimoni routes (outside middleware groups)
 Route::get('/testimoni/create/{booking_id}', [TestimoniController::class, 'create'])->name('testimoni.create');
 Route::post('/testimoni', [TestimoniController::class, 'store'])->name('testimoni.store');
+
+// Midtrans payment routes
+Route::post('/payments/midtrans/notification', [PeminjamanController::class, 'midtransNotification'])->name('midtrans.notification');
+Route::get('/payments/midtrans/finish', [PeminjamanController::class, 'midtransFinish'])->name('midtrans.finish');
+Route::get('/payments/midtrans/unfinish', [PeminjamanController::class, 'midtransUnfinish'])->name('midtrans.unfinish');
+Route::get('/payments/midtrans/error', [PeminjamanController::class, 'midtransError'])->name('midtrans.error');

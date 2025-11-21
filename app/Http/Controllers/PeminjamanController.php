@@ -7,7 +7,11 @@ use App\Models\Peminjaman;
 use App\Models\Motor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Midtrans\Config as MidtransConfig;
+use Midtrans\Notification as MidtransNotification;
+use Midtrans\Snap;
 
 class PeminjamanController extends Controller
 {
@@ -61,9 +65,9 @@ class PeminjamanController extends Controller
     public function store(Request $request)
     {
         AuthController::requireAuth(); // Cek login
-        
+
         $user = AuthController::getCurrentUser();
-        
+
         $validated = $request->validate([
             'tanggal_rental' => 'required|date|after_or_equal:tomorrow',
             'jam_sewa' => 'nullable|date_format:H:i',
@@ -131,49 +135,49 @@ class PeminjamanController extends Controller
     public function show($id)
     {
         AuthController::requireAuth(); // Cek login
-        
+
         $user = AuthController::getCurrentUser();
         $peminjaman = Peminjaman::with('user')->findOrFail($id);
-        
+
         // Cek apakah user berhak melihat peminjaman ini
         if (!AuthController::isAdmin() && $peminjaman->user_id !== $user->id) {
             abort(403, 'Anda tidak berhak melihat data ini.');
         }
-        
+
         return view('booking.show', compact('peminjaman'));
     }
 
     public function edit($id)
     {
         AuthController::requireAuth(); // Cek login
-        
+
         $user = AuthController::getCurrentUser();
         $peminjaman = Peminjaman::findOrFail($id);
-        
+
         // Cek apakah user berhak mengedit peminjaman ini
         if (!AuthController::isAdmin() && $peminjaman->user_id !== $user->id) {
             abort(403, 'Anda tidak berhak mengedit data ini.');
         }
-        
+
         // Tidak bisa edit jika status sudah 'Selesai' atau 'Cancelled' atau 'Disewa'
         if (str_starts_with($peminjaman->status, 'Selesai') || in_array($peminjaman->status, ['Cancelled', 'Dibatalkan', 'Disewa', 'Sedang Disewa']) || str_starts_with($peminjaman->status, 'Terlambat')) {
-            return redirect()->route('booking.history')
+            return redirect()->route('user.bookings')
                 ->with('error', 'Tidak dapat mengedit peminjaman yang sudah selesai, dibatalkan, atau sedang disewa.');
         }
-        
+
         // Ambil motor yang tersedia untuk dropdown
         $motors = Motor::where('status', 'Tersedia')->get();
-        
+
         return view('booking.edit', compact('peminjaman', 'motors'));
     }
 
     public function update(Request $request, $id)
     {
         AuthController::requireAuth(); // Cek login
-        
+
         $user = AuthController::getCurrentUser();
         $peminjaman = Peminjaman::findOrFail($id);
-        
+
         // Cek apakah user berhak mengupdate peminjaman ini
         if (!AuthController::isAdmin() && $peminjaman->user_id !== $user->id) {
             abort(403, 'Anda tidak berhak mengupdate data ini.');
@@ -181,10 +185,10 @@ class PeminjamanController extends Controller
 
         // Tidak bisa update jika status sudah 'Selesai' atau 'Cancelled' atau 'Disewa'
         if (str_starts_with($peminjaman->status, 'Selesai') || in_array($peminjaman->status, ['Cancelled', 'Dibatalkan', 'Disewa', 'Sedang Disewa']) || str_starts_with($peminjaman->status, 'Terlambat')) {
-            return redirect()->route('booking.history')
+            return redirect()->route('user.bookings')
                 ->with('error', 'Tidak dapat mengupdate peminjaman yang sudah selesai, dibatalkan, atau sedang disewa.');
         }
-        
+
         $validated = $request->validate([
             'tanggal_rental' => 'required|date|after_or_equal:tomorrow',
             'jam_sewa' => 'nullable|date_format:H:i',
@@ -205,7 +209,7 @@ class PeminjamanController extends Controller
             $motor = Motor::where('merk', 'like', '%' . explode(' ', $validated['jenis_motor'])[0] . '%')
                 ->where('status', 'Tersedia')
                 ->first();
-            
+
             if ($motor) {
                 $validated['total_harga'] = $motor->harga_per_hari * $validated['durasi_sewa'];
             } else {
@@ -224,10 +228,10 @@ class PeminjamanController extends Controller
     public function destroy($id)
     {
         AuthController::requireAuth(); // Cek login
-        
+
         $user = AuthController::getCurrentUser();
         $peminjaman = Peminjaman::findOrFail($id);
-        
+
         // Cek apakah user berhak menghapus peminjaman ini
         if (!AuthController::isAdmin() && $peminjaman->user_id !== $user->id) {
             abort(403, 'Anda tidak berhak menghapus data ini.');
@@ -235,7 +239,7 @@ class PeminjamanController extends Controller
 
         // Tidak bisa hapus jika status sudah 'Disewa' atau 'Selesai'
         if (str_starts_with($peminjaman->status, 'Selesai') || in_array($peminjaman->status, ['Disewa', 'Sedang Disewa']) || str_starts_with($peminjaman->status, 'Terlambat')) {
-            return redirect()->route('booking.history')
+            return redirect()->route('user.bookings')
                 ->with('error', 'Tidak dapat menghapus peminjaman yang sedang disewa atau sudah selesai.');
         }
 
@@ -246,10 +250,10 @@ class PeminjamanController extends Controller
                 $motor->update(['status' => 'Tersedia']);
             }
         }
-        
+
         $peminjaman->delete();
 
-        return redirect()->route('booking.history')
+        return redirect()->route('user.bookings')
             ->with('success', 'Peminjaman berhasil dihapus!');
     }
 
@@ -257,26 +261,26 @@ class PeminjamanController extends Controller
     public function updateStatus(Request $request, $id)
     {
         AuthController::requireAdmin(); // Cek admin access
-        
+
         $validated = $request->validate([
             'status' => 'required|string'
         ]);
-        
+
         $peminjaman = Peminjaman::findOrFail($id);
-        
+
         DB::beginTransaction();
         try {
             // Set tanggal kembali jika status menjadi Selesai
             if ($validated['status'] === 'Selesai' && !$peminjaman->tanggal_kembali) {
                 $validated['tanggal_kembali'] = now()->toDateString();
-                
+
                 // Kembalikan motor ke status Tersedia
                 $motor = Motor::where('merk', 'like', '%' . explode(' ', $peminjaman->jenis_motor)[0] . '%')->first();
                 if ($motor) {
                     $motor->update(['status' => 'Tersedia']);
                 }
             }
-            
+
             // Jika status berubah ke Confirmed, update motor menjadi Disewa
             if ($validated['status'] === 'Confirmed' && $peminjaman->status !== 'Confirmed') {
                 $motor = Motor::where('merk', 'like', '%' . explode(' ', $peminjaman->jenis_motor)[0] . '%')->first();
@@ -284,7 +288,7 @@ class PeminjamanController extends Controller
                     $motor->update(['status' => 'Disewa']);
                 }
             }
-            
+
             // Jika status berubah ke Disewa, pastikan motor sudah Disewa
             if ($validated['status'] === 'Disewa' && $peminjaman->status !== 'Disewa') {
                 $motor = Motor::where('merk', 'like', '%' . explode(' ', $peminjaman->jenis_motor)[0] . '%')->first();
@@ -292,11 +296,11 @@ class PeminjamanController extends Controller
                     $motor->update(['status' => 'Disewa']);
                 }
             }
-            
+
             $peminjaman->update($validated);
-            
+
             DB::commit();
-            
+
             return response()->json(['success' => true, 'message' => 'Status berhasil diupdate!']);
         } catch (\Exception $e) {
             DB::rollback();
@@ -307,13 +311,13 @@ class PeminjamanController extends Controller
     public function confirm($id)
     {
         AuthController::requireAdmin(); // Cek admin access
-        
+
         $peminjaman = Peminjaman::findOrFail($id);
-        
+
         if (!in_array($peminjaman->status, ['Pending', 'Menunggu Konfirmasi'])) {
             return redirect()->back()->with('error', 'Hanya peminjaman dengan status Menunggu Konfirmasi yang dapat dikonfirmasi.');
         }
-        
+
         DB::beginTransaction();
         try {
             // Update status motor menjadi Disewa
@@ -321,11 +325,11 @@ class PeminjamanController extends Controller
             if ($motor) {
                 $motor->update(['status' => 'Disewa']);
             }
-            
+
             $peminjaman->update(['status' => 'Dikonfirmasi']);
-            
+
             DB::commit();
-            
+
             return redirect()->back()->with('success', 'Peminjaman berhasil dikonfirmasi!');
         } catch (\Exception $e) {
             DB::rollback();
@@ -336,28 +340,28 @@ class PeminjamanController extends Controller
     public function reject($id)
     {
         AuthController::requireAdmin(); // Cek admin access
-        
+
         $peminjaman = Peminjaman::findOrFail($id);
-        
+
         if (!in_array($peminjaman->status, ['Pending', 'Menunggu Konfirmasi'])) {
             return redirect()->back()->with('error', 'Hanya peminjaman dengan status Menunggu Konfirmasi yang dapat ditolak.');
         }
-        
+
         $peminjaman->update(['status' => 'Dibatalkan']);
-        
+
         return redirect()->back()->with('success', 'Peminjaman berhasil ditolak!');
     }
 
     public function startRental($id)
     {
         AuthController::requireAdmin(); // Cek admin access
-        
+
         $peminjaman = Peminjaman::findOrFail($id);
-        
+
         if ($peminjaman->status !== 'Confirmed') {
             return redirect()->back()->with('error', 'Hanya peminjaman dengan status Confirmed yang dapat dimulai.');
         }
-        
+
         DB::beginTransaction();
         try {
             // Update status motor menjadi disewa
@@ -365,11 +369,11 @@ class PeminjamanController extends Controller
             if ($motor) {
                 $motor->update(['status' => 'Disewa']);
             }
-            
+
             $peminjaman->update(['status' => 'Disewa']);
-            
+
             DB::commit();
-            
+
             return redirect()->back()->with('success', 'Rental berhasil dimulai!');
         } catch (\Exception $e) {
             DB::rollback();
@@ -380,13 +384,13 @@ class PeminjamanController extends Controller
     public function finishRental($id)
     {
         AuthController::requireAdmin(); // Cek admin access
-        
+
         $peminjaman = Peminjaman::findOrFail($id);
-        
+
         if ($peminjaman->status !== 'Disewa') {
             return redirect()->back()->with('error', 'Hanya peminjaman dengan status Disewa yang dapat diselesaikan.');
         }
-        
+
         DB::beginTransaction();
         try {
             // Update status motor menjadi tersedia
@@ -394,14 +398,14 @@ class PeminjamanController extends Controller
             if ($motor) {
                 $motor->update(['status' => 'Tersedia']);
             }
-            
+
             $peminjaman->update([
                 'status' => 'Selesai',
                 'tanggal_kembali' => now()->toDateString()
             ]);
-            
+
             DB::commit();
-            
+
             return redirect()->back()->with('success', 'Rental berhasil diselesaikan!');
         } catch (\Exception $e) {
             DB::rollback();
@@ -410,20 +414,20 @@ class PeminjamanController extends Controller
     }
 
     /**
-     * Book a specific motor from motor detail page
+     * Book a specific motor from motor detail page with Midtrans payment
      */
     public function bookMotor(Request $request, $id)
     {
         AuthController::requireAuth(); // Cek login
-        
+
         $user = AuthController::getCurrentUser();
         $motor = Motor::findOrFail($id);
-        
+
         // Check if motor is available
         if ($motor->status !== 'Tersedia') {
             return redirect()->back()->with('error', 'Motor tidak tersedia untuk disewa.');
         }
-        
+
         $validated = $request->validate([
             'tanggal_rental' => 'required|date|after_or_equal:today',
             'jam_sewa' => 'nullable|date_format:H:i',
@@ -458,7 +462,7 @@ class PeminjamanController extends Controller
                 'jenis_motor' => $motor->full_name, // Keep for backward compatibility
                 'durasi_sewa' => $validated['durasi_sewa'],
                 'total_harga' => $totalHarga,
-                'status' => 'Menunggu Konfirmasi',
+                'status' => 'Pending',
             ];
 
             // Set bukti_jaminan ke foto_ktp user jika ada
@@ -468,14 +472,54 @@ class PeminjamanController extends Controller
 
             $peminjaman = Peminjaman::create($peminjamanData);
 
+            $midtransOrderId = 'PMJ-' . $peminjaman->id . '-' . time();
+
+            $peminjaman->update([
+                'payment_method' => 'midtrans',
+                'payment_status' => 'pending',
+                'midtrans_order_id' => $midtransOrderId,
+            ]);
+
+            MidtransConfig::$serverKey = config('midtrans.server_key');
+            MidtransConfig::$isProduction = (bool) config('midtrans.is_production');
+            MidtransConfig::$isSanitized = true;
+            MidtransConfig::$is3ds = true;
+
+            $params = [
+                'transaction_details' => [
+                    'order_id' => $midtransOrderId,
+                    'gross_amount' => (int) $totalHarga,
+                ],
+                'customer_details' => [
+                    'first_name' => $user->nama,
+                    'email' => $user->email,
+                    'phone' => $user->no_handphone,
+                ],
+                'item_details' => [
+                    [
+                        'id' => 'MOTOR-' . $motor->id,
+                        'price' => (int) $motor->harga_per_hari,
+                        'quantity' => (int) $validated['durasi_sewa'],
+                        'name' => $motor->full_name,
+                    ],
+                ],
+            ];
+
+            $snapToken = Snap::getSnapToken($params);
+
             DB::commit();
 
-            return redirect()->route('user.bookings')
-                ->with('success', 'Peminjaman berhasil diajukan! Menunggu konfirmasi admin.');
+            return view('booking.payment', compact('peminjaman', 'snapToken'));
         } catch (\Exception $e) {
             DB::rollback();
+
+            // Log detail error untuk debugging
+            Log::error('Error saat bookMotor: ' . $e->getMessage(), [
+                'exception' => $e,
+            ]);
+
             return redirect()->back()
-                ->with('error', 'Terjadi kesalahan saat membuat peminjaman.')
+                ->with('error', 'Terjadi kesalahan saat membuat peminjaman atau memproses pembayaran. Silakan coba lagi atau hubungi admin.')
                 ->withInput();
         }
     }
@@ -486,17 +530,17 @@ class PeminjamanController extends Controller
     public function userBookings(Request $request)
     {
         AuthController::requireAuth(); // Cek login
-        
+
         $user = AuthController::getCurrentUser();
-        
+
         // Only show bookings for the logged-in user
         $query = Peminjaman::with('motor')->where('user_id', $user->id);
-        
+
         // Filter by status if provided
         if ($request->has('status') && $request->status) {
             $query->where('status', $request->status);
         }
-        
+
         // Search functionality
         if ($request->has('search') && $request->search) {
             $search = $request->search;
@@ -509,9 +553,9 @@ class PeminjamanController extends Controller
                   });
             });
         }
-        
+
         $bookings = $query->orderBy('created_at', 'desc')->paginate(10);
-        
+
         return view('booking.history', compact('bookings'));
     }
 
@@ -521,15 +565,112 @@ class PeminjamanController extends Controller
     public function print($id)
     {
         AuthController::requireAuth();
-        
+
         $user = AuthController::getCurrentUser();
         $peminjaman = Peminjaman::with('user')->findOrFail($id);
-        
+
         // Check if user has permission to view this booking
         if (!AuthController::isAdmin() && $peminjaman->user_id !== $user->id) {
             abort(403, 'Anda tidak berhak melihat data ini.');
         }
-        
+
         return view('booking.struk', compact('peminjaman'));
+    }
+
+    /**
+     * Midtrans server notification handler
+     */
+    public function midtransNotification(Request $request)
+    {
+        MidtransConfig::$serverKey = config('midtrans.server_key');
+        MidtransConfig::$isProduction = (bool) config('midtrans.is_production');
+        MidtransConfig::$isSanitized = true;
+        MidtransConfig::$is3ds = true;
+
+        $notification = new MidtransNotification();
+
+        $orderId = $notification->order_id;
+        $transactionStatus = $notification->transaction_status;
+        $fraudStatus = property_exists($notification, 'fraud_status') ? $notification->fraud_status : null;
+
+        $peminjaman = Peminjaman::where('midtrans_order_id', $orderId)->first();
+
+        if (!$peminjaman) {
+            return response()->json(['message' => 'Order not found'], 404);
+        }
+
+        if ($transactionStatus === 'capture' || $transactionStatus === 'settlement') {
+            if ($fraudStatus === null || $fraudStatus === 'accept') {
+                DB::beginTransaction();
+                try {
+                    $peminjaman->payment_status = 'paid';
+                    $peminjaman->status = 'Dikonfirmasi';
+                    $peminjaman->midtrans_transaction_id = $notification->transaction_id;
+                    $peminjaman->save();
+
+                    $motor = null;
+                    if ($peminjaman->motor_id) {
+                        $motor = Motor::find($peminjaman->motor_id);
+                    } else {
+                        $motor = Motor::where('merk', 'like', '%' . explode(' ', $peminjaman->jenis_motor)[0] . '%')->first();
+                    }
+                    if ($motor) {
+                        $motor->update(['status' => 'Disewa']);
+                    }
+
+                    DB::commit();
+                } catch (\Exception $e) {
+                    DB::rollback();
+                    return response()->json(['message' => 'Error updating booking'], 500);
+                }
+            } else {
+                $peminjaman->payment_status = 'challenge';
+                $peminjaman->save();
+            }
+        } elseif (in_array($transactionStatus, ['deny', 'cancel', 'expire'])) {
+            $peminjaman->payment_status = 'failed';
+            if ($peminjaman->status === 'Pending') {
+                $peminjaman->status = 'Dibatalkan';
+            }
+            $peminjaman->save();
+        } elseif ($transactionStatus === 'pending') {
+            $peminjaman->payment_status = 'pending';
+            $peminjaman->save();
+        }
+
+        return response()->json(['message' => 'OK']);
+    }
+
+    public function midtransFinish(Request $request)
+    {
+        AuthController::requireAuth();
+
+        $user = AuthController::getCurrentUser();
+        $orderId = $request->query('order_id');
+        $peminjaman = null;
+
+        if ($orderId) {
+            $peminjaman = Peminjaman::where('midtrans_order_id', $orderId)->first();
+        }
+
+        if ($peminjaman && $peminjaman->user_id === $user->id) {
+            return redirect()->route('user.bookings')->with('success', 'Pembayaran berhasil diproses. Status peminjaman Anda akan diperbarui otomatis.');
+        }
+
+        return redirect()->route('user.bookings')->with('success', 'Pembayaran berhasil diproses.');
+    }
+
+    public function midtransUnfinish(Request $request)
+    {
+        AuthController::requireAuth();
+
+        return redirect()->route('user.bookings')->with('error', 'Pembayaran belum selesai. Silakan selesaikan pembayaran jika masih ingin melanjutkan pemesanan.');
+    }
+
+    public function midtransError(Request $request)
+    {
+        AuthController::requireAuth();
+
+        return redirect()->route('user.bookings')->with('error', 'Terjadi kesalahan pada proses pembayaran. Silakan coba lagi atau hubungi admin.');
     }
 }

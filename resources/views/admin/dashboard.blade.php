@@ -268,7 +268,6 @@
                                         <div class="motor-info">
                                             <div class="motor-name">{{ $rental->jenis_motor ?? 'N/A' }}</div>
                                             <div class="motor-duration">
-                                                <i class="fas fa-clock me-1"></i>
                                                 {{ $rental->durasi_sewa ?? 1 }} hari
                                             </div>
                                         </div>
@@ -283,17 +282,16 @@
                                         @php
                                             $status = $rental->status ?? 'Menunggu Konfirmasi';
                                             $statusConfig = match(true) {
-                                                $status === 'Menunggu Konfirmasi' => ['class' => 'status-warning', 'icon' => 'fas fa-clock', 'text' => 'Menunggu Konfirmasi'],
-                                                $status === 'Dikonfirmasi' => ['class' => 'status-info', 'icon' => 'fas fa-check', 'text' => 'Dikonfirmasi'],
-                                                $status === 'Selesai' => ['class' => 'status-success', 'icon' => 'fas fa-check-circle', 'text' => 'Selesai'],
-                                                str_starts_with($status, 'Selesai (Telat') => ['class' => 'status-warning', 'icon' => 'fas fa-clock', 'text' => $status],
-                                                $status === 'Dibatalkan' => ['class' => 'status-danger', 'icon' => 'fas fa-times', 'text' => 'Dibatalkan'],
-                                                str_starts_with($status, 'Terlambat') => ['class' => 'status-danger', 'icon' => 'fas fa-exclamation-triangle', 'text' => $status],
-                                                default => ['class' => 'status-secondary', 'icon' => 'fas fa-question', 'text' => $status]
+                                                $status === 'Menunggu Konfirmasi' => ['class' => 'status-warning', 'text' => 'Menunggu Konfirmasi'],
+                                                $status === 'Dikonfirmasi' => ['class' => 'status-info', 'text' => 'Dikonfirmasi'],
+                                                $status === 'Selesai' => ['class' => 'status-success', 'text' => 'Selesai'],
+                                                str_starts_with($status, 'Selesai (Telat') => ['class' => 'status-warning', 'text' => $status],
+                                                $status === 'Dibatalkan' => ['class' => 'status-danger', 'text' => 'Dibatalkan'],
+                                                str_starts_with($status, 'Terlambat') => ['class' => 'status-danger', 'text' => $status],
+                                                default => ['class' => 'status-secondary', 'text' => $status]
                                             };
                                         @endphp
                                         <div class="status-badge {{ $statusConfig['class'] }}">
-                                            <i class="{{ $statusConfig['icon'] }}"></i>
                                             <span>{{ $statusConfig['text'] }}</span>
                                         </div>
                                     </td>

@@ -65,152 +65,10 @@
             </div>
         </div>
 
-        <!-- Table Body -->
-        <div class="modern-card-body">
-            <div class="table-container">
-                <table class="modern-table">
-                    <thead class="modern-thead">
-                        <tr>
-                            <th class="number-col">No</th>
-                            <th class="image-col"></th>
-                            <th class="user-col">Penulis</th>
-                            <th class="jenis-col">Jenis Motor</th>
-                            <th class="rental-date-col">Tanggal Sewa</th>
-                            <th class="upload-date-col">Tanggal Upload</th>
-                            <th class="action-col">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="modern-tbody">
-                        @forelse($galeri as $index => $item)
-                        <tr class="table-row" data-id="{{ $item->id }}">
-                            <td class="number-col">
-                                <span class="row-number">{{ $galeri->firstItem() + $index }}</span>
-                            </td>
-                            <td class="image-col">
-                                <div class="gallery-image-wrapper">
-                                    @if($item->gambar)
-                                        <div class="image-preview-container">
-                                            <img src="{{ asset('storage/' . $item->gambar) }}" 
-                                                 alt="Galeri Image" 
-                                                 class="gallery-preview-image"
-                                                 data-image="{{ $item->gambar }}"
-                                                 data-author="{{ $item->admin->nama ?? 'Admin' }}"
-                                                 data-date="{{ $item->tanggal_sewa ? \Carbon\Carbon::parse($item->tanggal_sewa)->format('d M Y') . ' - ' . dayNameIndonesian($item->tanggal_sewa) : 'Tanggal tidak tersedia' }}"
-                                                 onclick="viewGalleryImageFromData(this)">
-                                            <div class="image-overlay">
-                                                <i class="fas fa-eye"></i>
-                                            </div>
-                                        </div>
-                                    @else
-                                        <div class="no-image-placeholder">
-                                            <i class="fas fa-image"></i>
-                                        </div>
-                                    @endif
-                                </div>
-                            </td>
-                            <td class="user-col">
-                                <div class="user-info">
-                                    <div class="user-details">
-                                        <div class="user-name">
-                                            <i class="fas fa-user me-1"></i>
-                                            {{ $item->admin->nama ?? 'Admin' }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="jenis-col">
-                                @if($item->jenis_motor)
-                                    <div class="jenis-badge">
-                                        @php
-                                            $jenisColors = [
-                                                'Matic' => 'badge-primary',
-                                                'Manual' => 'badge-success', 
-                                                'Sport' => 'badge-danger'
-                                            ];
-                                            $colorClass = $jenisColors[$item->jenis_motor] ?? 'badge-secondary';
-                                        @endphp
-                                        <span class="badge {{ $colorClass }}">
-                                            {{ $item->jenis_motor }}
-                                        </span>
-                                    </div>
-                                @else
-                                    <span class="text-muted">-</span>
-                                @endif
-                            </td>
-                            <td class="rental-date-col">
-                                @if($item->tanggal_sewa)
-                                    <div class="date-info">
-                                        <div class="date">{{ \Carbon\Carbon::parse($item->tanggal_sewa)->format('M d, Y') }}</div>
-                                        <div class="day">{{ dayNameIndonesian($item->tanggal_sewa) }}</div>
-                                    </div>
-                                @else
-                                    <span class="no-date">-</span>
-                                @endif
-                            </td>
-                            <td class="upload-date-col">
-                                <div class="date-info">
-                                    <div class="date">{{ \Carbon\Carbon::parse($item->created_at)->format('M d, Y') }}</div>
-                                    <div class="day">{{ dayNameIndonesian($item->created_at) }}</div>
-                                </div>
-                            </td>
-                            <td class="action-col">
-                                <div class="action-buttons">
-                                    <button type="button" class="action-btn view-btn" 
-                                            data-image="{{ $item->gambar }}"
-                                            data-author="{{ $item->admin->nama ?? 'Admin' }}"
-                                            data-date="{{ $item->tanggal_sewa ? \Carbon\Carbon::parse($item->tanggal_sewa)->format('d M Y') . ' - ' . dayNameIndonesian($item->tanggal_sewa) : 'Tanggal tidak tersedia' }}"
-                                            onclick="viewGalleryImageFromData(this)" 
-                                            title="Lihat Gambar">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <a href="{{ route('admin.galeri.edit', $item->id) }}" 
-                                       class="action-btn edit-btn" 
-                                       title="Edit">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <button type="button" class="action-btn delete-btn" 
-                                            onclick="deleteGalleryItem('{{ $item->id }}')" 
-                                            title="Hapus">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="6" class="empty-state">
-                                <div class="empty-icon">
-                                    <i class="fas fa-images"></i>
-                                </div>
-                                <h5>Tidak ada foto galeri</h5>
-                                <p>Belum ada foto yang diupload ke galeri</p>
-                                <div class="empty-actions">
-                                    <a href="{{ route('admin.galeri.create') }}" class="modern-btn modern-btn-primary">
-                                        <i class="fas fa-plus me-2"></i>
-                                        Tambah Foto Pertama
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+        <!-- Table Body (AJAX updatable wrapper) -->
+        <div id="galleryTableWrapper">
+            @include('admin.galeri.partials.table')
         </div>
-        
-        <!-- Pagination -->
-        @if($galeri->hasPages())
-        <div class="modern-pagination">
-            <div class="pagination-info">
-                <div class="showing-info">
-                    Menampilkan {{ $galeri->firstItem() }} - {{ $galeri->lastItem() }} dari {{ $galeri->total() }} foto
-                </div>
-            </div>
-            <div class="pagination-links">
-                {{ $galeri->appends(request()->query())->links('vendor.pagination.custom-inline') }}
-            </div>
-        </div>
-        @endif
     </div>
 
     <!-- Enhanced Modal for Gallery Image -->
@@ -265,21 +123,125 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Enhanced search functionality
-    const searchInput = document.querySelector('.search-input');
-    if (searchInput) {
+    const tableWrapper = document.getElementById('galleryTableWrapper');
+    const searchForm = document.querySelector('.search-container');
+    const searchInput = searchForm ? searchForm.querySelector('.search-input') : null;
+
+    function initGalleryTableInteractions() {
+        if (!tableWrapper) return;
+
+        // Table sticky header effect
+        const tableContainer = tableWrapper.querySelector('.table-container');
+        if (tableContainer) {
+            tableContainer.addEventListener('scroll', function() {
+                const thead = tableContainer.querySelector('.modern-thead');
+                const isScrolled = tableContainer.scrollTop > 0;
+                
+                if (isScrolled && thead) {
+                    thead.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                } else if (thead) {
+                    thead.style.boxShadow = '';
+                }
+            });
+        }
+
+        // Row hover effects
+        const tableRows = tableWrapper.querySelectorAll('.table-row');
+        tableRows.forEach(row => {
+            row.addEventListener('mouseenter', function() {
+                this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)';
+                this.style.zIndex = '1';
+            });
+            
+            row.addEventListener('mouseleave', function() {
+                this.style.boxShadow = '';
+                this.style.zIndex = '';
+            });
+        });
+
+        // AJAX pagination
+        const paginationLinks = tableWrapper.querySelectorAll('.pagination a, .pagination-links a');
+        paginationLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const url = this.href;
+                if (url) {
+                    loadGallery(url, false);
+                }
+            });
+        });
+    }
+
+    function buildGalleryUrlFromForm() {
+        if (!searchForm) return null;
+        const url = new URL(searchForm.action, window.location.origin);
+        const formData = new FormData(searchForm);
+        const params = new URLSearchParams(formData);
+        const queryString = params.toString();
+        if (queryString) {
+            url.search = queryString;
+        }
+        return url.toString();
+    }
+
+    function loadGallery(url, updateHistory = true) {
+        if (!tableWrapper || !url) {
+            window.location.href = url || window.location.href;
+            return;
+        }
+
+        // Add loading state to search box if available
+        if (searchInput && searchInput.parentElement) {
+            searchInput.parentElement.classList.add('loading');
+        }
+
+        fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.text();
+        })
+        .then(html => {
+            tableWrapper.innerHTML = html;
+            if (updateHistory) {
+                window.history.replaceState({}, '', url);
+            }
+            initGalleryTableInteractions();
+        })
+        .catch(error => {
+            console.error('Gallery AJAX error:', error);
+            // Fallback to full reload
+            window.location.href = url;
+        })
+        .finally(() => {
+            if (searchInput && searchInput.parentElement) {
+                searchInput.parentElement.classList.remove('loading');
+            }
+        });
+    }
+
+    // Expose for global handlers (e.g. clearSearch)
+    window.loadGallery = loadGallery;
+
+    // Enhanced search functionality (AJAX)
+    if (searchInput && searchForm) {
         let searchTimeout;
         
         // Real-time search with debouncing
         searchInput.addEventListener('input', function() {
             clearTimeout(searchTimeout);
+            const value = this.value;
             searchTimeout = setTimeout(() => {
-                // Add loading state
-                this.parentElement.classList.add('loading');
-                
-                // Auto-submit after 500ms of no typing
-                if (this.value.length >= 2 || this.value.length === 0) {
-                    this.form.submit();
+                if (value.length >= 2 || value.length === 0) {
+                    const url = buildGalleryUrlFromForm();
+                    if (url) {
+                        loadGallery(url, true);
+                    }
                 }
             }, 500);
         });
@@ -287,40 +249,15 @@ document.addEventListener('DOMContentLoaded', function() {
         // Submit on Enter
         searchInput.addEventListener('keyup', function(e) {
             if (e.key === 'Enter') {
+                e.preventDefault();
                 clearTimeout(searchTimeout);
-                this.form.submit();
+                const url = buildGalleryUrlFromForm();
+                if (url) {
+                    loadGallery(url, true);
+                }
             }
         });
     }
-
-    // Table sticky header effect
-    const tableContainer = document.querySelector('.table-container');
-    if (tableContainer) {
-        tableContainer.addEventListener('scroll', function() {
-            const thead = tableContainer.querySelector('.modern-thead');
-            const isScrolled = tableContainer.scrollTop > 0;
-            
-            if (isScrolled) {
-                thead.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
-            } else {
-                thead.style.boxShadow = '';
-            }
-        });
-    }
-
-    // Row hover effects
-    const tableRows = document.querySelectorAll('.table-row');
-    tableRows.forEach(row => {
-        row.addEventListener('mouseenter', function() {
-            this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)';
-            this.style.zIndex = '1';
-        });
-        
-        row.addEventListener('mouseleave', function() {
-            this.style.boxShadow = '';
-            this.style.zIndex = '';
-        });
-    });
 
     // Keyboard navigation
     document.addEventListener('keydown', function(e) {
@@ -332,24 +269,36 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
-        // Escape to clear search
+        // Escape to clear search (AJAX)
         if (e.key === 'Escape' && document.activeElement === searchInput) {
             if (searchInput.value) {
                 searchInput.value = '';
-                searchInput.form.submit();
+                const url = searchForm ? searchForm.action : null;
+                if (url) {
+                    loadGallery(url, true);
+                }
             } else {
                 searchInput.blur();
             }
         }
     });
+
+    // Initialize interactions for initial table
+    initGalleryTableInteractions();
 });
 
 // Clear search function
 function clearSearch() {
-    const searchInput = document.querySelector('.search-input');
-    if (searchInput) {
+    const searchForm = document.querySelector('.search-container');
+    const searchInput = searchForm ? searchForm.querySelector('.search-input') : null;
+    if (searchInput && searchForm) {
         searchInput.value = '';
-        searchInput.form.submit();
+        const url = searchForm.action;
+        if (typeof loadGallery === 'function') {
+            loadGallery(url, true);
+        } else {
+            searchForm.submit();
+        }
     }
 }
 

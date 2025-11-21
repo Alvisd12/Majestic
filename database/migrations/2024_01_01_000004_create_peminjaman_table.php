@@ -9,19 +9,21 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('peminjaman', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained('pengunjung')->onDelete('cascade');
-            $table->date('tanggal_rental');
-            $table->time('jam_sewa')->nullable();
-            $table->string('jenis_motor');
-            $table->integer('durasi_sewa');
-            $table->decimal('total_harga', 10, 2)->nullable();
-            $table->string('bukti_jaminan')->nullable();
-            $table->enum('status', ['Menunggu Konfirmasi', 'Dikonfirmasi', 'Belum Kembali', 'Disewa', 'Selesai', 'Ditolak'])->default('Menunggu Konfirmasi');
-            $table->date('tanggal_kembali')->nullable();
-            $table->text('keterangan')->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('peminjaman')) {
+            Schema::create('peminjaman', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('user_id')->constrained('pengunjung')->onDelete('cascade');
+                $table->date('tanggal_rental');
+                $table->time('jam_sewa')->nullable();
+                $table->string('jenis_motor');
+                $table->integer('durasi_sewa');
+                $table->decimal('total_harga', 10, 2)->nullable();
+                $table->string('bukti_jaminan')->nullable();
+                $table->enum('status', ['Menunggu Konfirmasi', 'Dikonfirmasi', 'Belum Kembali', 'Disewa', 'Selesai', 'Ditolak'])->default('Menunggu Konfirmasi');
+                $table->date('tanggal_kembali')->nullable();
+                $table->text('keterangan')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 };

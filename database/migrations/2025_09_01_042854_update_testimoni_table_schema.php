@@ -26,8 +26,12 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('testimoni', function (Blueprint $table) {
-            $table->dropColumn('nama');
-            $table->foreignId('id_pengunjung')->nullable(false)->change();
+            // Hanya kembalikan struktur seminimal mungkin.
+            // Biarkan id_pengunjung tetap nullable untuk menghindari error data truncated
+            // pada testimoni tamu (tanpa login).
+            if (Schema::hasColumn('testimoni', 'nama')) {
+                $table->dropColumn('nama');
+            }
         });
     }
 };

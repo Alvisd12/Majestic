@@ -152,23 +152,32 @@
                             <td class="penalty-col">
                                 <div class="penalty-info">
                                     @if(str_starts_with($item->status, 'Terlambat') || str_starts_with($item->status, 'Selesai (Telat'))
-                                        @if($item->denda > 0)
+                                        @php
+                                            $lateDays = 0;
+                                            if(str_starts_with($item->status, 'Terlambat') && preg_match('/Terlambat (\d+) hari/', $item->status, $matches)) {
+                                                $lateDays = (int) $matches[1];
+                                            } elseif(str_starts_with($item->status, 'Selesai (Telat') && preg_match('/Telat (\d+) hari/', $item->status, $matches)) {
+                                                $lateDays = (int) $matches[1];
+                                            }
+
+                                            $dailyPrice = 0;
+                                            if($item->motor && $item->motor->harga_per_hari) {
+                                                $dailyPrice = $item->motor->harga_per_hari;
+                                            } elseif($item->durasi_sewa > 0) {
+                                                $dailyPrice = $item->total_harga / $item->durasi_sewa;
+                                            }
+
+                                            $calculatedPenalty = ($lateDays > 0 && $dailyPrice > 0) ? $lateDays * $dailyPrice : 0;
+                                            $displayPenalty = $item->denda > 0 ? $item->denda : $calculatedPenalty;
+                                        @endphp
+
+                                        @if($displayPenalty > 0 && $lateDays > 0)
                                             <div class="penalty-amount text-danger fw-bold">
-                                                Rp {{ number_format($item->denda, 0, ',', '.') }}
+                                                Rp {{ number_format($displayPenalty, 0, ',', '.') }}
                                             </div>
-                                            @php
-                                                $lateDays = 0;
-                                                if(str_starts_with($item->status, 'Terlambat') && preg_match('/Terlambat (\d+) hari/', $item->status, $matches)) {
-                                                    $lateDays = $matches[1];
-                                                } elseif(str_starts_with($item->status, 'Selesai (Telat') && preg_match('/Telat (\d+) hari/', $item->status, $matches)) {
-                                                    $lateDays = $matches[1];
-                                                }
-                                            @endphp
-                                            @if($lateDays > 0)
-                                                <div class="penalty-days text-muted small">
-                                                    {{ $lateDays }} hari terlambat
-                                                </div>
-                                            @endif
+                                            <div class="penalty-days text-muted small">
+                                                {{ $lateDays }} hari terlambat
+                                            </div>
                                         @else
                                             <span class="text-muted">-</span>
                                         @endif

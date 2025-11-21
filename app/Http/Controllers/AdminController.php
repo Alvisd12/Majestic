@@ -480,6 +480,10 @@ class AdminController extends Controller
         
         $galeri = $query->orderBy('created_at', 'desc')->paginate(10);
         
+        if ($request->ajax()) {
+            return view('admin.galeri.partials.table', compact('galeri'));
+        }
+        
         return view('admin.galeri', compact('galeri'));
     }
 

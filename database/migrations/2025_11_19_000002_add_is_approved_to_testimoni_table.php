@@ -1,0 +1,26 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        if (!Schema::hasColumn('testimoni', 'is_approved')) {
+            Schema::table('testimoni', function (Blueprint $table) {
+                $table->boolean('is_approved')->default(false)->after('rating');
+            });
+        }
+    }
+
+    public function down(): void
+    {
+        if (Schema::hasColumn('testimoni', 'is_approved')) {
+            Schema::table('testimoni', function (Blueprint $table) {
+                $table->dropColumn('is_approved');
+            });
+        }
+    }
+};

@@ -83,8 +83,8 @@
       gap: 0;
     }
 
-    /* Carousel Slide - Contains 3 photos */
-    .carousel-slide {
+    /* Carousel Slide - Contains 3 photos (scoped to tentangkami carousel) */
+    .tentangkami-carousel .tentangkami-slide {
       min-width: 100%;
       display: flex;
       justify-content: center;
@@ -176,7 +176,7 @@
 
     /* Responsive Design */
     @media (max-width: 768px) {
-      .carousel-slide {
+      .tentangkami-carousel .tentangkami-slide {
         flex-direction: column;
         align-items: center;
         gap: 25px;
@@ -207,7 +207,7 @@
     }
 
     @media (max-width: 576px) {
-      .carousel-slide {
+      .tentangkami-carousel .tentangkami-slide {
         padding-bottom: 35px;
       }
 
@@ -1527,7 +1527,7 @@
       <div class="tentangkami-carousel-wrapper">
         <div class="tentangkami-carousel" id="tentangKamiCarousel">
           <!-- Slide 1 -->
-          <div class="carousel-slide">
+          <div class="tentangkami-slide">
             <div class="photo-card">
               <img src="{{ asset('assets/images/g1.jpg') }}" alt="Motor 1">
             </div>
@@ -1540,7 +1540,7 @@
           </div>
 
           <!-- Slide 2 -->
-          <div class="carousel-slide">
+          <div class="tentangkami-slide">
             <div class="photo-card">
               <img src="{{ asset('assets/images/g4.jpg') }}" alt="Motor 4">
             </div>
@@ -1729,7 +1729,7 @@
                 <img src="{{ asset("assets/images/motor{$i}.jpg") }}" alt="Motor {{ $i }}">
                 <div class="motor-info">
                   <h5>Motor Sample {{ $i }}</h5>
-                  <p>Rp {{ number_format($motor->harga_per_hari, 0, ',', '.') }}/hari</p>
+                  <p>Mulai dari Rp {{ number_format(100000, 0, ',', '.') }}/hari</p>
                 </div>
               </div>
             @endfor

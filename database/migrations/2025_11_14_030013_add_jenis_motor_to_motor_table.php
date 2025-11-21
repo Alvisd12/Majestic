@@ -11,9 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('motor', function (Blueprint $table) {
-            $table->string('jenis_motor')->after('merk')->nullable();
-        });
+        // Kolom jenis_motor sudah ditambahkan dan diatur tipenya
+        // oleh migrasi lain (enum). Di sini kita pastikan tidak
+        // menambahkannya lagi agar tidak terjadi duplicate column.
+        if (!Schema::hasColumn('motor', 'jenis_motor')) {
+            Schema::table('motor', function (Blueprint $table) {
+                $table->string('jenis_motor')->after('merk')->nullable();
+            });
+        }
     }
 
     /**
@@ -21,8 +26,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('motor', function (Blueprint $table) {
-            $table->dropColumn('jenis_motor');
-        });
+        // Biarkan kolom jenis_motor tetap ada; tidak perlu di-drop di sini
+        // supaya tidak berbenturan dengan migrasi lain yang mengatur tipenya.
     }
 };

@@ -28,7 +28,11 @@ class Peminjaman extends Model
         'bukti_jaminan',
         'status',
         'tanggal_kembali',
-        'keterangan'
+        'keterangan',
+        'payment_method',
+        'payment_status',
+        'midtrans_order_id',
+        'midtrans_transaction_id'
     ];
 
     protected $casts = [

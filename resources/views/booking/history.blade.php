@@ -425,7 +425,7 @@
                                                                     <i class="fas fa-edit"></i>
                                                                 </a>
                                                             @endif
-                                                            @if(in_array($booking->status, ['Selesai']))
+                                                            @if(in_array($booking->status, ['Selesai', 'Dikonfirmasi']))
                                                                 <a href="{{ route('peminjaman.print', $booking->id) }}" class="btn-action btn-receipt" title="Cetak Struk">
                                                                     <i class="fas fa-receipt"></i>
                                                                 </a>

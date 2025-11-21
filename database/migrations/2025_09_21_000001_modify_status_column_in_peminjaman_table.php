@@ -16,9 +16,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::table('peminjaman', function (Blueprint $table) {
-            // Kembalikan ke enum jika rollback
-            $table->enum('status', ['Pending', 'Confirmed', 'Belum Kembali', 'Disewa', 'Selesai', 'Cancelled'])->default('Pending')->change();
-        });
+        // Dibiarkan sebagai string; tidak mengubah kembali ke enum untuk menghindari
+        // error data truncated pada nilai status yang sudah ada.
     }
 };
