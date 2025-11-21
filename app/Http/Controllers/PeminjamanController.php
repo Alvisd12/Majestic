@@ -23,8 +23,19 @@ class PeminjamanController extends Controller
         
         $query = Peminjaman::with('user'); // Load relasi user untuk mendapatkan nama
         
-        // Jika admin, tampilkan semua peminjaman
+        // Jika admin, sembunyikan pemesanan Midtrans yang belum dibayar dari daftar
+        // Hanya tampilkan Midtrans jika payment_status sudah paid
         if (AuthController::isAdmin()) {
+            $query->where(function($q) {
+                $q->whereNull('payment_method')
+                  ->orWhere('payment_method', '!=', 'midtrans')
+                  ->orWhere(function($q2) {
+                      $q2->where('payment_method', 'midtrans')
+                         ->where('payment_status', 'paid');
+                  });
+            });
+
+            // Jika admin, tampilkan semua peminjaman (dengan filter di atas)
             // Search functionality untuk admin
             if ($request->has('search') && $request->search) {
                 $search = $request->search;
@@ -462,7 +473,7 @@ class PeminjamanController extends Controller
                 'jenis_motor' => $motor->full_name, // Keep for backward compatibility
                 'durasi_sewa' => $validated['durasi_sewa'],
                 'total_harga' => $totalHarga,
-                'status' => 'Pending',
+                'status' => 'Belum Bayar',
             ];
 
             // Set bukti_jaminan ke foto_ktp user jika ada
@@ -509,7 +520,9 @@ class PeminjamanController extends Controller
 
             DB::commit();
 
-            return view('booking.payment', compact('peminjaman', 'snapToken'));
+            $expiresAt = $peminjaman->created_at->copy()->addHour();
+
+            return view('booking.payment', compact('peminjaman', 'snapToken', 'expiresAt'));
         } catch (\Exception $e) {
             DB::rollback();
 
@@ -525,6 +538,79 @@ class PeminjamanController extends Controller
     }
 
     /**
+     * Reopen payment page for an existing pending booking (within 1 hour).
+     */
+    public function payExisting($id)
+    {
+        AuthController::requireAuth();
+
+        $user = AuthController::getCurrentUser();
+        $peminjaman = Peminjaman::with('motor')->findOrFail($id);
+
+        if (!AuthController::isAdmin() && $peminjaman->user_id !== $user->id) {
+            abort(403, 'Anda tidak berhak mengakses pembayaran ini.');
+        }
+
+        // Hanya boleh bayar jika masih Belum Bayar dan menggunakan Midtrans
+        if ($peminjaman->status !== 'Belum Bayar' || $peminjaman->payment_method !== 'midtrans' || $peminjaman->payment_status !== 'pending') {
+            return redirect()->route('user.bookings')->with('error', 'Pesanan ini tidak dapat dibayar lagi.');
+        }
+
+        // Batasi waktu pembayaran 1 jam sejak pemesanan dibuat
+        $expiresAt = $peminjaman->created_at->copy()->addHour();
+        if (now()->greaterThanOrEqualTo($expiresAt)) {
+            $peminjaman->payment_status = 'failed';
+            if ($peminjaman->status === 'Belum Bayar') {
+                $peminjaman->status = 'Dibatalkan';
+            }
+            $peminjaman->save();
+
+            return redirect()->route('user.bookings')->with('error', 'Waktu pembayaran (1 jam) telah habis. Pesanan dibatalkan.');
+        }
+
+        $motor = $peminjaman->motor_id ? Motor::find($peminjaman->motor_id) : null;
+        if (!$motor) {
+            return redirect()->route('user.bookings')->with('error', 'Data motor untuk pesanan ini tidak ditemukan.');
+        }
+
+        // Generate order_id baru setiap kali membuka ulang pembayaran
+        // untuk menghindari error "transaction_details.order_id sudah digunakan" dari Midtrans.
+        $midtransOrderId = 'PMJ-' . $peminjaman->id . '-' . time();
+
+        $peminjaman->midtrans_order_id = $midtransOrderId;
+        $peminjaman->save();
+
+        MidtransConfig::$serverKey = config('midtrans.server_key');
+        MidtransConfig::$isProduction = (bool) config('midtrans.is_production');
+        MidtransConfig::$isSanitized = true;
+        MidtransConfig::$is3ds = true;
+
+        $params = [
+            'transaction_details' => [
+                'order_id' => $midtransOrderId,
+                'gross_amount' => (int) $peminjaman->total_harga,
+            ],
+            'customer_details' => [
+                'first_name' => $user->nama,
+                'email' => $user->email,
+                'phone' => $user->no_handphone,
+            ],
+            'item_details' => [
+                [
+                    'id' => 'MOTOR-' . $motor->id,
+                    'price' => (int) $motor->harga_per_hari,
+                    'quantity' => (int) $peminjaman->durasi_sewa,
+                    'name' => $motor->full_name,
+                ],
+            ],
+        ];
+
+        $snapToken = Snap::getSnapToken($params);
+
+        return view('booking.payment', compact('peminjaman', 'snapToken', 'expiresAt'));
+    }
+
+    /**
      * Show user's booking history
      */
     public function userBookings(Request $request)
@@ -535,6 +621,24 @@ class PeminjamanController extends Controller
 
         // Only show bookings for the logged-in user
         $query = Peminjaman::with('motor')->where('user_id', $user->id);
+
+        // Sembunyikan pemesanan Midtrans yang sudah melewati batas waktu bayar (1 jam) dan belum dibayar
+        $expiryThreshold = now()->subHour();
+
+        $query->where(function($q) use ($expiryThreshold) {
+            $q->whereNull('payment_method')
+              ->orWhere('payment_method', '!=', 'midtrans')
+              ->orWhere(function($q2) use ($expiryThreshold) {
+                  $q2->where('payment_method', 'midtrans')
+                     ->where(function($q3) use ($expiryThreshold) {
+                         $q3->where('payment_status', 'paid')
+                            ->orWhere(function($q4) use ($expiryThreshold) {
+                                $q4->where('payment_status', 'pending')
+                                   ->where('created_at', '>', $expiryThreshold);
+                            });
+                     });
+              });
+        });
 
         // Filter by status if provided
         if ($request->has('status') && $request->status) {

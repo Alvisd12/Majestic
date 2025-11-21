@@ -83,7 +83,7 @@
                         <span class="input-group-text">Rp</span>
                         <input type="number" class="form-control @error('harga_per_hari') is-invalid @enderror" 
                                id="harga_per_hari" name="harga_per_hari" value="{{ old('harga_per_hari', $motor->harga_per_hari) }}" 
-                               min="0" step="1000" required>
+                               min="0" step="1" required>
                     </div>
                     @error('harga_per_hari')
                         <div class="invalid-feedback">{{ $message }}</div>

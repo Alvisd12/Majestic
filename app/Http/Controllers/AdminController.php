@@ -51,6 +51,16 @@ class AdminController extends Controller
         }
         
         $query = Peminjaman::with('user'); // Load relasi user untuk mendapatkan nama
+
+        // Sembunyikan pemesanan Midtrans yang belum dibayar dari daftar admin
+        $query->where(function($q) {
+            $q->whereNull('payment_method')
+              ->orWhere('payment_method', '!=', 'midtrans')
+              ->orWhere(function($q2) {
+                  $q2->where('payment_method', 'midtrans')
+                     ->where('payment_status', 'paid');
+              });
+        });
         
         // Search functionality
         if ($request->has('search') && $request->search) {

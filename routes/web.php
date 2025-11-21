@@ -120,6 +120,7 @@ Route::middleware(['check.login', 'prevent.back'])->group(function () {
 
     // Motor booking route (from motor detail page)
     Route::post('/motor/{id}/book', [PeminjamanController::class, 'bookMotor'])->name('motor.book');
+    Route::get('/payments/booking/{id}', [PeminjamanController::class, 'payExisting'])->name('booking.pay');
     Route::get('/my-bookings', [PeminjamanController::class, 'userBookings'])->name('user.bookings');
     Route::get('/profile', [AuthController::class, 'showProfile'])->name('user.profile');
     Route::put('/profile', [AuthController::class, 'updateProfile'])->name('user.profile.update');

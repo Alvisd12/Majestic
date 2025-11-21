@@ -25,6 +25,11 @@
                         <i class="fas fa-wallet me-2"></i>Bayar Sekarang
                     </button>
 
+                    <p class="text-muted mt-3 mb-0"
+                       id="payment-countdown"
+                       data-expires-at="{{ isset($expiresAt) ? $expiresAt->getTimestamp() * 1000 : '' }}"
+                       style="font-size: 0.9rem;"></p>
+
                     <p class="text-muted mt-4 mb-0" style="font-size: 0.9rem;">
                         Jika popup pembayaran tidak muncul, klik tombol "Bayar Sekarang" di atas.
                     </p>
@@ -45,8 +50,57 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         var payButton = document.getElementById('pay-button');
+        var countdownEl = document.getElementById('payment-countdown');
+        var expiresAtMs = null;
+        if (countdownEl && countdownEl.dataset.expiresAt) {
+            var parsed = parseInt(countdownEl.dataset.expiresAt, 10);
+            if (!isNaN(parsed) && parsed > 0) {
+                expiresAtMs = parsed;
+            }
+        }
+
+        function disablePayment(reason) {
+            if (payButton) {
+                payButton.disabled = true;
+                payButton.classList.add('disabled');
+            }
+            if (countdownEl && reason) {
+                countdownEl.textContent = reason;
+            }
+        }
+
+        function updateCountdown() {
+            if (!expiresAtMs || !countdownEl) return;
+
+            var now = Date.now();
+            var diff = expiresAtMs - now;
+
+            if (diff <= 0) {
+                disablePayment('Waktu pembayaran 1 jam telah habis. Silakan buat pesanan baru.');
+                return;
+            }
+
+            var totalSeconds = Math.floor(diff / 1000);
+            var minutes = Math.floor(totalSeconds / 60);
+            var seconds = totalSeconds % 60;
+
+            var mm = minutes.toString().padStart(2, '0');
+            var ss = seconds.toString().padStart(2, '0');
+
+            countdownEl.textContent = 'Waktu tersisa untuk menyelesaikan pembayaran: ' + mm + ':' + ss;
+        }
+
+        if (expiresAtMs && countdownEl) {
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+        }
 
         function startPayment() {
+            if (expiresAtMs && Date.now() >= expiresAtMs) {
+                disablePayment('Waktu pembayaran 1 jam telah habis. Silakan buat pesanan baru.');
+                return;
+            }
+
             window.snap.pay("{{ $snapToken }}", {
                 onSuccess: function (result) {
                     window.location.href = "{{ route('midtrans.finish') }}?order_id={{ $peminjaman->midtrans_order_id }}";
@@ -69,7 +123,11 @@
         });
 
         // Auto trigger payment popup on page load
-        startPayment();
+        if (!expiresAtMs || Date.now() < expiresAtMs) {
+            startPayment();
+        } else {
+            disablePayment('Waktu pembayaran 1 jam telah habis. Silakan buat pesanan baru.');
+        }
     });
 </script>
 @endsection

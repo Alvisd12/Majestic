@@ -319,7 +319,7 @@
                                     <div class="col-md-4">
                                         <select class="status-filter form-select" name="status">
                                             <option value="">Semua Status</option>
-                                            <option value="Pending" {{ request('status') == 'Pending' ? 'selected' : '' }}>Pending</option>
+                                            <option value="Belum Bayar" {{ request('status') == 'Belum Bayar' ? 'selected' : '' }}>Belum Bayar</option>
                                             <option value="Confirmed" {{ request('status') == 'Confirmed' ? 'selected' : '' }}>Confirmed</option>
                                             <option value="Disewa" {{ request('status') == 'Disewa' ? 'selected' : '' }}>Disewa</option>
                                             <option value="Selesai" {{ request('status') == 'Selesai' ? 'selected' : '' }}>Selesai</option>
@@ -403,7 +403,8 @@
                                                     <td class="px-3 py-3">
                                                         @php
                                                             $statusConfig = match($booking->status) {
-                                                                'Pending' => ['class' => 'status-pending', 'text' => 'Pending'],
+                                                                'Belum Bayar' => ['class' => 'status-pending', 'text' => 'Belum Bayar'],
+                                                                'Pending' => ['class' => 'status-pending', 'text' => 'Pending'], // legacy
                                                                 'Confirmed' => ['class' => 'status-confirmed', 'text' => 'Confirmed'],
                                                                 'Disewa' => ['class' => 'status-disewa', 'text' => 'Disewa'],
                                                                 'Selesai' => ['class' => 'status-selesai', 'text' => 'Selesai'],
@@ -420,7 +421,11 @@
                                                             <a href="{{ route('peminjaman.show', $booking->id) }}" class="btn-action btn-view" title="Lihat Detail">
                                                                 <i class="fas fa-eye"></i>
                                                             </a>
-                                                            @if(in_array($booking->status, ['Pending', 'Confirmed']))
+                                                            @if($booking->status === 'Belum Bayar')
+                                                                <a href="{{ route('booking.pay', $booking->id) }}" class="btn-action btn-edit" title="Bayar">
+                                                                    <i class="fas fa-credit-card"></i>
+                                                                </a>
+                                                            @elseif($booking->status === 'Confirmed')
                                                                 <a href="{{ route('peminjaman.edit', $booking->id) }}" class="btn-action btn-edit" title="Edit">
                                                                     <i class="fas fa-edit"></i>
                                                                 </a>
@@ -430,7 +435,7 @@
                                                                     <i class="fas fa-receipt"></i>
                                                                 </a>
                                                             @endif
-                                                            @if(in_array($booking->status, ['Pending', 'Cancelled']))
+                                                            @if(in_array($booking->status, ['Belum Bayar', 'Pending', 'Cancelled']))
                                                                 <form action="{{ route('peminjaman.destroy', $booking->id) }}" 
                                                                       method="POST" class="d-inline"
                                                                       onsubmit="return confirm('Yakin ingin menghapus pesanan ini?')">
